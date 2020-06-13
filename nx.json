@@ -21,6 +21,9 @@
   "projects": {
     "interface": {
       "tags": []
+    },
+    "ui": {
+      "tags": []
     }
   }
 }
