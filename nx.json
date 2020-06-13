@@ -21,10 +21,6 @@
   "projects": {
     "interface": {
       "tags": []
-    },
-    "interface-e2e": {
-      "tags": [],
-      "implicitDependencies": ["interface"]
     }
   }
 }
