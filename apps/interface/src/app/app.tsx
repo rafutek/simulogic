@@ -2,9 +2,6 @@ import React from 'react';
 
 import './app.css';
 
-import { ReactComponent as Logo } from './logo.svg';
-import star from './star.svg';
-
 export const App = () => {
   /*
    * Replace the elements below with your own.
@@ -14,26 +11,11 @@ export const App = () => {
   return (
     <div className="app">
       <header className="flex">
-        <Logo width="75" height="75" />
         <h1>Welcome to interface!</h1>
       </header>
       <main>
         <h2>Resources &amp; Tools</h2>
         <p>Thank you for using and showing some ♥ for Nx.</p>
-        <div className="flex github-star-container">
-          <a
-            href="https://github.com/nrwl/nx"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {' '}
-            If you like Nx, please give it a star:
-            <div className="github-star-badge">
-              <img src={star} className="material-icons" alt="" />
-              Star
-            </div>
-          </a>
-        </div>
         <p>Here are some links to help you get started.</p>
         <ul className="resources">
           <li className="col-span-2">
