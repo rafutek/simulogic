@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "multer"],
     "emitDecoratorMetadata": true,
-    "target": "es2015"
+    "target": "es2015",
   },
   "include": ["**/*.ts"]
 }
