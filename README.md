@@ -13,6 +13,8 @@ Install nx globally with `yarn global add @nrwl/cli`.
 
 You also need to [install docker-compose](https://docs.docker.com/compose/install/) if not already done.
 
+You must build the java circuit creator to use the simulator, see README in `./simulator` for details.
+
 ## Development
 
 Run `docker-compose up` to create a mysql docker container (used by the server).
