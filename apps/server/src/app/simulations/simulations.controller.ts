@@ -84,10 +84,10 @@ export class SimulationsController {
           if (circuit.simulatorPath === '') {
             this.createAndSaveSimulator(circuit);
           }
+          this.executeAndSaveSimulation(circuit, simulation);
         } else {
           new BadRequestException(`circuit ${idCirc} not found`);
         }
-        this.executeAndSaveSimulation(circuit, simulation);
       }
     } else {
       new BadRequestException(`simulation ${idSimu} not found`);
