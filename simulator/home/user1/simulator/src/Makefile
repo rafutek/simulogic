@@ -8,7 +8,7 @@ CFLAGS = -c #$(FLAGS)
 LIBPATH = ../../../../common/lib
 BINPATH = ../bin
 
-# PROGRAM has to be set in command line
+# PROGRAM must be set in command line
 
 all: $(BINPATH)/$(PROGRAM)
 

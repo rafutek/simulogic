@@ -19,12 +19,12 @@ To do a simulation:
 
 **All the steps above are managed by scripts create_simulator.sh and simulate_save.sh stored in `./common/src`**
 
-### Dépendencies
+### Dependencies
 - Library [ANTLR4](https://www.antlr.org/)
-- JAVA environment
-- C++ compiler and make
+- JAVA environment (for javac and java commands)
+- make and g++
 
-### Install ANTLR4
+#### Install ANTLR4
 - go to `~/.local/lib`
 - run `curl -O https://www.antlr.org/download/antlr-4.7.2-complete.jar`
 - add `export CLASSPATH=".:$HOME/.local/lib/antlr-4.7.2-complete.jar:$CLASSPATH"` at the end of ~/.bashrc.

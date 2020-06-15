@@ -85,9 +85,6 @@ nx affected:dep-graph
 
 # run tests for current changes
 nx affected:test
-
-# run e2e tests for current changes
-nx affected:e2e
 `}</pre>
         </details>
       </main>

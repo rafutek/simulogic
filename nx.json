@@ -18,7 +18,6 @@
           "build",
           "lint",
           "test",
-          "e2e",
           "build-storybook"
         ]
       }
