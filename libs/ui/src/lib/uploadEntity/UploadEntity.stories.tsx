@@ -1,13 +1,10 @@
 import React from 'react';
-import axios from 'axios';
 import { UploadEntity, UploadEntityProps } from './UploadEntity';
 
 export default {
     title: 'Upload entity',
     component: UploadEntity,
 };
-
-axios.defaults.baseURL = 'http://localhost:3333';
 
 export const Circuit = () => {
     const props: UploadEntityProps = {

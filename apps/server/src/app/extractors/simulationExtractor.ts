@@ -1,15 +1,5 @@
 import * as fs from 'fs';
-
-export interface Wire {
-    name: string,
-    events: number[][]
-};
-
-export interface Simulation {
-    start: number,
-    end: number,
-    wires: Wire[]
-};
+import { Simulation, Wire } from '@simulogic/ui'
 
 export class SimulationExtractor {
 
@@ -23,7 +13,7 @@ export class SimulationExtractor {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
         const events = file_content.match(/EVENT (.*)/g);
-        
+
         const simulation: Simulation = {
             start: parseInt(start),
             end: parseInt(end),
