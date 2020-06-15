@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { UploadEntity } from './UploadEntity';
+import { UploadEntity, UploadEntityProps } from './UploadEntity';
 
 export default {
     title: 'Upload entity',
@@ -9,10 +9,18 @@ export default {
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
-const onUpload = (value: boolean) => {
-    console.log("uploaded file")
+export const Circuit = () => {
+    const props: UploadEntityProps = {
+        entity: "circuit",
+        onUpload: () => { console.log("uploaded circuit") }
+    }
+    return <UploadEntity {...props} />
 }
 
-export const Circuit = () => <UploadEntity entity="circuit" onUpload={onUpload} />
-
-export const Simulation = () => <UploadEntity entity="simulation" onUpload={onUpload} />
+export const Simulation = () => {
+    const props: UploadEntityProps = {
+        entity: "simulation",
+        onUpload: () => { console.log("uploaded simulation") }
+    }
+    return <UploadEntity {...props} />
+}
