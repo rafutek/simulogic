@@ -21,7 +21,7 @@
 #include "Gate.h"
 #include "Timeline.h"
 #include "Bloc.h"
-#include "Circuit.h"
+#include "createCircuit.h"
 #include "Event.h"
 #include "LogicElement.h"
 

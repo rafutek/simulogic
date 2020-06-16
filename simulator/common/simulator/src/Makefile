@@ -4,16 +4,16 @@ WARN = -Wall
 DEBUG = -g
 FLAGS = #$(WARN) $(DEBUG)
 CFLAGS = -c #$(FLAGS)
+LIBPATH=../lib
+LIBNAME=simulib.a
 
-PROGRAM = simulation
+all: create_lib clean
 
-all: simulib.a
+create_lib: main.o Bloc.o EqNode.o Event.o Gate.o LogicElement.o Sequential.o SimulationCtx.o Timeline.o TriState.o Wire.o
+	ar r $(LIBPATH)/$(LIBNAME) $^
+	ranlib $(LIBPATH)/$(LIBNAME)
 
-simulib.a: main.o Bloc.o EqNode.o Event.o Gate.o LogicElement.o Sequential.o SimulationCtx.o Timeline.o TriState.o Wire.o
-	ar r $@ $^
-	ranlib $@
-
-main.o: main.cpp Wire.h Gate.h Event.h EqNode.h Circuit.h Sequential.h Timeline.h SimulationCtx.h
+main.o: main.cpp Wire.h Gate.h Event.h EqNode.h createCircuit.h Sequential.h Timeline.h SimulationCtx.h
 	$(CXX) $(CFLAGS) $<
 
 Bloc.o: Bloc.cpp Bloc.h
@@ -50,4 +50,4 @@ clean:
 	$(RM) *.o
 
 deepclean: clean
-	$(RM) simulib.a
+	$(RM) $(LIBPATH)/$(LIBNAME)

@@ -1,12 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include "Circuit.h"
-#include"Gate.h"
-#include"Bloc.h"
-#include "Wire.h"
-#include "Sequential.h"
-#include "Timeline.h"
-
+#include "../../../../common/simulator/src/Gate.h"
+#include "../../../../common/simulator/src/Bloc.h"
+#include "../../../../common/simulator/src/Wire.h"
+#include "../../../../common/simulator/src/Sequential.h"
+#include "../../../../common/simulator/src/Timeline.h"
 using namespace std;
 
 LatchedAdder::LatchedAdder(vector<Gate*>* gateMapAddr, Timeline* timelineAddr, vector<Wire*> inputBloc, vector<Wire*> outputBloc, Bloc* containedBy, string name)
@@ -313,8 +312,7 @@ Gate* circuit = new Gate{inputCircuit,outputCircuit,delay,circuitEq, nullptr,"Xo
 return circuit ;
 
 gateMapAddr->push_back(circuit);}
-else{
-std::cout << "Le Bloc demandé n'est pas définis";
+
+cout << "Le Bloc demandé n'est pas définis" << endl;
 return nullptr;
-}
 }

@@ -12,6 +12,34 @@ public class LogicToCpp {
 		CircuitData circuitData;
 		FileWriter circuitCpp; // File to write Cpp circuit description
 		FileWriter circuith;
+		String commonHeadersPath = "../../../../common/simulator/src/"; // Path from user src simulator to the common
+																		// headers
+
+		private String includesCpp() {
+			String global = String.format("#include <iostream>%n#include <fstream>%n");
+			String local = String.format(include("Circuit.h", commonHeadersPath + "Gate.h",
+					commonHeadersPath + "Bloc.h", commonHeadersPath + "Wire.h", commonHeadersPath + "Sequential.h",
+					commonHeadersPath + "Timeline.h"));
+			String namespace = String.format("using namespace std;%n%n");
+			return global + local + namespace;
+		}
+
+		private String include(String... files) {
+			String includes = "";
+			for (String file : files) {
+				includes += "#include \"" + file + "\"%n";
+			}
+			return includes;
+		}
+
+		private String includesHeader() {
+			String ifndef = String.format("#ifndef SIMULATION_CIRCUIT_H%n#define SIMULATION_CIRCUIT_H%n%n");
+			String global = String.format("#include <iostream>%n#include <string>%n#include <vector>%n");
+			String local = String.format(include(commonHeadersPath + "Wire.h", commonHeadersPath + "EqNode.h",
+					commonHeadersPath + "Gate.h", commonHeadersPath + "Timeline.h", commonHeadersPath + "Bloc.h",
+					commonHeadersPath + "LogicElement.h", commonHeadersPath + "TriState.h"));
+			return ifndef + global + local;
+		}
 
 		public String visitCircuit(logicParser.CircuitContext ctx) {
 
@@ -30,8 +58,7 @@ public class LogicToCpp {
 				System.out.println("Deuxième visite");
 				try {
 					System.out.println("Ecriture!");
-					circuitCpp.write(String.format(
-							"#include <iostream>%n#include <fstream>%n#include \"Circuit.h\"%n#include\"Gate.h\"%n#include\"Bloc.h\"%n#include \"Wire.h\"%n#include \"Sequential.h\"%n#include \"Timeline.h\"%n%nusing namespace std;%n%n"));
+					circuitCpp.write(includesCpp());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -56,8 +83,7 @@ public class LogicToCpp {
 
 				// Write .h file
 				try {
-					circuith.write(String.format(
-							"#ifndef SIMULATION_CIRCUIT_H%n#define SIMULATION_CIRCUIT_H%n%n#include <iostream>%n#include <string>%n#include \"vector\"%n#include \"Wire.h\"%n#include \"EqNode.h\"%n#include \"Gate.h\"%n#include \"Timeline.h\"%n#include \"Bloc.h\"%n#include \"LogicElement.h\"%n #include \"TriState.h\"%n%n"));
+					circuith.write(includesHeader());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -228,7 +254,7 @@ public class LogicToCpp {
 
 				try {
 					circuitCpp.write(String.format(
-							"else{%nstd::cout << \"Le Bloc demandé n'est pas définis\";%nreturn nullptr;%n}%n}%n"));
+							"%ncout << \"Le Bloc demandé n'est pas définis\" << endl;%nreturn nullptr;%n}"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -714,14 +740,14 @@ public class LogicToCpp {
 			circuitData = new CircuitData();
 			// Create .h file
 			try {
-				circuith = new FileWriter("../../../../home/"+user+"/simulator/src/Circuit.h");
+				circuith = new FileWriter("../../../home/" + user + "/simulator/src/Circuit.h");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 			// Create .cpp file
 			try {
-				circuitCpp = new FileWriter("../../../../home/"+user+"/simulator/src/Circuit.cpp");
+				circuitCpp = new FileWriter("../../../home/" + user + "/simulator/src/Circuit.cpp");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

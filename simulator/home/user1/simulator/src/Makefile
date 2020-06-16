@@ -5,20 +5,19 @@ DEBUG = -g
 FLAGS = #$(WARN) $(DEBUG)
 CFLAGS = -c #$(FLAGS)
 
-LIBPATH = ../../../../common/lib
+COMMONPATH = ../../../../common/simulator
+LIBPATH = $(COMMONPATH)/lib
+SRCPATH = $(COMMONPATH)/src
 BINPATH = ../bin
 
-# PROGRAM must be set in command line
+# PROGRAM must be set in command line!
 
-all: $(BINPATH)/$(PROGRAM)
+all: compile clean
 
-$(BINPATH)/$(PROGRAM): main.o Circuit.o
-	$(CXX) -o $@ $(FLAGS) $^ $(LIBPATH)/simulib.a 
+compile: Circuit.o
+	$(CXX) -o $(BINPATH)/$(PROGRAM) $(FLAGS) $^ $(LIBPATH)/simulib.a 
 
-main.o: main.cpp Wire.h Gate.h Event.h EqNode.h Circuit.h Sequential.h Timeline.h SimulationCtx.h
-	$(CXX) -o $@ $(CFLAGS) $<
-
-Circuit.o: Circuit.cpp Circuit.h Gate.h Bloc.h Wire.h Sequential.h Timeline.h
+Circuit.o: Circuit.cpp Circuit.h $(SRCPATH)/Gate.h $(SRCPATH)/Bloc.h $(SRCPATH)/Wire.h $(SRCPATH)/Sequential.h $(SRCPATH)/Timeline.h
 	$(CXX) -o $@ $(CFLAGS) $<
 
 clean:

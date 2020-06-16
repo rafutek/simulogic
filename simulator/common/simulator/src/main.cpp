@@ -12,7 +12,7 @@
 #include "Gate.h"
 #include "Event.h"
 #include "EqNode.h"
-#include "Circuit.h"
+#include "createCircuit.h"
 #include "Sequential.h"
 #include "Timeline.h"
 #include "SimulationCtx.h"

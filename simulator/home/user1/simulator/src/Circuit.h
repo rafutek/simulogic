@@ -3,15 +3,14 @@
 
 #include <iostream>
 #include <string>
-#include "vector"
-#include "Wire.h"
-#include "EqNode.h"
-#include "Gate.h"
-#include "Timeline.h"
-#include "Bloc.h"
-#include "LogicElement.h"
- #include "TriState.h"
-
+#include <vector>
+#include "../../../../common/simulator/src/Wire.h"
+#include "../../../../common/simulator/src/EqNode.h"
+#include "../../../../common/simulator/src/Gate.h"
+#include "../../../../common/simulator/src/Timeline.h"
+#include "../../../../common/simulator/src/Bloc.h"
+#include "../../../../common/simulator/src/LogicElement.h"
+#include "../../../../common/simulator/src/TriState.h"
 class LatchedAdder : public Bloc {
 public:
 LatchedAdder(std::vector<Gate*>* gateMapAddr, Timeline* timelineAddr, std::vector<Wire*> inputBloc, std::vector<Wire*> outputBloc, Bloc* containedBy,

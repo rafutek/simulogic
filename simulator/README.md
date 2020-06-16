@@ -4,7 +4,7 @@ This logic circuit simulator has a java part used to generate circuit C++ code f
 And a second part, in C++, used to generate the circuit simulator. This executable will take a simulation file (.simu) as parameter.
 
 So first you must compile the java code:
-- go to `./common/src/circuitCreator/src`
+- go to `./common/circuitCreator/src`
 - run `javac src/*.java -d bin`
 
 Then you can generate the user's circuit's C++ code:
@@ -17,7 +17,7 @@ To do a simulation:
 - go to `bin` where the executable is stored
 - run `./executable-name path/to/simulation/file.simu`
 
-**All the steps above are managed by scripts create_simulator.sh and simulate_save.sh stored in `./common/src`**
+**All the steps above are managed by create_simulator.sh and simulate_save.sh that you can find in `./common/scripts`**
 
 ### Dependencies
 - Library [ANTLR4](https://www.antlr.org/)
