@@ -39,10 +39,12 @@ export class CircuitsController {
   async remove(@Param('id') id: string): Promise<void> {
     const circuit = await this.circuitsService.findOne(id);
     if (circuit) {
-      if (circuit.simulatorPath != '') {
+      if (circuit.simulatorPath != '' && fs.existsSync(circuit.simulatorPath)) {
         fs.unlinkSync(circuit.simulatorPath);
       }
-      fs.unlinkSync(circuit.path);
+      if (fs.existsSync(circuit.path)) {
+        fs.unlinkSync(circuit.path);
+      }
     }
     return this.circuitsService.remove(id);
   }

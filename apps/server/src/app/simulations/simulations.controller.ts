@@ -44,7 +44,7 @@ export class SimulationsController {
 
   createAndSaveSimulator(circuit: Circuit) {
     const circuit_filename = circuit.path.split('/').pop();
-    execSync(`cd simulator/common/src && ./create_simulator.sh user1 ${circuit_filename}`);
+    execSync(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`);
     const simulatorPath = `simulator/home/user1/simulator/bin/${circuit_filename}`;
     if (fs.existsSync(simulatorPath)) {
       circuit.simulatorPath = simulatorPath;
@@ -57,7 +57,7 @@ export class SimulationsController {
   executeAndSaveSimulation(circuit: Circuit, simulation: Simulation) {
     const circuit_filename = circuit.path.split('/').pop();
     const simulation_filename = simulation.path.split('/').pop();
-    execSync(`cd simulator/common/src && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);
+    execSync(`cd simulator/common/scripts && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);
     const resultPath = `simulator/home/user1/simulator/out/${simulation_filename}`;
     if (fs.existsSync(resultPath)) {
       simulation.resultPath = resultPath;
@@ -106,10 +106,12 @@ export class SimulationsController {
   async remove(@Param('id') id: string): Promise<void> {
     const simulation = await this.simulationsService.findOne(id);
     if (simulation) {
-      if (simulation.resultPath != '') {
+      if (simulation.resultPath != '' && fs.existsSync(simulation.resultPath)) {
         fs.unlinkSync(simulation.resultPath);
       }
-      fs.unlinkSync(simulation.path);
+      if (fs.existsSync(simulation.path)) {
+        fs.unlinkSync(simulation.path);
+      }
     }
     return this.simulationsService.remove(id);
   }
