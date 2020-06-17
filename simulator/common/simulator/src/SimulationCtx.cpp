@@ -230,6 +230,8 @@ void SimulationCtx::initializeFromFile(std::string inputFilePath)
             }
             else if (parsedLine[0] == "CLOCK")
             {
+                cout << line << endl; // print clock line
+
                 // 1st element of clock definition is the name of the wire, 2nd the time o first rise, 3rd the period
                 // and 4th the duty cycle (in percentage)
                 Wire *wire = getWireByName(parsedLine[1]);
