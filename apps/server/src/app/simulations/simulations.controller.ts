@@ -89,6 +89,9 @@ export class SimulationsController {
           new BadRequestException(`circuit ${idCirc} not found`);
         }
       }
+      if (fs.existsSync(simulation.resultPath)) {
+        return this.simulationExtractor.extractFile(simulation.resultPath);
+      }
     } else {
       new BadRequestException(`simulation ${idSimu} not found`);
     }
