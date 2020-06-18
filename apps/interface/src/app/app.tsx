@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { SelectGetAndDisplaySimu } from '@simulogic/ui'
 
-axios.defaults.baseURL = 'http://localhost:3333'; // server url
+axios.defaults.baseURL = 'http://server.localhost'; // server url
 
 export const App = () => {
   return (

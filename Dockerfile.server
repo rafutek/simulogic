@@ -1,0 +1,23 @@
+FROM simulogic-env as nest-build
+
+WORKDIR /app
+
+COPY . .
+
+RUN yarn build server
+
+# Stage 2 - the production environment
+FROM node:12
+WORKDIR /app
+
+
+COPY package*.json ./
+
+RUN yarn install
+
+COPY . .
+
+
+COPY --from=nest-build /app/dist/apps/server ./dist
+EXPOSE 80
+CMD ["node", "dist/main"]
