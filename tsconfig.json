@@ -16,7 +16,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@simulogic/ui": ["libs/ui/src/index.ts"]
+      "@simulogic/ui": ["libs/ui/src/index.ts"],
+      "@simulogic/core": ["libs/core/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

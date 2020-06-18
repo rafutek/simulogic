@@ -14,12 +14,7 @@
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
       "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "build-storybook"
-        ]
+        "cacheableOperations": ["build", "lint", "test", "build-storybook"]
       }
     }
   },
@@ -31,6 +26,9 @@
       "tags": []
     },
     "server": {
+      "tags": []
+    },
+    "core": {
       "tags": []
     }
   }

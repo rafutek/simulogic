@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import axios from 'axios';
-import { entity, Simulation } from '../core'
+import { entity, Simulation } from '@simulogic/core'
 
 export interface GetEntityProps {
     entity: entity,

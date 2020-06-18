@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SelectAndGetEntity } from '../selectAndGetEntity/SelectAndGetEntity';
-import { Simulation } from '../core';
+import { Simulation } from '@simulogic/core';
 import { SimulationDisplay } from '../simulationDisplay/SimulationDisplay';
 
 export function SelectGetAndDisplaySimu() {

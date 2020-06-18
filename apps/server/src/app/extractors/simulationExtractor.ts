@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Simulation, Wire } from '@simulogic/ui'
+import { Simulation, Wire } from '@simulogic/core'
 
 export class SimulationExtractor {
 

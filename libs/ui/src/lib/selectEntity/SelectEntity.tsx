@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { List, ListItem, Dialog } from '@material-ui/core';
-import { entity, Entity } from '../core'
+import { entity, Entity } from '@simulogic/core'
 
 export interface SelectEntityProps {
     entity: entity;

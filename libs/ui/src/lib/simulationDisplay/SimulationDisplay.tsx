@@ -1,6 +1,6 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
-import { Series, Simulation } from '../core';
+import { Series, Simulation } from '@simulogic/core';
 
 export interface SimulationDisplayProps {
     simulation: Simulation

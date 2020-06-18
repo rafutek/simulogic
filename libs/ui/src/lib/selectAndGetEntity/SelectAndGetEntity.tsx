@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SelectEntity } from '../selectEntity/SelectEntity';
 import { GetEntity } from '../getEntity/GetEntity';
-import { entity, Entity, Simulation } from '../core'
+import { entity, Entity, Simulation } from '@simulogic/core'
 
 export interface SelectAndGetEntityProps {
     entity: entity,

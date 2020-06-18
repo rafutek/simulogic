@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Entity, Simulation } from '../core'
+import { Entity, Simulation } from '@simulogic/core'
 import { SelectEntity } from '../selectEntity/SelectEntity';
 import axios from 'axios';
 import { SimulationDisplay } from '../simulationDisplay/SimulationDisplay';
