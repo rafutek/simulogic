@@ -1,23 +1,12 @@
-FROM simulogic-env as nest-build
+FROM simulogic-env
 
+# # Build server
 WORKDIR /app
-
 COPY . .
 
-RUN yarn build server
+# RUN yarn build server
 
-# Stage 2 - the production environment
-FROM node:12
-WORKDIR /app
-
-
-COPY package*.json ./
-
-RUN yarn install
-
-COPY . .
-
-
-COPY --from=nest-build /app/dist/apps/server ./dist
+# Deploy server
+CMD ["node", "dist/apps/server/main"]
 EXPOSE 80
-CMD ["node", "dist/main"]
+# CMD echo "$CLASSPATH" # antlr jar present and classpath ok but still doesnt find org..antlr when LogicToCpp executed

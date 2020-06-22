@@ -11,4 +11,26 @@
   <body>
     <div id="root"></div>
   </body>
+  <header>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.6.3/skins/default.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/2.6.3/wavedrom.min.js" type="text/javascript"></script>
+   </header>
+   <body onload="WaveDrom.ProcessAll()">
+   
+   <h2>WaveDrom Example</h2>
+   
+   WaveDrom timing diagrams can be embedded into the web pages, blogs, wiki pages:
+   <p/>
+   <script type="WaveDrom">
+   { signal : [
+     { name: "clk",  wave: "p......" },
+     { name: "bus",  wave: "x.34.5x",   data: "head body tail" },
+     { name: "wire", wave: "0.1..0." },
+   ]}
+   </script>
+   <p/>
+   Yes, right in the middle of your page.
+   
+   </body>
+     
 </html>

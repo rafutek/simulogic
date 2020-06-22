@@ -44,6 +44,11 @@ export class SimulationsController {
 
   createAndSaveSimulator(circuit: Circuit) {
     const circuit_filename = circuit.path.split('/').pop();
+    // exec(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`, (err, out, std) => { // for testing
+    //   console.log(err);
+    //   console.log(out);
+    //   console.log(std);
+    // });
     execSync(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`);
     const simulatorPath = `simulator/home/user1/simulator/bin/${circuit_filename}`;
     if (fs.existsSync(simulatorPath)) {
