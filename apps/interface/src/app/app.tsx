@@ -6,7 +6,6 @@ axios.defaults.baseURL = 'http://localhost:8080'; // server url
 
 export const App = () => {
   
-  const WaveDrom = window["WaveDrom"];
   const [show, setShow] = useState(false);
 
   const onClick = () => {
@@ -14,17 +13,10 @@ export const App = () => {
   }
 
   const UpButton = () => {
-    console.log()
     return <button onClick={onClick}>
       click me
     </button>
   }
-
-  useEffect(() => {
-    if (show) {
-      WaveDrom.ProcessAll();
-    }
-  }, [show]);
 
   return (
     <div>
