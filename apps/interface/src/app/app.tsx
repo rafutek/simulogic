@@ -5,18 +5,27 @@ import { TimeDiagramTest } from '@simulogic/ui'
 axios.defaults.baseURL = 'http://localhost:8080'; // server url
 
 export const App = () => {
-
-  const [show, setShow] = useState(true);
+  
+  const WaveDrom = window["WaveDrom"];
+  const [show, setShow] = useState(false);
 
   const onClick = () => {
     setShow(!show);
   }
+
   const UpButton = () => {
+    console.log()
     return <button onClick={onClick}>
       click me
     </button>
   }
-  
+
+  useEffect(() => {
+    if (show) {
+      WaveDrom.ProcessAll();
+    }
+  }, [show]);
+
   return (
     <div>
       <h1>Welcome to interface!</h1>
