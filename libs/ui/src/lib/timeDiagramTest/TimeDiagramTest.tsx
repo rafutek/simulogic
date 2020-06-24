@@ -20,7 +20,13 @@ export const TimeDiagramTest = () => {
             { name: "clk", wave: "p....x.." },
             { name: "bus", wave: "x.34.5xx", data: "head body tail" },
             { name: "wire", wave: "0.1..0.." },
-        ]
+            { name: "time", node: "123456789" },
+            { name: "tme", wave: "=========", data: "1 2 3 4" },
+        ],
+        foot: {
+            text: 'Figure 100',
+            tick: 1
+        }
     };
 
     useEffect(() => {

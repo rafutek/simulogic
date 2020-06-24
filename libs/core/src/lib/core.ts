@@ -23,3 +23,8 @@ export interface Series {
     name: string,
     data: number[][]
 }
+
+export interface Signal {
+    name: string,
+    waves: string
+}

@@ -4,9 +4,11 @@ FROM simulogic-env
 WORKDIR /app
 COPY . .
 
-# RUN yarn build server
+RUN yarn build server
 
 # Deploy server
 CMD ["node", "dist/apps/server/main"]
-EXPOSE 80
-# CMD echo "$CLASSPATH" # antlr jar present and classpath ok but still doesnt find org..antlr when LogicToCpp executed
+EXPOSE 8080
+RUN ls /app/
+RUN echo "$CLASSPATH" 
+# antlr jar present and classpath ok but still doesnt find org..antlr when LogicToCpp executed
