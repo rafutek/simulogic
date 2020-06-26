@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import axios from 'axios';
-import { entity, Simulation } from '@simulogic/core'
+import { entity, WaveDrom } from '@simulogic/core'
 
 export interface GetEntityProps {
     entity: entity,
     id: number,
-    setReceivedEntity: (entity: Simulation | undefined) => void
+    setReceivedEntity: (entity: WaveDrom | undefined) => void
 }
 
 export const GetEntity = (props: GetEntityProps) => {
 
-    const [data, setData] = useState<Simulation | undefined>();
+    const [data, setData] = useState<WaveDrom | undefined>();
 
     const getEntity = () => {
         axios.get(`/${props.entity}s/${props.id}`)

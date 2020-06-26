@@ -32,7 +32,7 @@ export interface Event {
 
 export interface Signal {
     name: string,
-    waves: string
+    wave: string
 }
 
 export interface WaveDrom {

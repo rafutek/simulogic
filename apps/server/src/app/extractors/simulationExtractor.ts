@@ -44,7 +44,7 @@ export class SimulationExtractor {
             if (add_new_signal) {
                 const new_signal: Signal = {
                     name: event.wire_name,
-                    waves: 'x'
+                    wave: 'x'
                 };
                 wavedrom.signal.push(new_signal);
             }
@@ -57,10 +57,10 @@ export class SimulationExtractor {
         events.forEach(event => {
             wavedrom.signal.forEach(signal => {
                 if (signal.name == event.wire_name) {
-                    signal.waves += this.valueToWave(event.value);
+                    signal.wave += this.valueToWave(event.value);
                 }
                 else {
-                    signal.waves += '.';
+                    signal.wave += '.';
                 }
             })
         })

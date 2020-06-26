@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { SelectEntity } from '../selectEntity/SelectEntity';
 import { GetEntity } from '../getEntity/GetEntity';
-import { entity, Entity, Simulation } from '@simulogic/core'
+import { entity, Entity, WaveDrom } from '@simulogic/core'
 
 export interface SelectAndGetEntityProps {
     entity: entity,
-    setReceivedEntity: (entity: Simulation | undefined) => void
+    setReceivedEntity: (entity: WaveDrom | undefined) => void
 }
 
 export function SelectAndGetEntity(props: SelectAndGetEntityProps) {

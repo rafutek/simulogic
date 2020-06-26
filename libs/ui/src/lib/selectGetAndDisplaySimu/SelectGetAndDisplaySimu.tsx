@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { SelectAndGetEntity } from '../selectAndGetEntity/SelectAndGetEntity';
-import { Simulation } from '@simulogic/core';
-import { SimulationDisplay } from '../simulationDisplay/SimulationDisplay';
+import { Simulation, WaveDrom } from '@simulogic/core';
+import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 
 export function SelectGetAndDisplaySimu() {
 
-    const [simulation, setSimulation] = useState<Simulation>();
+    const [simulation, setSimulation] = useState<WaveDrom>();
 
     return (
         <div>
             <SelectAndGetEntity entity="simulation" setReceivedEntity={setSimulation} />
-            {simulation ? <SimulationDisplay simulation={simulation} /> : null}
+            {simulation ? <TimeDiagram data={simulation} /> : null}
         </div>
     )
 }
