@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Simulation, Wire } from '@simulogic/core'
+import { Simulation, Wire, Event, WaveDrom, Signal } from '@simulogic/core'
 
 export class SimulationExtractor {
 
@@ -8,12 +8,77 @@ export class SimulationExtractor {
         return this.extract(content);
     }
 
-
     extract(file_content: string) {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
         const events = file_content.match(/EVENT (.*)/g);
+        const extracted_events = this.extractEvents(events);
+        return this.createWavedrom(start, end, extracted_events);
+    }
 
+    extractEvents(events: string[]): Event[] {
+        const extracted_events: Event[] = [];
+        events.forEach((event) => {
+            const parsed_event = event.replace('EVENT ', '').split(' ');
+            const extracted_event: Event = {
+                wire_name: parsed_event[0],
+                value: parsed_event[1],
+                time: parseInt(parsed_event[2])
+            }
+            extracted_events.push(extracted_event);
+        })
+        return extracted_events;
+    }
+
+    private initWavedrom(events: Event[]): WaveDrom {
+        const wavedrom: WaveDrom = {
+            signal: []
+        };
+        events.forEach(event => {
+            let add_new_signal = true;
+            wavedrom.signal.forEach(signal => {
+                if (signal.name == event.wire_name) {
+                    add_new_signal = false;
+                }
+            })
+            if (add_new_signal) {
+                const new_signal: Signal = {
+                    name: event.wire_name,
+                    waves: 'x'
+                };
+                wavedrom.signal.push(new_signal);
+            }
+        })
+        return wavedrom;
+    }
+
+    createWavedrom(start: string, end: string, events: Event[]): WaveDrom {
+        const wavedrom = this.initWavedrom(events);
+        events.forEach(event => {
+            wavedrom.signal.forEach(signal => {
+                if (signal.name == event.wire_name) {
+                    signal.waves += this.valueToWave(event.value);
+                }
+                else {
+                    signal.waves += '.';
+                }
+            })
+        })
+        return wavedrom;
+    }
+
+    private valueToWave(value: string){
+        switch (value) {
+            case 'T':
+                return '1';
+            case 'F':
+                return '0';
+            default:
+                return 'x';
+        }
+    }
+
+    createSimulation(start: string, end: string, events: string[]) {
         const simulation: Simulation = {
             start: parseInt(start),
             end: parseInt(end),
@@ -28,6 +93,7 @@ export class SimulationExtractor {
             const time = parseInt(parsed_event[2]);
             simulation.wires = this.createWireOrAddEvent(simulation.wires, wire_name, time, state);
         })
+
         return simulation;
     }
 

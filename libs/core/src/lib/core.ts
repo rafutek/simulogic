@@ -24,7 +24,17 @@ export interface Series {
     data: number[][]
 }
 
+export interface Event {
+    wire_name: string,
+    value: string,
+    time: number
+}
+
 export interface Signal {
     name: string,
     waves: string
+}
+
+export interface WaveDrom {
+    signal: Signal[]
 }

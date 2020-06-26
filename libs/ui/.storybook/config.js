@@ -4,4 +4,4 @@ import axios from 'axios';
 
 addDecorator(withKnobs);
 configure(require.context('../src/lib', true, /\.stories\.(j|t)sx?$/), module);
-axios.defaults.baseURL = 'http://server.localhost'; // server address
+axios.defaults.baseURL = 'http://localhost:8080'; // server address
