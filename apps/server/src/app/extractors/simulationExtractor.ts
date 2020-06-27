@@ -30,9 +30,12 @@ export class SimulationExtractor {
         return extracted_events;
     }
 
-    private initWavedrom(events: Event[]): WaveDrom {
+    private initWavedrom(start: string, events: Event[]): WaveDrom {
         const wavedrom: WaveDrom = {
-            signal: []
+            signal: [],
+            foot: {
+                tick: start + ' '
+            }
         };
         events.forEach(event => {
             let add_new_signal = true;
@@ -53,7 +56,7 @@ export class SimulationExtractor {
     }
 
     createWavedrom(start: string, end: string, events: Event[]): WaveDrom {
-        const wavedrom = this.initWavedrom(events);
+        const wavedrom = this.initWavedrom(start, events);
         events.forEach(event => {
             wavedrom.signal.forEach(signal => {
                 if (signal.name == event.wire_name) {
@@ -63,11 +66,14 @@ export class SimulationExtractor {
                     signal.wave += '.';
                 }
             })
+            if (!wavedrom.foot.tick.includes(` ${event.time} `)) {
+                wavedrom.foot.tick += event.time + ' ';
+            }
         })
         return wavedrom;
     }
 
-    private valueToWave(value: string){
+    private valueToWave(value: string) {
         switch (value) {
             case 'T':
                 return '1';
