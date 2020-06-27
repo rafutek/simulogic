@@ -30,6 +30,16 @@ export interface Event {
     time: number
 }
 
+export interface WireState {
+    name: string,
+    state: string
+}
+
+export interface Timestep {
+    time: number,
+    wires: WireState[]
+}
+
 export interface Signal {
     name: string,
     wave: string

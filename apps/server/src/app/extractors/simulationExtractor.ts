@@ -1,5 +1,9 @@
 import * as fs from 'fs';
-import { Simulation, Wire, Event, WaveDrom, Signal } from '@simulogic/core'
+import {
+    Simulation, Wire, Event,
+    WaveDrom, Signal,
+    Timestep, WireState
+} from '@simulogic/core'
 
 export class SimulationExtractor {
 
@@ -12,68 +16,90 @@ export class SimulationExtractor {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
         const events = file_content.match(/EVENT (.*)/g);
-        const extracted_events = this.extractEvents(events);
-        return this.createWavedrom(start, end, extracted_events);
+        const timeline = this.extractTimeline(events);
+        const wavedrom = this.createWaveDrom(start, end, timeline);
+        return wavedrom;
     }
 
-    extractEvents(events: string[]): Event[] {
-        const extracted_events: Event[] = [];
+    extractTimeline(events: string[]): Timestep[] {
+        const timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
-            const extracted_event: Event = {
-                wire_name: parsed_event[0],
-                value: parsed_event[1],
-                time: parseInt(parsed_event[2])
+            const wire_state: WireState = {
+                name: parsed_event[0],
+                state: parsed_event[1],
             }
-            extracted_events.push(extracted_event);
+            const event_time = parseInt(parsed_event[2]);
+
+            let add_new_timestep = true;
+            timeline.forEach(timestep => {
+                if (timestep.time == event_time) {
+                    add_new_timestep = false;
+                    timestep.wires.push(wire_state);
+                }
+            })
+            if (add_new_timestep) {
+                const new_timestep: Timestep = {
+                    time: event_time,
+                    wires: [wire_state]
+                }
+                timeline.push(new_timestep);
+            }
         })
-        return extracted_events;
+        return timeline;
     }
 
-    private initWavedrom(start: string, events: Event[]): WaveDrom {
-        const wavedrom: WaveDrom = {
+    createWaveDrom(start: string, end: string, timeline: Timestep[]) {
+        let wavedrom = this.initWaveDrom(parseInt(start), timeline);
+        wavedrom = this.fillWaveDrom(wavedrom, timeline);
+        wavedrom = this.endWaveDrom(wavedrom,parseInt(end));
+        console.log(wavedrom)
+        return wavedrom;
+    }
+
+    initWaveDrom(start: number, timeline: Timestep[]) {
+        let wavedrom: WaveDrom = {
             signal: [],
             foot: {
-                tick: start + ' '
+                tick: start + " "
             }
         };
-        events.forEach(event => {
+        timeline.forEach(timestep => {
+            wavedrom.foot.tick += timestep.time + " ";
             let add_new_signal = true;
-            wavedrom.signal.forEach(signal => {
-                if (signal.name == event.wire_name) {
-                    add_new_signal = false;
+            timestep.wires.forEach(wire => {
+                wavedrom.signal.forEach(signal => {
+                    if (signal.name == wire.name) {
+                        add_new_signal = false;
+                    }
+                })
+                if (add_new_signal) {
+                    const new_signal: Signal = {
+                        name: wire.name,
+                        wave: ".".repeat(timeline.length)
+                    };
+                    wavedrom.signal.push(new_signal);
                 }
             })
-            if (add_new_signal) {
-                const new_signal: Signal = {
-                    name: event.wire_name,
-                    wave: 'x'
-                };
-                wavedrom.signal.push(new_signal);
-            }
         })
         return wavedrom;
     }
 
-    createWavedrom(start: string, end: string, events: Event[]): WaveDrom {
-        const wavedrom = this.initWavedrom(start, events);
-        events.forEach(event => {
-            wavedrom.signal.forEach(signal => {
-                if (signal.name == event.wire_name) {
-                    signal.wave += this.valueToWave(event.value);
-                }
-                else {
-                    signal.wave += '.';
-                }
+    private fillWaveDrom(wavedrom: WaveDrom, timeline: Timestep[]) {
+        timeline.forEach((timestep, t) => {
+            timestep.wires.forEach(wire_state => {
+                wavedrom.signal.forEach(signal => {
+                    if (signal.name == wire_state.name) {
+                        const new_wave = signal.wave.substring(0, t) + this.stateToWave(wire_state.state) + signal.wave.substring(t + 1);
+                        signal.wave = new_wave;
+                    }
+                })
             })
-            if (!wavedrom.foot.tick.includes(` ${event.time} `)) {
-                wavedrom.foot.tick += event.time + ' ';
-            }
         })
         return wavedrom;
     }
 
-    private valueToWave(value: string) {
+    private stateToWave(value: string) {
         switch (value) {
             case 'T':
                 return '1';
@@ -82,6 +108,14 @@ export class SimulationExtractor {
             default:
                 return 'x';
         }
+    }
+
+    private endWaveDrom(wavedrom: WaveDrom, end: number) {
+        wavedrom.foot.tick += end + " ";
+        wavedrom.signal.forEach(signal => {
+            signal.wave = "x"+signal.wave;
+        })
+        return wavedrom;
     }
 
     createSimulation(start: string, end: string, events: string[]) {
