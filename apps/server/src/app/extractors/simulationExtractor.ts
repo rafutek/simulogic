@@ -25,7 +25,7 @@ export class SimulationExtractor {
         const timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
-            const wire_state: WireState = {
+            const wire: WireState = {
                 name: parsed_event[0],
                 state: parsed_event[1],
             }
@@ -35,13 +35,13 @@ export class SimulationExtractor {
             timeline.forEach(timestep => {
                 if (timestep.time == event_time) {
                     add_new_timestep = false;
-                    timestep.wires.push(wire_state);
+                    timestep.wires.push(wire);
                 }
             })
             if (add_new_timestep) {
                 const new_timestep: Timestep = {
                     time: event_time,
-                    wires: [wire_state]
+                    wires: [wire]
                 }
                 timeline.push(new_timestep);
             }
@@ -89,13 +89,13 @@ export class SimulationExtractor {
 
     private initSignals(wavedrom: WaveDrom, time_axis: number[], timeline: Timestep[]) {
         timeline.forEach(timestep => {
-            let add_new_signal = true;
             timestep.wires.forEach(wire => {
+                let add_new_signal = true;
                 wavedrom.signal.forEach(signal => {
                     if (signal.name == wire.name) {
                         add_new_signal = false;
                     }
-                })
+                })              
                 if (add_new_signal) {
                     const new_signal: Signal = {
                         name: wire.name,
@@ -141,61 +141,5 @@ export class SimulationExtractor {
             signal.wave = `x${signal.wave}x`;
         })
         return wavedrom;
-    }
-
-    createSimulation(start: string, end: string, events: string[]) {
-        const simulation: Simulation = {
-            start: parseInt(start),
-            end: parseInt(end),
-            wires: []
-        }
-
-        // Fill simulation wires array
-        events.forEach((event) => {
-            const parsed_event = event.replace('EVENT ', '').split(' ');
-            const wire_name = parsed_event[0];
-            const state = this.stateToNumber(parsed_event[1]);
-            const time = parseInt(parsed_event[2]);
-            simulation.wires = this.createWireOrAddEvent(simulation.wires, wire_name, time, state);
-        })
-
-        return simulation;
-    }
-
-    private stateToNumber(state: string): number {
-        switch (state) {
-            case "T":
-                return 1;
-            case "F":
-                return 0;
-            default:
-                return -1;
-        }
-    }
-
-    /**
-     * Creates a wire with a single event or add the event to the existing wire
-     * and returns the updated wires array
-     * @param wires array containing all the wires
-     * @param wire_name name of the existing or new wire
-     * @param time_event time of the event to add
-     * @param state_event state of the event to add
-     */
-    private createWireOrAddEvent(wires: Wire[], wire_name: string,
-        time_event: number, state_event: number) {
-        let added_wire_event = false;
-        wires.forEach((wire) => {
-            if (wire.name == wire_name) {
-                wire.events.push([time_event, state_event]); // add event to existent wire
-                added_wire_event = true;
-            }
-        })
-        if (!added_wire_event) { // wire not present so creation
-            wires.push({
-                name: wire_name,
-                events: [[time_event, state_event]]
-            })
-        }
-        return wires;
     }
 }
