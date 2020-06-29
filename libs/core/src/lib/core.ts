@@ -47,7 +47,7 @@ export interface Signal {
 
 export interface WaveDrom {
     signal: Signal[],
-    foot?: {
+    foot: {
         tick: string
     }
 }
