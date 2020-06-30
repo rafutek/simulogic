@@ -148,7 +148,7 @@ export class SimulationExtractor {
 
     async extractIntervalFile(file_path: string, from: number, to: number) {
         let timeline = await this.createIntervalTimeline(file_path, from, to);
-        console.log(timeline);
+        console.log(timeline[0]);
     }
 
     /**
@@ -164,30 +164,59 @@ export class SimulationExtractor {
         });
         let timeline: Timestep[] = [];
         return new Promise(resolve => {
+            let pre_timestep: Timestep = {
+                time: -1,
+                wires: []
+            };
             rl.on('line', (line: string) => {
                 if (line.includes("EVENT")) {
-                    const time = parseInt(line.match(/ (\S*)$/)[1]);
-                    if (time >= from && time <= to) {
-                        const split_line = line.replace("EVENT ", "").split(" ");
-                        const event: Event = {
-                            wire: split_line[0],
-                            value: split_line[1],
-                            time: time
-                        };
+                    const splited_line = line.replace("EVENT ", "").split(" ");
+                    const event: Event = {
+                        wire: splited_line[0],
+                        state: splited_line[1],
+                        time: parseInt(splited_line[2])
+                    };
+                    // Save wire values in a timestep right before the interval
+                    // so the wavedrom lines will start with good values
+                    if (event.time > pre_timestep.time && event.time < from) {
+                        pre_timestep = this.changeTimestep(pre_timestep, event);
+                    }
+                    // Save all events occuring inside the interval in a timeline
+                    else if (event.time >= from && event.time <= to) {
                         timeline = this.createOrFillTimestep(timeline, event);
                     }
                 }
             });
             rl.on('close', () => {
+                timeline.unshift(pre_timestep);
                 resolve(timeline);
             });
         });
     }
 
+    changeTimestep(timestep: Timestep, event: Event) {
+        timestep.time = event.time;
+        const new_wire: WireState = {
+            name: event.wire,
+            state: event.state
+        }
+        let add_new_wire = true;
+        timestep.wires.forEach(wire => {
+            if (wire.name == new_wire.name) {
+                add_new_wire = false;
+                wire.state = new_wire.state;
+            }
+        })
+        if(add_new_wire){
+            timestep.wires.push(new_wire);
+        }
+        return timestep;
+    }
+
     private createOrFillTimestep(timeline: Timestep[], event: Event) {
         const new_wire: WireState = {
             name: event.wire,
-            state: this.stateToWave(event.value)
+            state: this.stateToWave(event.state)
         };
         let add_new_timestep = true;
         timeline.forEach(timestep => {
