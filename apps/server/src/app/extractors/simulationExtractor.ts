@@ -1,8 +1,8 @@
 import * as fs from 'fs';
+import * as readline from 'readline';
 import {
-    Simulation, Wire, Event,
     WaveDrom, Signal,
-    Timestep, WireState
+    Timestep, WireState, Event
 } from '@simulogic/core'
 
 export class SimulationExtractor {
@@ -12,7 +12,7 @@ export class SimulationExtractor {
         return this.extract(content);
     }
 
-    extract(file_content: string) {
+    private extract(file_content: string) {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
         const events = file_content.match(/EVENT (.*)/g);
@@ -21,7 +21,7 @@ export class SimulationExtractor {
         return wavedrom;
     }
 
-    extractTimeline(events: string[]): Timestep[] {
+    private extractTimeline(events: string[]): Timestep[] {
         const timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
@@ -49,14 +49,14 @@ export class SimulationExtractor {
         return timeline;
     }
 
-    createWaveDrom(start: string, end: string, timeline: Timestep[]) {
+    private createWaveDrom(start: string, end: string, timeline: Timestep[]) {
         let wavedrom = this.initWaveDrom(parseInt(start), parseInt(end), timeline);
         wavedrom = this.fillWaveDrom(wavedrom, timeline);
         wavedrom = this.finalizeWaveDrom(wavedrom);
         return wavedrom;
     }
 
-    initWaveDrom(start: number, end: number, timeline: Timestep[]) {
+    private initWaveDrom(start: number, end: number, timeline: Timestep[]) {
         const time_axis = this.createTimeAxis(start, end, timeline);
         let wavedrom: WaveDrom = {
             signal: [],
@@ -76,7 +76,7 @@ export class SimulationExtractor {
         })
         let i = 0;
         while (i < time_axis.length) {
-            if (time_axis[i] <= start) {
+            if (time_axis[i] <= start || time_axis[i] >= end) {
                 time_axis.splice(i, 1);
             } else {
                 i++;
@@ -95,7 +95,7 @@ export class SimulationExtractor {
                     if (signal.name == wire.name) {
                         add_new_signal = false;
                     }
-                })              
+                })
                 if (add_new_signal) {
                     const new_signal: Signal = {
                         name: wire.name,
@@ -112,15 +112,18 @@ export class SimulationExtractor {
         const time_axis = wavedrom.foot.tick.split(' ');
         timeline.forEach((timestep) => {
             const t = time_axis.indexOf(String(timestep.time));
-            timestep.wires.forEach(wire => {
-                wavedrom.signal.forEach(signal => {
-                    if (signal.name == wire.name) {
-                        const new_wave = signal.wave.substring(0, t) + this.stateToWave(wire.state) + signal.wave.substring(t + 1);
-                        signal.wave = new_wave;
-                    }
+            if (t >= 0) {
+                timestep.wires.forEach(wire => {
+                    wavedrom.signal.forEach(signal => {
+                        if (signal.name == wire.name) {
+                            const new_wave = signal.wave.substring(0, t) + this.stateToWave(wire.state) + signal.wave.substring(t + 1);
+                            signal.wave = new_wave;
+                        }
+                    })
                 })
-            })
+            }
         })
+        console.log(wavedrom)
         return wavedrom;
     }
 
@@ -141,5 +144,65 @@ export class SimulationExtractor {
             signal.wave = `x${signal.wave}x`;
         })
         return wavedrom;
+    }
+
+    async extractIntervalFile(file_path: string, from: number, to: number) {
+        let timeline = await this.createIntervalTimeline(file_path, from, to);
+        console.log(timeline);
+    }
+
+    /**
+     * Reads the simulation file line by line and returns a promise timeline of events
+     * belonging to the wanted time interval.
+     * @param file_path path of the simulation file
+     * @param from start of the interval
+     * @param to end of the interval
+     */
+    private createIntervalTimeline(file_path: string, from: number, to: number): Promise<Timestep[]> {
+        const rl = readline.createInterface({
+            input: fs.createReadStream(file_path)
+        });
+        let timeline: Timestep[] = [];
+        return new Promise(resolve => {
+            rl.on('line', (line: string) => {
+                if (line.includes("EVENT")) {
+                    const time = parseInt(line.match(/ (\S*)$/)[1]);
+                    if (time >= from && time <= to) {
+                        const split_line = line.replace("EVENT ", "").split(" ");
+                        const event: Event = {
+                            wire: split_line[0],
+                            value: split_line[1],
+                            time: time
+                        };
+                        timeline = this.createOrFillTimestep(timeline, event);
+                    }
+                }
+            });
+            rl.on('close', () => {
+                resolve(timeline);
+            });
+        });
+    }
+
+    private createOrFillTimestep(timeline: Timestep[], event: Event) {
+        const new_wire: WireState = {
+            name: event.wire,
+            state: this.stateToWave(event.value)
+        };
+        let add_new_timestep = true;
+        timeline.forEach(timestep => {
+            if (timestep.time == event.time) {
+                add_new_timestep = false;
+                timestep.wires.push(new_wire);
+            }
+        })
+        if (add_new_timestep) {
+            const new_timestep: Timestep = {
+                time: event.time,
+                wires: [new_wire]
+            };
+            timeline.push(new_timestep);
+        }
+        return timeline;
     }
 }

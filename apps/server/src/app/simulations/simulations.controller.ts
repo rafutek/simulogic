@@ -110,6 +110,15 @@ export class SimulationsController {
     }
   }
 
+  @Get(':id/:from/:to')
+  async findOneInterval(@Param() params) {
+    const simulation = await this.simulationsService.findOne(params.id);
+    if (simulation) {
+      return this.simulationExtractor
+        .extractIntervalFile(simulation.path, params.from, params.to);
+    }
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     const simulation = await this.simulationsService.findOne(id);

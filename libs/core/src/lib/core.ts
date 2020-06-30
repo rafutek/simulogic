@@ -25,7 +25,7 @@ export interface Series {
 }
 
 export interface Event {
-    wire_name: string,
+    wire: string,
     value: string,
     time: number
 }
