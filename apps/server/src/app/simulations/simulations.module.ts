@@ -5,11 +5,11 @@ import { SimulationsController } from './simulations.controller';
 import { SimulationsService } from './simulations.service';
 import { CircuitsService } from '../circuits/circuits.service';
 import { Circuit } from '../circuits/circuit.entity';
-import { SimulationExtractor } from '../extractors/simulationExtractor';
+import { ExtractorsService } from '../extractors/extractors.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Simulation]), TypeOrmModule.forFeature([Circuit])],
-  providers: [SimulationsService, CircuitsService, SimulationExtractor],
+  providers: [SimulationsService, CircuitsService, ExtractorsService],
   controllers: [SimulationsController],
 })
 export class SimulationsModule {}

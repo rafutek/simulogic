@@ -11,7 +11,7 @@ import { validate } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
 import { execSync } from 'child_process';
 import { Circuit } from '../circuits/circuit.entity';
-import { SimulationExtractor } from '../extractors/simulationExtractor';
+import { ExtractorsService } from '../extractors/extractors.service';
 import "multer";
 
 @Controller('simulations')
@@ -19,7 +19,7 @@ export class SimulationsController {
   constructor(
     private readonly simulationsService: SimulationsService,
     private readonly circuitsService: CircuitsService,
-    private readonly simulationExtractor: SimulationExtractor
+    private readonly simulationExtractor: ExtractorsService
   ) { }
 
   @Post()

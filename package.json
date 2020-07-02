@@ -21,7 +21,8 @@
     "update": "nx migrate latest",
     "workspace-schematic": "nx workspace-schematic",
     "dep-graph": "nx dep-graph",
-    "help": "nx help"
+    "help": "nx help",
+    "doc:server": "compodoc apps/server/src -p apps/server/tsconfig.json --theme readthedocs -d apps/server/doc -s"
   },
   "private": true,
   "dependencies": {
@@ -48,6 +49,7 @@
     "@babel/preset-env": "7.9.6",
     "@babel/preset-react": "7.9.4",
     "@babel/preset-typescript": "7.9.0",
+    "@compodoc/compodoc": "^1.1.11",
     "@nestjs/schematics": "^6.7.0",
     "@nestjs/testing": "^6.8.3",
     "@nestjs/typeorm": "^7.1.0",

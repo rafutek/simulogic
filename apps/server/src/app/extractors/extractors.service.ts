@@ -5,7 +5,7 @@ import {
     Timestep, WireState, Event
 } from '@simulogic/core'
 
-export class SimulationExtractor {
+export class ExtractorsService {
 
     extractFile(file_path: string) {
         const content = fs.readFileSync(file_path, 'utf8');

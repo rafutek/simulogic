@@ -1,11 +1,11 @@
-import { SimulationExtractor } from './simulationExtractor'
+import { ExtractorsService } from './extractors.service'
 import { Timestep, Event, WireState } from '@simulogic/core';
 
 describe('SimulationExtractor', () => {
-  let extractor: SimulationExtractor;
+  let extractor: ExtractorsService;
 
   beforeEach(() => {
-    extractor = new SimulationExtractor();
+    extractor = new ExtractorsService();
   });
 
   describe('changeTimestep', () => {
