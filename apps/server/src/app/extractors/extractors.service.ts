@@ -203,6 +203,14 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
+    manageIntervalStart(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
+        if (!interval_wavedrom.foot.tick.startsWith(from + " ")) {
+            interval_wavedrom.foot.tick = from + " " + interval_wavedrom.foot.tick;
+            interval_wavedrom.signal.map(signal => signal.wave = "." + signal.wave);
+        }
+        return interval_wavedrom;
+    }
+
     getPrecedentValue(t: number, wave: string) {
         const precedent_value = wave[t - 1];
         if (precedent_value == '.') {

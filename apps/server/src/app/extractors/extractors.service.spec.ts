@@ -125,5 +125,26 @@ describe('SimulationExtractor', () => {
         expect(interval_wavedrom.signal[1].wave).toEqual(interval_wave_s2);
       })
     });
+
+    describe('manageIntervalStart', () => {
+
+      it("should prepend interval start value at tick and point at each wave", () => {
+        // Given a filled wavedrom with the start interval value not included
+        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        const from = 90, to = 250;
+        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
+
+        // When managind the interval start
+        interval_wavedrom = extractor.manageIntervalStart(interval_wavedrom, wavedrom, from);
+
+        // Then the start interval value (90 here) must be at the beginning of tick
+        // and all the waves must start with a point
+        expect(interval_wavedrom.foot.tick.startsWith(from + ' ')).toBeTruthy();
+        const waves_start_with_point = interval_wavedrom.signal.every(signal => {
+          return signal.wave[0] == '.'
+        });
+        expect(waves_start_with_point).toBeTruthy();
+      })
+    });
   });
 });
