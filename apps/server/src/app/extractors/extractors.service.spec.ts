@@ -1,5 +1,5 @@
 import { ExtractorsService } from './extractors.service'
-import { Timestep, Event, WireState } from '@simulogic/core';
+import { Timestep, Event, Wire } from '@simulogic/core';
 
 describe('SimulationExtractor', () => {
   let extractor: ExtractorsService;
@@ -18,11 +18,11 @@ describe('SimulationExtractor', () => {
       time: 10,
       state: 'T'
     };
-    const expected_wire: WireState = {
+    const expected_wire: Wire = {
       name: event.wire,
       state: event.state
     }
-    function isExpectedWire(wire: WireState) {
+    function isExpectedWire(wire: Wire) {
       return wire.name == expected_wire.name && wire.state == expected_wire.state;
     }
 
@@ -41,7 +41,7 @@ describe('SimulationExtractor', () => {
       const new_timestep = extractor.changeTimestep(timestep, event);
 
       // Then the timestep should contain the expected wire
-      function isSameWire(wire: WireState) {
+      function isSameWire(wire: Wire) {
         return wire.name == expected_wire.name && wire.state == expected_wire.state;
       }
       const added_wire = new_timestep.wires.find(isSameWire);
@@ -50,7 +50,7 @@ describe('SimulationExtractor', () => {
 
     it('should modify wire present in the timestep', () => {
       // Given a timestep containing a wire with another value
-      const wire_to_add: WireState = {
+      const wire_to_add: Wire = {
         name: expected_wire.name,
         state: "x"
       };

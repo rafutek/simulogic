@@ -5,49 +5,45 @@ export interface Entity {
     name: string;
 };
 
-export interface Wire {
-    name: string,
-    events: number[][]
-};
-
-export interface Simulation {
-    start: number,
-    end: number,
-    wires: Wire[]
-};
-
-/**
- * Interface for apexChart series
- */
-export interface Series {
-    name: string,
-    data: number[][]
-}
-
 export interface Event {
     wire: string,
     state: string,
     time: number
 }
 
-export interface WireState {
+export interface Wire {
     name: string,
     state: string
 }
 
 export interface Timestep {
     time: number,
-    wires: WireState[]
+    wires: Wire[]
 }
 
+/**
+ * Interface for WaveDrom signals.
+ */
 export interface Signal {
     name: string,
     wave: string
 }
 
+/**
+ * Interface for WaveDrom time diagram.
+ */
 export interface WaveDrom {
     signal: Signal[],
     foot: {
         tick: string
     }
+}
+
+/**
+ * Interface to associate a WaveDrom to
+ * its simulation.
+ */
+export interface ExtractedSimulation {
+    id: string,
+    wavedrom: WaveDrom
 }

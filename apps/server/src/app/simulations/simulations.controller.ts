@@ -95,7 +95,7 @@ export class SimulationsController {
         }
       }
       if (fs.existsSync(simulation.resultPath)) {
-        return this.simulationExtractor.extractFile(simulation.resultPath);
+        return this.simulationExtractor.getWaveDrom(idSimu, simulation.resultPath);
       }
     } else {
       new BadRequestException(`simulation ${idSimu} not found`);
@@ -106,7 +106,7 @@ export class SimulationsController {
   async findOne(@Param('id') id: string) {
     const simulation = await this.simulationsService.findOne(id);
     if (simulation) {
-      return this.simulationExtractor.extractFile(simulation.path);
+      return this.simulationExtractor.getWaveDrom(id, simulation.path);
     }
   }
 

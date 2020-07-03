@@ -1,11 +1,24 @@
 import * as fs from 'fs';
 import * as readline from 'readline';
 import {
-    WaveDrom, Signal,
-    Timestep, WireState, Event
+    ExtractedSimulation, WaveDrom, Signal,
+    Timestep, Wire, Event
 } from '@simulogic/core'
 
 export class ExtractorsService {
+
+    extractedSimulation: ExtractedSimulation;
+
+    getWaveDrom(id: string, file_path: string) {
+        if (!this.extractedSimulation || this.extractedSimulation.id != id) {
+            console.log("extract")
+            this.extractedSimulation = {
+                id: id,
+                wavedrom: this.extractFile(file_path)
+            };
+        }
+        return this.extractedSimulation.wavedrom;
+    }
 
     extractFile(file_path: string) {
         const content = fs.readFileSync(file_path, 'utf8');
@@ -25,7 +38,7 @@ export class ExtractorsService {
         const timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
-            const wire: WireState = {
+            const wire: Wire = {
                 name: parsed_event[0],
                 state: parsed_event[1],
             }
@@ -123,7 +136,6 @@ export class ExtractorsService {
                 })
             }
         })
-        console.log(wavedrom)
         return wavedrom;
     }
 
@@ -196,7 +208,7 @@ export class ExtractorsService {
 
     changeTimestep(timestep: Timestep, event: Event) {
         timestep.time = event.time;
-        const new_wire: WireState = {
+        const new_wire: Wire = {
             name: event.wire,
             state: event.state
         }
@@ -207,14 +219,14 @@ export class ExtractorsService {
                 wire.state = new_wire.state;
             }
         })
-        if(add_new_wire){
+        if (add_new_wire) {
             timestep.wires.push(new_wire);
         }
         return timestep;
     }
 
     private createOrFillTimestep(timeline: Timestep[], event: Event) {
-        const new_wire: WireState = {
+        const new_wire: Wire = {
             name: event.wire,
             state: this.stateToWave(event.state)
         };
