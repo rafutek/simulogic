@@ -9,6 +9,11 @@ export class ExtractorsService {
 
     extractedSimulation: ExtractedSimulation;
 
+    getWaveDromInterval(id: string, file_path: string, from: number, to: number) {
+        const wavedrom = this.getWaveDrom(id, file_path);
+        const interval_wavedrom = this.extractWaveDromInterval(wavedrom, from, to);
+    }
+
     getWaveDrom(id: string, file_path: string) {
         if (!this.extractedSimulation || this.extractedSimulation.id != id) {
             console.log("extract")
@@ -158,92 +163,51 @@ export class ExtractorsService {
         return wavedrom;
     }
 
-    async extractIntervalFile(file_path: string, from: number, to: number) {
-        let timeline = await this.createIntervalTimeline(file_path, from, to);
-        console.log(timeline[0]);
-    }
-
-    /**
-     * Reads the simulation file line by line and returns a promise timeline of events
-     * belonging to the wanted time interval.
-     * @param file_path path of the simulation file
-     * @param from start of the interval
-     * @param to end of the interval
-     */
-    private createIntervalTimeline(file_path: string, from: number, to: number): Promise<Timestep[]> {
-        const rl = readline.createInterface({
-            input: fs.createReadStream(file_path)
-        });
-        let timeline: Timestep[] = [];
-        return new Promise(resolve => {
-            let pre_timestep: Timestep = {
-                time: -1,
-                wires: []
-            };
-            rl.on('line', (line: string) => {
-                if (line.includes("EVENT")) {
-                    const splited_line = line.replace("EVENT ", "").split(" ");
-                    const event: Event = {
-                        wire: splited_line[0],
-                        state: splited_line[1],
-                        time: parseInt(splited_line[2])
-                    };
-                    // Save wire values in a timestep right before the interval
-                    // so the wavedrom lines will start with good values
-                    if (event.time > pre_timestep.time && event.time < from) {
-                        pre_timestep = this.changeTimestep(pre_timestep, event);
-                    }
-                    // Save all events occuring inside the interval in a timeline
-                    else if (event.time >= from && event.time <= to) {
-                        timeline = this.createOrFillTimestep(timeline, event);
-                    }
-                }
-            });
-            rl.on('close', () => {
-                timeline.unshift(pre_timestep);
-                resolve(timeline);
-            });
-        });
-    }
-
-    changeTimestep(timestep: Timestep, event: Event) {
-        timestep.time = event.time;
-        const new_wire: Wire = {
-            name: event.wire,
-            state: event.state
+    private extractWaveDromInterval(wavedrom: WaveDrom, from: number, to: number) {
+        if (wavedrom) {
+            console.log(wavedrom)
+            let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
+            interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
+            console.log(interval_wavedrom)
         }
-        let add_new_wire = true;
-        timestep.wires.forEach(wire => {
-            if (wire.name == new_wire.name) {
-                add_new_wire = false;
-                wire.state = new_wire.state;
+        else throw new Error("wavedrom is undefined");
+    }
+
+    initIntervalWaveDrom(wavedrom: WaveDrom) {
+        const interval_wavedrom: WaveDrom = {
+            signal: [],
+            foot: {
+                tick: ""
             }
-        })
-        if (add_new_wire) {
-            timestep.wires.push(new_wire);
-        }
-        return timestep;
-    }
-
-    private createOrFillTimestep(timeline: Timestep[], event: Event) {
-        const new_wire: Wire = {
-            name: event.wire,
-            state: this.stateToWave(event.state)
         };
-        let add_new_timestep = true;
-        timeline.forEach(timestep => {
-            if (timestep.time == event.time) {
-                add_new_timestep = false;
-                timestep.wires.push(new_wire);
+        wavedrom.signal.forEach(signal => {
+            const new_signal: Signal = {
+                name: signal.name,
+                wave: ""
+            };
+            interval_wavedrom.signal.push(new_signal);
+        })
+        return interval_wavedrom;
+    }
+
+    fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number, to: number) {
+        const time_axis = wavedrom.foot.tick.split(' ').map(str_time => parseInt(str_time));
+        time_axis.forEach((t, t_index) => {
+            if (t >= from && t <= to) {
+                interval_wavedrom.foot.tick += `${t} `;
+                interval_wavedrom.signal.map((s, s_index) => {
+                    s.wave += wavedrom.signal[s_index].wave[t_index];
+                })
             }
         })
-        if (add_new_timestep) {
-            const new_timestep: Timestep = {
-                time: event.time,
-                wires: [new_wire]
-            };
-            timeline.push(new_timestep);
-        }
-        return timeline;
+        return interval_wavedrom;
     }
+
+    getPrecedentValue(t: number, wave: string) {
+        const precedent_value = wave[t - 1];
+        if (precedent_value == '.') {
+            return this.getPrecedentValue(t - 1, wave);
+        } else return precedent_value;
+    }
+
 }

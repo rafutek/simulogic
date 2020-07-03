@@ -1,5 +1,5 @@
 import { ExtractorsService } from './extractors.service'
-import { Timestep, Event, Wire } from '@simulogic/core';
+import { WaveDrom, Signal } from '@simulogic/core';
 
 describe('SimulationExtractor', () => {
   let extractor: ExtractorsService;
@@ -8,60 +8,67 @@ describe('SimulationExtractor', () => {
     extractor = new ExtractorsService();
   });
 
-  describe('changeTimestep', () => {
-    const timestep: Timestep = {
-      time: 0,
-      wires: []
-    };
-    const event: Event = {
-      wire: 'first wire',
-      time: 10,
-      state: 'T'
-    };
-    const expected_wire: Wire = {
-      name: event.wire,
-      state: event.state
-    }
-    function isExpectedWire(wire: Wire) {
-      return wire.name == expected_wire.name && wire.state == expected_wire.state;
-    }
+  describe('getPrecedentValue', () => {
 
-    it('should change the timestep time', () => {
-      // Given a timestep with a time value
-      // When giving an event with another time value
-      const new_timestep = extractor.changeTimestep(timestep, event);
+    it("should return the precedent meaningfull value", () => {
+      // Given a wave and a time value
+      const wave = "x01....x";
+      const t = 5;
 
-      // Then the new timestep time should be the given event time
-      expect(new_timestep.time).toEqual(event.time);
-    });
+      // When getting the precedent meaningfull value
+      const precedent_value = extractor.getPrecedentValue(t, wave);
 
-    it('should add the new wire to the timestep', () => {
-      // Given a timestep without wires
-      // When adding an event as a wire
-      const new_timestep = extractor.changeTimestep(timestep, event);
+      // Then the precedent value should have this value
+      const expected_precedent_value = '1';
+      expect(precedent_value).toEqual(expected_precedent_value);
+    })
 
-      // Then the timestep should contain the expected wire
-      function isSameWire(wire: Wire) {
-        return wire.name == expected_wire.name && wire.state == expected_wire.state;
+    it("should return an undefined value", () => {
+      // Given a time value and a wave not containing precedent value before this time
+      const wave = ".......x";
+      const t = 5;
+
+      // When getting the precedent meaningfull value
+      const precedent_value = extractor.getPrecedentValue(t, wave);
+
+      // Then the precedent value should be undefined
+      const expected_precedent_value = undefined;
+      expect(precedent_value).toEqual(expected_precedent_value);
+    })
+  });
+
+  describe('fillIntervalWaveDrom', () => {
+
+    it("should return the right interval wavedrom", () => {
+      // Given a wavedrom with two signals
+      // and an initialized interval wavedrom
+      const wavedrom: WaveDrom = {
+        signal: [],
+        foot: {
+          tick: "x 0 100 200 350 x "
+        }
       }
-      const added_wire = new_timestep.wires.find(isSameWire);
-      expect(added_wire).toBeDefined();
-    });
-
-    it('should modify wire present in the timestep', () => {
-      // Given a timestep containing a wire with another value
-      const wire_to_add: Wire = {
-        name: expected_wire.name,
-        state: "x"
+      const s1: Signal = {
+        name: "s1",
+        wave: "x0.1.x"
       };
-      timestep.wires.push(wire_to_add);
+      const s2: Signal = {
+        name: "s2",
+        wave: "x.1.0x"
+      };
+      wavedrom.signal.push(s1, s2);
+      let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
 
-      // When modifying the wire with its new value
-      const new_timestep = extractor.changeTimestep(timestep, event);
+      // When filling the interval wavedrom
+      const from = 90, to = 250;
+      interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
 
-      // Then the timestep should contain the modified wire
-      const modified_wire = new_timestep.wires.find(isExpectedWire);
-      expect(modified_wire).toBeDefined();
-    });
+      // Then the interval wavedrom must contain these values
+      const tick = "100 200 ";
+      const interval_wave_s1 = ".1", interval_wave_s2 = "1.";
+      expect(interval_wavedrom.foot.tick).toEqual(tick);
+      expect(interval_wavedrom.signal[0].wave).toEqual(interval_wave_s1);
+      expect(interval_wavedrom.signal[1].wave).toEqual(interval_wave_s2);
+    })
   });
 });

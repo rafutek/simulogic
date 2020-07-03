@@ -115,7 +115,7 @@ export class SimulationsController {
     const simulation = await this.simulationsService.findOne(params.id);
     if (simulation) {
       return this.simulationExtractor
-        .extractIntervalFile(simulation.path, params.from, params.to);
+        .getWaveDromInterval(params.id, simulation.path, params.from, params.to);
     }
   }
 
