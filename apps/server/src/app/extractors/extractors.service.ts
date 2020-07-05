@@ -203,7 +203,7 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
-    manageIntervalStart(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
+    prependStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
         if (!interval_wavedrom.foot.tick.startsWith(from + " ")) {
             interval_wavedrom.foot.tick = from + " " + interval_wavedrom.foot.tick;
             interval_wavedrom.signal.map(signal => signal.wave = "." + signal.wave);
@@ -211,7 +211,38 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
-    getPrecedentValue(t: number, wave: string) {
+    replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number){
+        const wavedrom_start_idx = this.getWaveDromIndexStart(wavedrom.foot.tick, from);
+        interval_wavedrom.signal.forEach((s, idx) => {
+            if (s.wave[0] == '.') {
+                s.wave = s.wave.substr(1); // removes point
+                const precedent_value = this.getPrecedentValue(wavedrom_start_idx,
+                    wavedrom.signal[idx].wave);
+                s.wave = precedent_value + s.wave;
+            }
+        })
+        return interval_wavedrom;
+    }
+
+    /**
+     * Returns the full wavedrom index of time equal (or just greater) to the
+     * interval start time. Returns undefined if start time exceeds wavedrom max time.
+     * @param wavedrom_tick Full wavedrom time axis
+     * @param from Start time of the interval
+     */
+    getWaveDromIndexStart(wavedrom_tick: string, from: number) {
+        const time_axis = wavedrom_tick.split(' ').map(str_time => parseInt(str_time));
+        let idx_start: number;
+        for (let i = 0; i < time_axis.length; i++) {
+            if (time_axis[i] >= from) {
+                idx_start = i;
+                break;
+            }
+        }
+        return idx_start;
+    }
+
+    getPrecedentValue(t: number, wave: string): string {
         const precedent_value = wave[t - 1];
         if (precedent_value == '.') {
             return this.getPrecedentValue(t - 1, wave);
