@@ -169,6 +169,7 @@ export class ExtractorsService {
             let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
             interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
             interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, from);
+            interval_wavedrom = this.appendEndTime(interval_wavedrom, wavedrom, to);
             console.log(interval_wavedrom)
         }
         else throw new Error("wavedrom is undefined");
@@ -220,12 +221,12 @@ export class ExtractorsService {
 
     replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
         const wavedrom_start_idx = this.getWaveDromIndexStart(wavedrom.foot.tick, from);
-        interval_wavedrom.signal.forEach((s, idx) => {
-            if (s.wave[0] == '.') {
-                s.wave = s.wave.substr(1); // removes point
+        interval_wavedrom.signal.forEach((signal, idx) => {
+            if (signal.wave.startsWith('.')) {
+                signal.wave = signal.wave.substr(1); // removes point
                 const precedent_value = this.getPrecedentValue(wavedrom_start_idx,
                     wavedrom.signal[idx].wave);
-                s.wave = precedent_value + s.wave;
+                signal.wave = precedent_value + signal.wave;
             }
         })
         return interval_wavedrom;
@@ -256,4 +257,11 @@ export class ExtractorsService {
         } else return precedent_value;
     }
 
+    appendEndTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, to: number) {
+        if (!interval_wavedrom.foot.tick.endsWith(to + " ")) {
+            interval_wavedrom.foot.tick += to + " ";
+            interval_wavedrom.signal.map(signal => signal.wave += ".");
+        }
+        return interval_wavedrom;
+    }
 }

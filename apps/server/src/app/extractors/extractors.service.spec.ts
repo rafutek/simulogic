@@ -1,14 +1,14 @@
 import { ExtractorsService } from './extractors.service'
 import { WaveDrom, Signal } from '@simulogic/core';
 
-describe('SimulationExtractor', () => {
+describe("SimulationExtractor", () => {
   let extractor: ExtractorsService;
 
   beforeEach(() => {
     extractor = new ExtractorsService();
   });
 
-  describe('Interval WaveDrom Tests', () => {
+  describe("Interval WaveDrom Tests", () => {
     const wavedrom: WaveDrom = {
       signal: [],
       foot: {
@@ -25,7 +25,7 @@ describe('SimulationExtractor', () => {
     };
     wavedrom.signal.push(s1, s2);
 
-    describe('initIntervalWaveDrom', () => {
+    describe("initIntervalWaveDrom", () => {
 
       it("should initialize the interval wavedrom", () => {
         // Given a wavedrom with two signals
@@ -41,7 +41,7 @@ describe('SimulationExtractor', () => {
       });
     });
 
-    describe('fillIntervalWaveDrom', () => {
+    describe("fillIntervalWaveDrom", () => {
 
       let interval_wavedrom: WaveDrom;
       beforeEach(() => {
@@ -97,7 +97,7 @@ describe('SimulationExtractor', () => {
       });
     });
 
-    describe('prependStartTime', () => {
+    describe("prependStartTime", () => {
 
       it("should prepend interval start value at tick and point at each wave", () => {
         // Given a filled wavedrom with the start interval value not included
@@ -144,7 +144,7 @@ describe('SimulationExtractor', () => {
       });
     });
 
-    describe('replaceStartPointsWithValues', () => {
+    describe("replaceStartPointsWithValues", () => {
 
       it("should replace the points with precedent values", () => {
         // Given a filled interval wavedrom with one wave starting with a point
@@ -192,5 +192,51 @@ describe('SimulationExtractor', () => {
       });
     });
 
+    describe("appendEndTime", () => {
+
+      it("should append interval end value at tick and point at each wave", () => {
+        // Given a filled wavedrom with the end interval value not included
+        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        const from = 90, to = 250;
+        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
+
+        // When managind the interval start
+        const waves_length = interval_wavedrom.signal[0].wave.length;
+        interval_wavedrom = extractor.appendEndTime(interval_wavedrom, wavedrom, to);
+
+        // Then the start interval value (90 here) must be added at the beginning of tick
+        // and all the waves must start with a point
+        const appended_waves = interval_wavedrom.signal.every(signal => {
+          return signal.wave.length == waves_length + 1;
+        });
+        expect(appended_waves).toBeTruthy();
+        expect(interval_wavedrom.foot.tick.endsWith(to + ' ')).toBeTruthy();
+        const waves_end_with_point = interval_wavedrom.signal.every(signal => {
+          return signal.wave.endsWith('.');
+        });
+        expect(waves_end_with_point).toBeTruthy();
+      });
+
+      it("should not append interval end value at tick and point at each wave", () => {
+        // Given a filled wavedrom with the start interval value included
+        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        const from = 90, to = 200;
+        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
+
+        // When managind the interval start
+        const waves_length = interval_wavedrom.signal[0].wave.length;
+        interval_wavedrom = extractor.appendEndTime(interval_wavedrom, wavedrom, to);
+
+        // Then the start interval value (100 here) must already be at the beginning of tick
+        // and the waves must start with their value at this time
+        const did_not_append_waves = interval_wavedrom.signal.every(signal => {
+          return signal.wave.length == waves_length;
+        });
+        expect(did_not_append_waves).toBeTruthy();
+        expect(interval_wavedrom.foot.tick.endsWith(to + ' ')).toBeTruthy();
+        expect(interval_wavedrom.signal[0].wave.endsWith('1')).toBeTruthy();
+        expect(interval_wavedrom.signal[1].wave.endsWith('.')).toBeTruthy();
+      });
+    });
   });
 });
