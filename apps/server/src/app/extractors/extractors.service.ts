@@ -168,6 +168,7 @@ export class ExtractorsService {
             console.log(wavedrom)
             let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
             interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
+            interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, from);
             console.log(interval_wavedrom)
         }
         else throw new Error("wavedrom is undefined");
@@ -203,6 +204,12 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
+    manageStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
+        interval_wavedrom = this.prependStartTime(interval_wavedrom, wavedrom, from);
+        interval_wavedrom = this.replaceStartPointsWithValues(interval_wavedrom, wavedrom, from);
+        return interval_wavedrom;
+    }
+
     prependStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
         if (!interval_wavedrom.foot.tick.startsWith(from + " ")) {
             interval_wavedrom.foot.tick = from + " " + interval_wavedrom.foot.tick;
@@ -211,7 +218,7 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
-    replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number){
+    replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
         const wavedrom_start_idx = this.getWaveDromIndexStart(wavedrom.foot.tick, from);
         interval_wavedrom.signal.forEach((s, idx) => {
             if (s.wave[0] == '.') {
