@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SelectAndGetEntity } from '../selectAndGetEntity/SelectAndGetEntity';
-import { Simulation, WaveDrom } from '@simulogic/core';
+import { WaveDrom } from '@simulogic/core';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 
 export function SelectGetAndDisplaySimu() {

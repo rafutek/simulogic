@@ -26,7 +26,7 @@ export const TimeDiagram = (props: TimeDiagramProps) => {
         } else {
             throw new Error("WaveDrom is missing");
         }
-    }, []);
+    }, [props.data]);
 
     return (
         <div>
