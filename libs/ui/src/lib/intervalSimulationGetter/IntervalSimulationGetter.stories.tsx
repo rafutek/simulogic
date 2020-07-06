@@ -12,7 +12,7 @@ export const Default = () => {
     const [simulation_interval, setSimulationInterval] = useState<WaveDrom>();
     const props: IntervalSimulationGetterProps = {
         id: 2,
-        from: 100,
+        from: 0,
         to: 1000,
         setReceivedInterval: setSimulationInterval
     }

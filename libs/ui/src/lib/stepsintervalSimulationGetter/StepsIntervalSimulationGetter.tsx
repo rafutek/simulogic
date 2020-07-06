@@ -33,19 +33,19 @@ export const StepsIntervalSimulationGetter = () => {
     // Set/Change interval simulation getter properties
     // when selected simulation and interval boundaries are modified
     useEffect(() => {
-        if (selected_simulation && from && to) {
+        if (selected_simulation && from >=0 && to > from) {
             local_interval_getter_props.id = selected_simulation.id;
             local_interval_getter_props.from = from;
             local_interval_getter_props.to = to;
             setIntervalGetterProps(local_interval_getter_props);
-        }
+        } else setIntervalGetterProps(undefined);
     }, [selected_simulation, from, to]);
 
     return (
         <div>
             <SelectEntity {...select_simu_props} />
             {selected_simulation ? <IntervalSelector {...interval_selector_props} /> : null}
-            {from >= 0 && to > from ? <SimulationIntervalGetter {...interval_getter_props} /> : null}
+            {interval_getter_props ? <SimulationIntervalGetter {...interval_getter_props} /> : null}
             {simulation_interval ? <TimeDiagram data={simulation_interval} /> : null}
         </div>
     )
