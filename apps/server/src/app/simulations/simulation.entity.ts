@@ -12,5 +12,5 @@ export class Simulation {
   path: string;
 
   @Column()
-  resultPath: string;
+  result_path: string;
 }

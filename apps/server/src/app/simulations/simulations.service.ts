@@ -15,7 +15,7 @@ export class SimulationsService {
     const simulation = new Simulation();
     simulation.name = createSimulationDto.name
     simulation.path = createSimulationDto.path;
-    simulation.resultPath = '';
+    simulation.result_path = '';
 
     return this.simulationsRepository.save(simulation);
   }
@@ -30,11 +30,11 @@ export class SimulationsService {
     });
   }
 
-  findOne(id: string): Promise<Simulation> {
+  findOne(id: string | number): Promise<Simulation> {
     return this.simulationsRepository.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string | number): Promise<void> {
     await this.simulationsRepository.delete(id);
   }
 }

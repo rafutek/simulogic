@@ -1,12 +1,10 @@
-module.exports = {
-  name: 'ui',
-  preset: '../../jest.config.js',
-  transform: {
-    '^.+\\.[tj]sx?$': [
-      'babel-jest',
-      { cwd: __dirname, configFile: './babel-jest.config.json' },
-    ],
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'html'],
-  coverageDirectory: '../../coverage/libs/ui',
+export const name = 'ui';
+export const preset = '../../jest.config.js';
+export const transform = {
+  '^.+\\.[tj]sx?$': [
+    'babel-jest',
+    { cwd: __dirname, configFile: './babel-jest.config.json' },
+  ],
 };
+export const moduleFileExtensions = ['ts', 'tsx', 'js', 'jsx', 'html'];
+export const coverageDirectory = '../../coverage/libs/ui';

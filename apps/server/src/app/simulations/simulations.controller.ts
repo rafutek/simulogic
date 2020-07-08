@@ -1,18 +1,19 @@
 import {
   Controller, Post, Get, Delete, Param, UseInterceptors, UploadedFile,
-  BadRequestException, InternalServerErrorException
+  BadRequestException, InternalServerErrorException, Body
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SimulationsService } from './simulations.service';
 import { CreateSimulationDto } from './dto/create-simulation.dto';
 import { Simulation } from './simulation.entity';
 import * as fs from 'fs';
-import { validate } from 'class-validator';
+import { validate, isEmpty, isNotEmpty } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
 import { execSync } from 'child_process';
 import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorsService } from '../extractors/extractors.service';
 import "multer";
+import { GetSimulationDto } from './dto/get-simulation.dto';
 
 @Controller('simulations')
 export class SimulationsController {
@@ -54,9 +55,7 @@ export class SimulationsController {
     if (fs.existsSync(simulatorPath)) {
       circuit.simulatorPath = simulatorPath;
       this.circuitsService.update(circuit); // save circuit simulator in database
-    } else {
-      new InternalServerErrorException("Error in circuit simulator creation");
-    }
+    } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
 
   executeAndSaveSimulation(circuit: Circuit, simulation: Simulation) {
@@ -65,11 +64,9 @@ export class SimulationsController {
     execSync(`cd simulator/common/scripts && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);
     const resultPath = `simulator/home/user1/simulator/out/${simulation_filename}`;
     if (fs.existsSync(resultPath)) {
-      simulation.resultPath = resultPath;
+      simulation.result_path = resultPath;
       this.simulationsService.update(simulation); // save result simulation in database
-    } else {
-      new InternalServerErrorException("Error in executing and saving simulation");
-    }
+    } else throw new InternalServerErrorException("Error in executing and saving simulation");
   }
 
   /**
@@ -83,23 +80,20 @@ export class SimulationsController {
   async getResult(@Param('idCirc') idCirc: string, @Param('idSimu') idSimu: string) {
     const simulation = await this.simulationsService.findOne(idSimu);
     if (simulation) {
-      if (simulation.resultPath === '') {
+      if (simulation.result_path === '') {
         const circuit = await this.circuitsService.findOne(idCirc);
         if (circuit) {
           if (circuit.simulatorPath === '') {
             this.createAndSaveSimulator(circuit);
           }
           this.executeAndSaveSimulation(circuit, simulation);
-        } else {
-          new BadRequestException(`circuit ${idCirc} not found`);
-        }
+        } else throw new BadRequestException(`circuit ${idCirc} not found`);
+
       }
-      if (fs.existsSync(simulation.resultPath)) {
-        return this.simulationExtractor.getWaveDrom(idSimu, simulation.resultPath);
+      if (fs.existsSync(simulation.result_path)) {
+        return this.simulationExtractor.getWaveDrom(idSimu, simulation.result_path);
       }
-    } else {
-      new BadRequestException(`simulation ${idSimu} not found`);
-    }
+    } else throw new BadRequestException(`simulation ${idSimu} not found`);
   }
 
   @Get(':id')
@@ -123,8 +117,8 @@ export class SimulationsController {
   async remove(@Param('id') id: string): Promise<void> {
     const simulation = await this.simulationsService.findOne(id);
     if (simulation) {
-      if (simulation.resultPath != '' && fs.existsSync(simulation.resultPath)) {
-        fs.unlinkSync(simulation.resultPath);
+      if (simulation.result_path != '' && fs.existsSync(simulation.result_path)) {
+        fs.unlinkSync(simulation.result_path);
       }
       if (fs.existsSync(simulation.path)) {
         fs.unlinkSync(simulation.path);
@@ -132,4 +126,35 @@ export class SimulationsController {
     }
     return this.simulationsService.remove(id);
   }
+
+  @Post('extract')
+  async manageExtraction(@Body() getSimulationDto: GetSimulationDto) {
+    const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
+    if (simulation) {
+      if (fs.existsSync(simulation.path)) {
+        // get simulation full wavedrom
+      } else throw new InternalServerErrorException(
+        `simulation ${getSimulationDto.id_simu} file not found`)
+
+      if (getSimulationDto.result) {
+        if (isEmpty(simulation.result_path)) {
+          // execute simulation
+        }
+        if (fs.existsSync(simulation.result_path)) {
+          // get result full wavedrom (extract if not already done) 
+        } else throw new InternalServerErrorException(
+          `result file of simulation ${getSimulationDto.id_simu} not found`)
+
+        // combine and save full wavedrom with results (if not already done)
+      }
+
+      if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
+        // remove wires from wavedrom
+      }
+      if (isNotEmpty(getSimulationDto.from) && isNotEmpty(getSimulationDto.to)) {
+        // extract interval from wavedrom
+      }
+    } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
+  }
+
 }
