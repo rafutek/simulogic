@@ -291,10 +291,7 @@ describe("SimulationExtractor", () => {
           tick: "x 0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 x "
         }
       }
-      expect(combined_wavedrom.signal[0].wave).toEqual(expected_wavedrom.signal[0].wave);
-      expect(combined_wavedrom.signal[1].wave).toEqual(expected_wavedrom.signal[1].wave);
-      expect(combined_wavedrom.signal[2].wave).toEqual(expected_wavedrom.signal[2].wave);
-      expect(combined_wavedrom.foot.tick).toEqual(expected_wavedrom.foot.tick);
+      expect(combined_wavedrom).toEqual(expected_wavedrom);
     });
   });
 });

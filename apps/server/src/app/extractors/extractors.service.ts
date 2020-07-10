@@ -3,12 +3,12 @@ import {
     ExtractedSimulation, WaveDrom, Signal,
     Timestep, Wire
 } from '@simulogic/core'
-import { time } from 'console';
 
 export class ExtractorsService {
 
     extracted_simu: ExtractedSimulation;
     extracted_simu_result: ExtractedSimulation;
+    extracted_combination: ExtractedSimulation;
 
     getWaveDrom(id: number, file_path: string) {
         if (!this.extracted_simu || this.extracted_simu.id != id) {
@@ -36,6 +36,22 @@ export class ExtractorsService {
             }
         }
         return this.extracted_simu_result.wavedrom;
+    }
+
+    getCombinedWaveDrom(id: number, simu_file_path: string, result_file_path: string) {
+        if (!this.extracted_combination || this.extracted_combination.id != id) {
+            console.log("combine")
+            const wavedrom = this.getWaveDrom(id, simu_file_path);
+            const wavedrom_result = this.getWaveDromResult(id, result_file_path);
+            const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
+            if (combined_wavedrom) {
+                this.extracted_combination = {
+                    id: id,
+                    wavedrom: combined_wavedrom
+                };
+            }
+        }
+        return this.extracted_combination.wavedrom;
     }
 
     extractFile(file_path: string) {
@@ -193,10 +209,10 @@ export class ExtractorsService {
 
     private finalizeWaveDrom(wavedrom: WaveDrom) {
         if (!wavedrom.foot.tick.startsWith('x')) {
-            wavedrom.foot.tick = 'x' + wavedrom.foot.tick;
+            wavedrom.foot.tick = "x " + wavedrom.foot.tick;
         }
         if (!wavedrom.foot.tick.endsWith("x ")) {
-            wavedrom.foot.tick = wavedrom.foot.tick + "x ";
+            wavedrom.foot.tick = wavedrom.foot.tick + " x ";
         }
         wavedrom.signal.forEach(signal => {
             if (!signal.wave.startsWith('x')) {

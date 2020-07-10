@@ -130,9 +130,8 @@ export class SimulationsController {
 
   @Post('extract')
   async manageExtraction(@Body() getSimulationDto: GetSimulationDto) {
-    const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
     let wavedrom: WaveDrom;
-    let wavedrom_result: WaveDrom;
+    const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
         wavedrom = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu, simulation.path);
@@ -152,15 +151,13 @@ export class SimulationsController {
         }
 
         if (fs.existsSync(simulation.result_path)) {
-          wavedrom_result = this.simulationExtractor.getWaveDromResult(
+          wavedrom = this.simulationExtractor.getWaveDromResult(
             getSimulationDto.id_simu, simulation.result_path);
         } else throw new InternalServerErrorException(
           `result file of simulation ${getSimulationDto.id_simu} not found`);
 
-        // combine and save full wavedrom with results (if not already done)
-        console.log(wavedrom)
-        console.log(wavedrom_result)
-
+        wavedrom = this.simulationExtractor.getCombinedWaveDrom(getSimulationDto.id_simu,
+          simulation.path, simulation.result_path);
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
@@ -171,6 +168,8 @@ export class SimulationsController {
         // extract interval from wavedrom
       }
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
+
+    return wavedrom;
   }
 
 }
