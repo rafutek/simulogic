@@ -14,6 +14,7 @@ import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorsService } from '../extractors/extractors.service';
 import "multer";
 import { GetSimulationDto } from './dto/get-simulation.dto';
+import { WaveDrom } from '@simulogic/core';
 
 @Controller('simulations')
 export class SimulationsController {
@@ -53,7 +54,7 @@ export class SimulationsController {
     execSync(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`);
     const simulatorPath = `simulator/home/user1/simulator/bin/${circuit_filename}`;
     if (fs.existsSync(simulatorPath)) {
-      circuit.simulatorPath = simulatorPath;
+      circuit.simulator_path = simulatorPath;
       this.circuitsService.update(circuit); // save circuit simulator in database
     } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
@@ -77,13 +78,13 @@ export class SimulationsController {
    * @param idSimu id of simulation in the database
    */
   @Get(':idCirc/:idSimu')
-  async getResult(@Param('idCirc') idCirc: string, @Param('idSimu') idSimu: string) {
+  async getResult(@Param('idCirc') idCirc: number, @Param('idSimu') idSimu: number) {
     const simulation = await this.simulationsService.findOne(idSimu);
     if (simulation) {
       if (simulation.result_path === '') {
         const circuit = await this.circuitsService.findOne(idCirc);
         if (circuit) {
-          if (circuit.simulatorPath === '') {
+          if (circuit.simulator_path === '') {
             this.createAndSaveSimulator(circuit);
           }
           this.executeAndSaveSimulation(circuit, simulation);
@@ -97,7 +98,7 @@ export class SimulationsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     const simulation = await this.simulationsService.findOne(id);
     if (simulation) {
       return this.simulationExtractor.getWaveDrom(id, simulation.path);
@@ -130,27 +131,42 @@ export class SimulationsController {
   @Post('extract')
   async manageExtraction(@Body() getSimulationDto: GetSimulationDto) {
     const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
+    let wavedrom: WaveDrom;
+    let wavedrom_result: WaveDrom;
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
-        // get simulation full wavedrom
+        wavedrom = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu, simulation.path);
       } else throw new InternalServerErrorException(
-        `simulation ${getSimulationDto.id_simu} file not found`)
+        `simulation ${getSimulationDto.id_simu} file not found`);
 
       if (getSimulationDto.result) {
         if (isEmpty(simulation.result_path)) {
-          // execute simulation
+          const circuit = await this.circuitsService.findOne(getSimulationDto.id_circuit);
+          if (circuit) {
+            if (isEmpty(circuit.simulator_path)) {
+              this.createAndSaveSimulator(circuit);
+            }
+            this.executeAndSaveSimulation(circuit, simulation);
+          } else throw new BadRequestException(
+            `circuit ${getSimulationDto.id_circuit} not found`);
         }
+
         if (fs.existsSync(simulation.result_path)) {
-          // get result full wavedrom (extract if not already done) 
+          wavedrom_result = this.simulationExtractor.getWaveDromResult(
+            getSimulationDto.id_simu, simulation.result_path);
         } else throw new InternalServerErrorException(
-          `result file of simulation ${getSimulationDto.id_simu} not found`)
+          `result file of simulation ${getSimulationDto.id_simu} not found`);
 
         // combine and save full wavedrom with results (if not already done)
+        console.log(wavedrom)
+        console.log(wavedrom_result)
+
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
         // remove wires from wavedrom
       }
+
       if (isNotEmpty(getSimulationDto.from) && isNotEmpty(getSimulationDto.to)) {
         // extract interval from wavedrom
       }

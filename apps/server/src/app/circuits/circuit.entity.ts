@@ -12,5 +12,5 @@ export class Circuit {
   path: string;
 
   @Column()
-  simulatorPath: string;
+  simulator_path: string;
 }

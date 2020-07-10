@@ -239,4 +239,101 @@ describe("SimulationExtractor", () => {
       });
     });
   });
+  describe("combineWavedroms", () => {
+    let wavedrom1: WaveDrom;
+    let wavedrom2: WaveDrom;
+
+    beforeEach(() => {
+      wavedrom1 = {
+        signal: [],
+        foot: {
+          tick: ""
+        }
+      };
+      wavedrom2 = {
+        signal: [],
+        foot: {
+          tick: ""
+        }
+      };
+    });
+
+    it("should combine full wavedroms", () => {
+      // Given two wavedroms with different signals and time axis
+      let s1: Signal = {
+        name: "s1",
+        wave: "x01..2.1x"
+      };
+      let s2: Signal = {
+        name: "s2",
+        wave: "x0...1..x"
+      };
+      wavedrom1.signal = [s1, s2];
+      wavedrom1.foot.tick = "x 0 10 11 20 25 39 40 x ";
+
+      let s3: Signal = {
+        name: "s3",
+        wave: "x0.1.0.2567.x"
+      };
+      wavedrom2.signal = [s3];
+      wavedrom2.foot.tick = "x 30 40 100 111 120 123 200 205 206 207 230 x ";
+
+      // When combining the thwo wavedroms
+      const combined_wavedrom = extractor.combineWaveDroms(wavedrom1, wavedrom2);
+
+      // Then we should have this resulting wavedrom
+      s1.wave = "x01..2..1.........x";
+      s2.wave = "x0...1............x";
+      s3.wave = "x.....0..1.0.2567.x";
+      const expected_wavedrom: WaveDrom = {
+        signal: [s1, s2, s3],
+        foot: {
+          tick: "x 0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 x "
+        }
+      }
+      // expect(combined_wavedrom.signal[0].wave).toEqual(expected_wavedrom.signal[0].wave);
+      // expect(combined_wavedrom.signal[1].wave).toEqual(expected_wavedrom.signal[1].wave);
+      // expect(combined_wavedrom.signal[2].wave).toEqual(expected_wavedrom.signal[2].wave);
+      expect(combined_wavedrom.foot.tick).toEqual(expected_wavedrom.foot.tick);
+    });
+
+    it("should combine interval wavedroms", () => {
+      // Given two interval wavedroms with different signals and time axis
+      let s1: Signal = {
+        name: "s1",
+        wave: "01..2.1"
+      };
+      let s2: Signal = {
+        name: "s2",
+        wave: "0...1.."
+      };
+      wavedrom1.signal = [s1, s2];
+      wavedrom1.foot.tick = "0 10 11 20 25 39 40 x ";
+
+      let s3: Signal = {
+        name: "s3",
+        wave: "0.1.0.2567."
+      };
+      wavedrom2.signal = [s3];
+      wavedrom2.foot.tick = "30 40 100 111 120 123 200 205 206 207 230 x ";
+
+      // When combining the thwo wavedroms
+      const combined_wavedrom = extractor.combineWaveDroms(wavedrom1, wavedrom2);
+
+      // Then we should have this resulting wavedrom
+      s1.wave = "01..2..1.........";
+      s2.wave = "0...1............";
+      s3.wave = ".....0..1.0.2567.";
+      const expected_wavedrom: WaveDrom = {
+        signal: [s1, s2, s3],
+        foot: {
+          tick: "0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 x "
+        }
+      }
+      // expect(combined_wavedrom.signal[0].wave).toEqual(expected_wavedrom.signal[0].wave);
+      // expect(combined_wavedrom.signal[1].wave).toEqual(expected_wavedrom.signal[1].wave);
+      // expect(combined_wavedrom.signal[2].wave).toEqual(expected_wavedrom.signal[2].wave);
+      expect(combined_wavedrom.foot.tick).toEqual(expected_wavedrom.foot.tick);
+    });
+  });
 });

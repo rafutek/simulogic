@@ -1,23 +1,41 @@
 import * as fs from 'fs';
-import * as readline from 'readline';
 import {
     ExtractedSimulation, WaveDrom, Signal,
-    Timestep, Wire, Event
+    Timestep, Wire
 } from '@simulogic/core'
+import { time } from 'console';
 
 export class ExtractorsService {
 
-    extractedSimulation: ExtractedSimulation;
+    extracted_simu: ExtractedSimulation;
+    extracted_simu_result: ExtractedSimulation;
 
-    getWaveDrom(id: string, file_path: string) {
-        if (!this.extractedSimulation || this.extractedSimulation.id != id) {
+    getWaveDrom(id: number, file_path: string) {
+        if (!this.extracted_simu || this.extracted_simu.id != id) {
             console.log("extract")
-            this.extractedSimulation = {
-                id: id,
-                wavedrom: this.extractFile(file_path)
-            };
+            const wavedrom = this.extractFile(file_path);
+            if (wavedrom) {
+                this.extracted_simu = {
+                    id: id,
+                    wavedrom: wavedrom
+                };
+            }
         }
-        return this.extractedSimulation.wavedrom;
+        return this.extracted_simu.wavedrom;
+    }
+
+    getWaveDromResult(id: number, file_path: string) {
+        if (!this.extracted_simu_result || this.extracted_simu_result.id != id) {
+            console.log("extract result")
+            const wavedrom = this.extractFile(file_path);
+            if (wavedrom) {
+                this.extracted_simu_result = {
+                    id: id,
+                    wavedrom: wavedrom
+                };
+            }
+        }
+        return this.extracted_simu_result.wavedrom;
     }
 
     extractFile(file_path: string) {
@@ -122,9 +140,9 @@ export class ExtractorsService {
     }
 
     private fillWaveDrom(wavedrom: WaveDrom, timeline: Timestep[]) {
-        const time_axis = wavedrom.foot.tick.split(' ');
+        const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
         timeline.forEach((timestep) => {
-            const t = time_axis.indexOf(String(timestep.time));
+            const t = time_axis.indexOf(timestep.time);
             if (t >= 0) {
                 timestep.wires.forEach(wire => {
                     wavedrom.signal.forEach(signal => {
@@ -137,6 +155,24 @@ export class ExtractorsService {
             }
         })
         return wavedrom;
+    }
+
+    private tickToTimeAxis(tick: string): number[] {
+        const str_time_axis = tick.split(' ');
+        if (str_time_axis[str_time_axis.length - 1] == '') {
+            str_time_axis.pop();
+        }
+        if (str_time_axis[str_time_axis.length - 1] == 'x') {
+            str_time_axis.pop();
+        }
+        return str_time_axis.map(str_time => parseInt(str_time));
+    }
+
+    private timeAxisToTick(time_axis: number[]): string {
+        let tick = time_axis.join(' ');
+        tick = tick.replace("NaN", 'x');
+        tick += " x ";
+        return tick;
     }
 
     private stateToWave(value: string) {
@@ -158,7 +194,7 @@ export class ExtractorsService {
         return wavedrom;
     }
 
-    getWaveDromInterval(id: string, file_path: string, from: number, to: number) {
+    getWaveDromInterval(id: number, file_path: string, from: number, to: number) {
         const wavedrom = this.getWaveDrom(id, file_path);
         console.log(wavedrom)
         const interval_wavedrom = this.extractWaveDromInterval(wavedrom, from, to);
@@ -196,7 +232,7 @@ export class ExtractorsService {
     }
 
     fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number, to: number) {
-        const time_axis = wavedrom.foot.tick.split(' ').map(str_time => parseInt(str_time));
+        const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
         time_axis.forEach((t, t_index) => {
             if (t >= from && t <= to) {
                 interval_wavedrom.foot.tick += `${t} `;
@@ -242,7 +278,7 @@ export class ExtractorsService {
      * @param from Start time of the interval
      */
     getWaveDromIndexStart(wavedrom_tick: string, from: number) {
-        const time_axis = wavedrom_tick.split(' ').map(str_time => parseInt(str_time));
+        const time_axis = this.tickToTimeAxis(wavedrom_tick);
         let idx_start: number;
         for (let i = 0; i < time_axis.length; i++) {
             if (time_axis[i] >= from) {
@@ -266,5 +302,50 @@ export class ExtractorsService {
             interval_wavedrom.signal.map(signal => signal.wave += ".");
         }
         return interval_wavedrom;
+    }
+
+    combineWaveDroms(...wavedroms: WaveDrom[]) {
+        const time_axes: number[][] = [];
+        wavedroms.forEach(wavedrom => {
+            const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
+            time_axes.push(time_axis);
+        })
+        const combined_time_axis = this.combineTimeAxes(time_axes);
+        const combined_wavedrom = this.initCombinedWaveDrom(wavedroms, combined_time_axis);
+        console.log(combined_wavedrom.signal[0])
+        return combined_wavedrom;
+    }
+
+    private combineTimeAxes(time_axes: number[][]): number[] {
+        let combined_time_axis: number[] = [];
+        time_axes.forEach(time_axis => {
+            time_axis.forEach(t => {
+                if (!combined_time_axis.includes(t)) {
+                    combined_time_axis.push(t);
+                }
+            })
+        })
+        combined_time_axis = combined_time_axis.sort((a, b) => a - b);
+        return combined_time_axis;
+    }
+
+    private initCombinedWaveDrom(wavedroms: WaveDrom[], time_axis: number[]): WaveDrom {
+        const combined_wavedrom: WaveDrom = {
+            signal: [],
+            foot: {
+                tick: ""
+            }
+        };
+        combined_wavedrom.foot.tick = this.timeAxisToTick(time_axis);
+        wavedroms.forEach(wavedrom => {
+            wavedrom.signal.forEach(s => {
+                const signal: Signal = {
+                    name: s.name,
+                    wave: '.'.repeat(time_axis.length)
+                };
+                combined_wavedrom.signal.push(signal);
+            })
+        })
+        return combined_wavedrom;
     }
 }

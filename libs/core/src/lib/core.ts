@@ -44,6 +44,6 @@ export interface WaveDrom {
  * its simulation.
  */
 export interface ExtractedSimulation {
-    id: string,
+    id: number,
     wavedrom: WaveDrom
 }

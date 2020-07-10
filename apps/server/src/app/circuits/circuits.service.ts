@@ -15,7 +15,7 @@ export class CircuitsService {
     const circuit = new Circuit();
     circuit.name = createCircuitDto.name
     circuit.path = createCircuitDto.path;
-    circuit.simulatorPath = '';
+    circuit.simulator_path = '';
     
     return this.circuitsRepository.save(circuit);
   }
@@ -30,11 +30,11 @@ export class CircuitsService {
     });
   }
 
-  findOne(id: string): Promise<Circuit> {
+  findOne(id: string | number): Promise<Circuit> {
     return this.circuitsRepository.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string | number): Promise<void> {
     await this.circuitsRepository.delete(id);
   }
 }
