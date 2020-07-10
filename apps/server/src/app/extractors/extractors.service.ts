@@ -147,7 +147,8 @@ export class ExtractorsService {
                 timestep.wires.forEach(wire => {
                     wavedrom.signal.forEach(signal => {
                         if (signal.name == wire.name) {
-                            const new_wave = signal.wave.substring(0, t) + this.stateToWave(wire.state) + signal.wave.substring(t + 1);
+                            const new_wave = this.replaceCharAt(t,
+                                this.stateToWave(wire.state), signal.wave);
                             signal.wave = new_wave;
                         }
                     })
@@ -175,6 +176,10 @@ export class ExtractorsService {
         return tick;
     }
 
+    private replaceCharAt(idx: number, char: string, str: string) {
+        return str.substring(0, idx) + char + str.substring(idx + 1);
+    }
+
     private stateToWave(value: string) {
         switch (value) {
             case 'T':
@@ -187,9 +192,19 @@ export class ExtractorsService {
     }
 
     private finalizeWaveDrom(wavedrom: WaveDrom) {
-        wavedrom.foot.tick = `x ${wavedrom.foot.tick} x `;
+        if (!wavedrom.foot.tick.startsWith('x')) {
+            wavedrom.foot.tick = 'x' + wavedrom.foot.tick;
+        }
+        if (!wavedrom.foot.tick.endsWith("x ")) {
+            wavedrom.foot.tick = wavedrom.foot.tick + "x ";
+        }
         wavedrom.signal.forEach(signal => {
-            signal.wave = `x${signal.wave}x`;
+            if (!signal.wave.startsWith('x')) {
+                signal.wave = 'x' + signal.wave;
+            }
+            if (!signal.wave.endsWith('x')) {
+                signal.wave = signal.wave + 'x';
+            }
         })
         return wavedrom;
     }
@@ -236,7 +251,7 @@ export class ExtractorsService {
         time_axis.forEach((t, t_index) => {
             if (t >= from && t <= to) {
                 interval_wavedrom.foot.tick += `${t} `;
-                interval_wavedrom.signal.map((s, s_index) => {
+                interval_wavedrom.signal.forEach((s, s_index) => {
                     s.wave += wavedrom.signal[s_index].wave[t_index];
                 })
             }
@@ -253,7 +268,7 @@ export class ExtractorsService {
     prependStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
         if (!interval_wavedrom.foot.tick.startsWith(from + " ")) {
             interval_wavedrom.foot.tick = from + " " + interval_wavedrom.foot.tick;
-            interval_wavedrom.signal.map(signal => signal.wave = "." + signal.wave);
+            interval_wavedrom.signal.forEach(signal => signal.wave = "." + signal.wave);
         }
         return interval_wavedrom;
     }
@@ -299,20 +314,27 @@ export class ExtractorsService {
     appendEndTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, to: number) {
         if (!interval_wavedrom.foot.tick.endsWith(to + " ")) {
             interval_wavedrom.foot.tick += to + " ";
-            interval_wavedrom.signal.map(signal => signal.wave += ".");
+            interval_wavedrom.signal.forEach(signal => signal.wave += ".");
         }
         return interval_wavedrom;
     }
 
     combineWaveDroms(...wavedroms: WaveDrom[]) {
         const time_axes: number[][] = [];
+        const signals: Signal[] = [];
         wavedroms.forEach(wavedrom => {
             const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
             time_axes.push(time_axis);
+            wavedrom.signal.forEach(s => signals.push(s));
         })
         const combined_time_axis = this.combineTimeAxes(time_axes);
-        const combined_wavedrom = this.initCombinedWaveDrom(wavedroms, combined_time_axis);
-        console.log(combined_wavedrom.signal[0])
+        const combined_wavedrom = this.initCombinedWaveDrom(signals, combined_time_axis);
+        combined_time_axis.forEach((combined_t, combined_t_idx) => {
+            this.fillCombinedWaveDrom(combined_wavedrom, wavedroms,
+                time_axes, combined_t, combined_t_idx);
+        })
+        this.replacePointWithX(combined_wavedrom.signal, 0);
+        this.finalizeWaveDrom(combined_wavedrom);
         return combined_wavedrom;
     }
 
@@ -329,7 +351,7 @@ export class ExtractorsService {
         return combined_time_axis;
     }
 
-    private initCombinedWaveDrom(wavedroms: WaveDrom[], time_axis: number[]): WaveDrom {
+    private initCombinedWaveDrom(signals: Signal[], time_axis: number[]): WaveDrom {
         const combined_wavedrom: WaveDrom = {
             signal: [],
             foot: {
@@ -337,15 +359,57 @@ export class ExtractorsService {
             }
         };
         combined_wavedrom.foot.tick = this.timeAxisToTick(time_axis);
-        wavedroms.forEach(wavedrom => {
-            wavedrom.signal.forEach(s => {
-                const signal: Signal = {
-                    name: s.name,
-                    wave: '.'.repeat(time_axis.length)
-                };
-                combined_wavedrom.signal.push(signal);
-            })
+        signals.forEach(s => {
+            const signal: Signal = {
+                name: s.name,
+                wave: '.'.repeat(time_axis.length)
+            };
+            combined_wavedrom.signal.push(signal);
         })
         return combined_wavedrom;
+    }
+
+    private fillCombinedWaveDrom(combined_wavedrom: WaveDrom, wavedroms: WaveDrom[],
+        time_axes: number[][], combined_t: number, combined_t_idx: number) {
+        time_axes.forEach((t_axis, t_axis_idx) => {
+            const t_idx = t_axis.indexOf(combined_t);
+            combined_wavedrom = this.getAndPutValuesInCombinedWaveDrom(combined_wavedrom,
+                wavedroms, combined_t_idx, t_axis_idx, t_idx);
+        })
+        return combined_wavedrom;
+    }
+
+    private getAndPutValuesInCombinedWaveDrom(combined_wavedrom: WaveDrom, wavedroms: WaveDrom[],
+        combined_t_idx: number, t_axis_idx: number, t_idx: number) {
+        if (t_idx >= 0) {
+            const values_at_t = wavedroms[t_axis_idx].signal.map(s => s.wave[t_idx]);
+            combined_wavedrom = this.putValuesInCombinedWaveDrom(combined_wavedrom,
+                wavedroms, combined_t_idx, t_axis_idx, values_at_t);
+        }
+        return combined_wavedrom;
+    }
+
+    private putValuesInCombinedWaveDrom(combined_wavedrom: WaveDrom, wavedroms: WaveDrom[],
+        combined_t_idx: number, t_axis_idx: number, values_at_t: string[]) {
+        combined_wavedrom.signal.forEach((s, s_idx) => {
+            let offset = 0;
+            if (wavedroms[t_axis_idx - 1]) {
+                offset = wavedroms[t_axis_idx - 1].signal.length;
+            }
+            const new_value = values_at_t[s_idx - offset];
+            if (new_value) {
+                s.wave = this.replaceCharAt(combined_t_idx, new_value, s.wave);
+            }
+        });
+        return combined_wavedrom;
+    }
+
+    private replacePointWithX(signals: Signal[], idx: number) {
+        return signals.map(s => {
+            if (s.wave[idx] == '.') {
+                s.wave = this.replaceCharAt(idx, 'x', s.wave);
+            }
+            return s;
+        });
     }
 }
