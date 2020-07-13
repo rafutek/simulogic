@@ -67,7 +67,7 @@ export class SimulationsController {
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.simulationsService.findOne(id);
+    return this.simulationsService.findEntity(id);
   }
 
   @Delete(':id')
@@ -85,7 +85,7 @@ export class SimulationsController {
   }
 
   @Post('extract')
-  async manageExtraction(@Body() getSimulationDto: GetSimulationDto) {
+  async getSimulation(@Body() getSimulationDto: GetSimulationDto) {
     let wavedrom: WaveDrom;
     const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
     if (simulation) {

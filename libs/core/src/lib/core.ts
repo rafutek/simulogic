@@ -48,12 +48,12 @@ export interface ExtractedSimulation {
     wavedrom: WaveDrom
 }
 
-export interface SimulationGetter {
+export interface SimulationProps {
     id_simu: number;
-    id_circuit: number;
-    result: boolean;
-    from: number;
-    to: number;
-    wires: string[];
+    id_circuit?: number;
+    result?: boolean;
+    from?: number;
+    to?: number;
+    wires?: string[];
   }
   

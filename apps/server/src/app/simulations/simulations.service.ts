@@ -30,10 +30,14 @@ export class SimulationsService {
     });
   }
 
-  findOne(id: string | number): Promise<Simulation> {
+  findEntity(id: string | number): Promise<Simulation> {
     return this.simulationsRepository.findOne(id, {
       select: ["id", "name"]
     });
+  }
+
+  findOne(id: string | number): Promise<Simulation> {
+    return this.simulationsRepository.findOne(id);
   }
 
   async remove(id: string | number): Promise<void> {
