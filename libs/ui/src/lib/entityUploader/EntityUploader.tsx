@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import { entity } from '@simulogic/core';
 
-export interface UploadEntityProps {
-    entity: "simulation" | "circuit";
+export interface EntityUploaderProps {
+    entity: entity;
     onUpload: (uploaded: true) => void;
 }
 
-export const UploadEntity = (props: UploadEntityProps) => {
+export const EntityUploader = (props: EntityUploaderProps) => {
 
     const [file, setFile] = useState<File>();
     const [uploaded, setUploaded] = useState(false);

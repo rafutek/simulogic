@@ -1,28 +1,40 @@
 export type entity = "circuit" | "simulation";
 
+/**
+ * Brief information about an entity.
+ */
 export interface Entity {
     id: number;
     name: string;
 };
 
+/**
+ * Description of a logic event on a specific wire.
+ */
 export interface Event {
     wire: string,
     state: string,
     time: number
 }
 
+/**
+ * Wire state interface.
+ */
 export interface Wire {
     name: string,
     state: string
 }
 
+/**
+ * Description of logic events on several wires.
+ */
 export interface Timestep {
     time: number,
     wires: Wire[]
 }
 
 /**
- * Interface for WaveDrom signals.
+ * WaveDrom signal interface.
  */
 export interface Signal {
     name: string,
@@ -30,7 +42,7 @@ export interface Signal {
 }
 
 /**
- * Interface for WaveDrom time diagram.
+ * WaveDrom data variable interface.
  */
 export interface WaveDrom {
     signal: Signal[],
@@ -40,14 +52,16 @@ export interface WaveDrom {
 }
 
 /**
- * Interface to associate a WaveDrom to
- * its simulation.
+ * Linker between a simulation and its resulting WaveDrom.
  */
 export interface ExtractedSimulation {
     id: number,
     wavedrom: WaveDrom
 }
 
+/**
+ * Description of a simulation extraction.
+ */
 export interface SimulationProps {
     id_simu: number;
     id_circuit?: number;

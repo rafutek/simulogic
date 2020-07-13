@@ -2,7 +2,7 @@ import React from 'react';
 import { TimeDiagram, TimeDiagramProps } from './TimeDiagram';
 
 export default {
-    title: 'Static time diagram',
+    title: 'TimeDiagram',
     component: TimeDiagram,
 };
 

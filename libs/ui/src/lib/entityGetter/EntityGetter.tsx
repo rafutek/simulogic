@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@material-ui/core';
 import axios from 'axios';
-import { entity, WaveDrom } from '@simulogic/core'
+import { entity, Entity } from '@simulogic/core'
 
-export interface GetEntityProps {
+export interface EntityGetterProps {
     entity: entity,
     id: number,
-    setReceivedEntity: (entity: WaveDrom | undefined) => void
+    setReceivedEntity: (entity: Entity) => void
 }
 
-export const GetEntity = (props: GetEntityProps) => {
-
-    const [data, setData] = useState<WaveDrom | undefined>();
+export const EntityGetter = (props: EntityGetterProps) => {
 
     const getEntity = () => {
         axios.get(`/${props.entity}s/${props.id}`)
             .then((response) => {
                 console.log(response.data);
-                setData(response.data);
                 props.setReceivedEntity(response.data);
             })
             .catch((error) => {
@@ -34,7 +31,6 @@ export const GetEntity = (props: GetEntityProps) => {
     return (
         <div>
             <GetEntityButton />
-            {data ? <p>received {props.entity}</p> : null}
         </div>
     )
 }

@@ -1,23 +1,23 @@
 import React from 'react';
-import { UploadEntity, UploadEntityProps } from './UploadEntity';
+import { EntityUploader, EntityUploaderProps } from './EntityUploader';
 
 export default {
-    title: 'Upload entity',
-    component: UploadEntity,
+    title: 'EntityUploader',
+    component: EntityUploader,
 };
 
 export const Circuit = () => {
-    const props: UploadEntityProps = {
+    const props: EntityUploaderProps = {
         entity: "circuit",
         onUpload: () => { console.log("uploaded circuit") }
     }
-    return <UploadEntity {...props} />
+    return <EntityUploader {...props} />
 }
 
 export const Simulation = () => {
-    const props: UploadEntityProps = {
+    const props: EntityUploaderProps = {
         entity: "simulation",
         onUpload: () => { console.log("uploaded simulation") }
     }
-    return <UploadEntity {...props} />
+    return <EntityUploader {...props} />
 }

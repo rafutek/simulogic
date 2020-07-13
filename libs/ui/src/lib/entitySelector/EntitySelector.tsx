@@ -4,12 +4,12 @@ import axios from 'axios';
 import { List, ListItem, Dialog } from '@material-ui/core';
 import { entity, Entity } from '@simulogic/core'
 
-export interface SelectEntityProps {
+export interface EntitySelectorProps {
     entity: entity;
     setSelectedEntity: (entity: Entity) => void;
 }
 
-export const SelectEntity = (props: SelectEntityProps) => {
+export const EntitySelector = (props: EntitySelectorProps) => {
 
     const [data, setData] = useState<[]>();
     const [openDialog, setOpenDialog] = useState(false);

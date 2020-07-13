@@ -1,25 +1,25 @@
 import React from 'react';
-import { GetEntity, GetEntityProps } from './GetEntity';
+import { EntityGetter, EntityGetterProps } from './EntityGetter';
 
 export default {
-    title: 'Get entity',
-    component: GetEntity,
+    title: 'EntityGetter',
+    component: EntityGetter,
 };
 
 export const Circuit = () => {
-    const props: GetEntityProps = {
+    const props: EntityGetterProps = {
         entity: "circuit",
         setReceivedEntity: () => { console.log("set received circuit") },
         id: 1
     }
-    return <GetEntity {...props} />
+    return <EntityGetter {...props} />
 }
 
 export const Simulation = () => {
-    const props: GetEntityProps = {
+    const props: EntityGetterProps = {
         entity: "simulation",
         setReceivedEntity: () => { console.log("set received simulation") },
         id: 2
     }
-    return <GetEntity {...props} />
+    return <EntityGetter {...props} />
 }

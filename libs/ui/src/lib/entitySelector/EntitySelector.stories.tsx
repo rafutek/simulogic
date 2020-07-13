@@ -1,22 +1,22 @@
 import React from 'react';
-import { SelectEntity, SelectEntityProps } from './SelectEntity';
+import { EntitySelector, EntitySelectorProps } from './EntitySelector';
 
 export default {
-    title: 'Select entity',
-    component: SelectEntity,
+    title: 'EntitySelector',
+    component: EntitySelector,
 };
 
 export const Circuit = () => {
-    const props: SelectEntityProps = {
+    const props: EntitySelectorProps = {
         entity: "circuit",
         setSelectedEntity: () => { console.log("set selected circuit") }
     }
-    return <SelectEntity {...props} />
+    return <EntitySelector {...props} />
 }
 export const Simulation = () => {
-    const props: SelectEntityProps = {
+    const props: EntitySelectorProps = {
         entity: "simulation",
         setSelectedEntity: () => { console.log("set selected simulation") }
     }
-    return <SelectEntity {...props} />
+    return <EntitySelector {...props} />
 }

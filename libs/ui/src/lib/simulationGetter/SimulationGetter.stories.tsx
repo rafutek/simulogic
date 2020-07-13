@@ -3,7 +3,7 @@ import { SimulationGetter, SimulationGetterProps } from './SimulationGetter';
 import { WaveDrom, SimulationProps } from '@simulogic/core';
 
 export default {
-    title: 'Simulation getter',
+    title: 'SimulationGetter',
     component: SimulationGetter,
 };
 

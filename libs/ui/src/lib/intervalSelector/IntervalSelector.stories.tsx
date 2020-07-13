@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IntervalSelector } from './IntervalSelector';
 
 export default {
-    title: 'Select interval',
+    title: 'IntervalSelector',
     component: IntervalSelector,
 };
 
