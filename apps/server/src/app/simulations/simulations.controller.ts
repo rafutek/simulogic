@@ -117,7 +117,7 @@ export class SimulationsController {
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
-        // remove wires from wavedrom
+        wavedrom = this.simulationExtractor.selectWires(wavedrom, getSimulationDto.wires);
       }
 
       if (isNotEmpty(getSimulationDto.from) && isNotEmpty(getSimulationDto.to)) {

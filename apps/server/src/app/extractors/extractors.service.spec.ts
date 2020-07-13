@@ -42,7 +42,6 @@ describe("SimulationExtractor", () => {
     });
 
     describe("fillIntervalWaveDrom", () => {
-
       let interval_wavedrom: WaveDrom;
       beforeEach(() => {
         interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
@@ -98,7 +97,6 @@ describe("SimulationExtractor", () => {
     });
 
     describe("prependStartTime", () => {
-
       it("should prepend interval start value at tick and point at each wave", () => {
         // Given a filled wavedrom with the start interval value not included
         let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
@@ -145,7 +143,6 @@ describe("SimulationExtractor", () => {
     });
 
     describe("replaceStartPointsWithValues", () => {
-
       it("should replace the points with precedent values", () => {
         // Given a filled interval wavedrom with one wave starting with a point
         let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
@@ -165,7 +162,6 @@ describe("SimulationExtractor", () => {
       })
 
       describe('getPrecedentValue', () => {
-
         it("should return the precedent meaningfull value", () => {
           // Given a wave and a time value
           const wave = "x01....x", t = 5;
@@ -193,7 +189,6 @@ describe("SimulationExtractor", () => {
     });
 
     describe("appendEndTime", () => {
-
       it("should append interval end value at tick and point at each wave", () => {
         // Given a filled wavedrom with the end interval value not included
         let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
@@ -239,44 +234,22 @@ describe("SimulationExtractor", () => {
       });
     });
   });
+
   describe("combineWavedroms", () => {
-    let wavedrom1: WaveDrom;
-    let wavedrom2: WaveDrom;
-
-    beforeEach(() => {
-      wavedrom1 = {
-        signal: [],
-        foot: {
-          tick: ""
-        }
-      };
-      wavedrom2 = {
-        signal: [],
-        foot: {
-          tick: ""
-        }
-      };
-    });
-
     it("should combine wavedroms", () => {
       // Given two wavedroms with different signals and time axis
-      let s1: Signal = {
-        name: "s1",
-        wave: "x01..2.1x"
+      const s1: Signal = { name: "s1", wave: "x01..2.1x" };
+      const s2: Signal = { name: "s2", wave: "x0...1..x" };
+      const wavedrom1: WaveDrom = {
+        signal: [s1, s2],
+        foot: { tick: "x 0 10 11 20 25 39 40 x " }
       };
-      let s2: Signal = {
-        name: "s2",
-        wave: "x0...1..x"
-      };
-      wavedrom1.signal = [s1, s2];
-      wavedrom1.foot.tick = "x 0 10 11 20 25 39 40 x ";
 
-      let s3: Signal = {
-        name: "s3",
-        wave: "x0.1.0.2567.x"
+      const s3: Signal = { name: "s3", wave: "x0.1.0.2567.x" };
+      const wavedrom2: WaveDrom = {
+        signal: [s3],
+        foot: { tick: "x 30 40 100 111 120 123 200 205 206 207 230 x " }
       };
-      wavedrom2.signal = [s3];
-      wavedrom2.foot.tick = "x 30 40 100 111 120 123 200 205 206 207 230 x ";
 
       // When combining the thwo wavedroms
       const combined_wavedrom = extractor.combineWaveDroms(wavedrom1, wavedrom2);
@@ -290,8 +263,33 @@ describe("SimulationExtractor", () => {
         foot: {
           tick: "x 0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 x "
         }
-      }
+      };
       expect(combined_wavedrom).toEqual(expected_wavedrom);
+    });
+  });
+
+  describe("selectWires", () => {
+    it("should select wanted wires", () => {
+      // Given a wavedrom with some signals
+      const s1: Signal = { name: "s1", wave: "x010..1x" };
+      const s2: Signal = { name: "s2", wave: "x10...0x" };
+      const s3: Signal = { name: "s3", wave: "x1.0.1.x" };
+      const s4: Signal = { name: "s4", wave: "x.1.0.1x" };
+      const initial_wavedrom: WaveDrom = {
+        signal: [s1, s2, s3, s4],
+        foot: { tick: "x 12 28 45 76 79 81 90 x " }
+      };
+
+      // When selecting these signals
+      const wires = ["s1", "s3"];
+      const new_wavedrom = extractor.selectWires(initial_wavedrom, wires);
+
+      // Then this should be the resulting wavedrom
+      const expected_wavedrom: WaveDrom = {
+        signal: [s1, s3],
+        foot: initial_wavedrom.foot
+      };
+      expect(new_wavedrom).toEqual(expected_wavedrom);
     });
   });
 });

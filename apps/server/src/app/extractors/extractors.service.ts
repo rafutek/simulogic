@@ -426,4 +426,23 @@ export class ExtractorsService {
             return s;
         });
     }
+
+    /**
+     * Returns a WaveDrom with the wanted wires. It does not
+     * remove their events times from the absissa and points from other wires waves.
+     * @param wavedrom WaveDrom to select the wires from.
+     * @param wires Array of wires names to select.
+     */
+    selectWires(wavedrom: WaveDrom, wires: string[]) {
+        const wavedrom_wires: WaveDrom = {
+            signal: [],
+            foot: wavedrom.foot
+        };
+        wavedrom.signal.forEach(s => {
+            if(wires.includes(s.name)){
+                wavedrom_wires.signal.push(s);
+            }
+        })
+        return wavedrom_wires;
+    }
 }
