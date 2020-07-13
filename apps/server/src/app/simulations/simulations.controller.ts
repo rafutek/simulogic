@@ -121,7 +121,8 @@ export class SimulationsController {
       }
 
       if (isNotEmpty(getSimulationDto.from) && isNotEmpty(getSimulationDto.to)) {
-        // extract interval from wavedrom
+        wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
+          getSimulationDto.from, getSimulationDto.to);
       }
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
 

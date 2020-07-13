@@ -227,13 +227,11 @@ export class ExtractorsService {
 
     getWaveDromInterval(id: number, file_path: string, from: number, to: number) {
         const wavedrom = this.getWaveDrom(id, file_path);
-        console.log(wavedrom)
         const interval_wavedrom = this.extractWaveDromInterval(wavedrom, from, to);
-        console.log(interval_wavedrom)
         return interval_wavedrom;
     }
 
-    private extractWaveDromInterval(wavedrom: WaveDrom, from: number, to: number) {
+    extractWaveDromInterval(wavedrom: WaveDrom, from: number, to: number) {
         if (wavedrom) {
             let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
             interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
