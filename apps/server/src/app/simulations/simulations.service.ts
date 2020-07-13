@@ -26,12 +26,14 @@ export class SimulationsService {
 
   async findAll(): Promise<Simulation[]> {
     return this.simulationsRepository.find({
-      select: ["id", "name"] // return only the simulation ids and filenames
+      select: ["id", "name"] // return only the simulations ids and filenames
     });
   }
 
   findOne(id: string | number): Promise<Simulation> {
-    return this.simulationsRepository.findOne(id);
+    return this.simulationsRepository.findOne(id, {
+      select: ["id", "name"]
+    });
   }
 
   async remove(id: string | number): Promise<void> {

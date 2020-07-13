@@ -47,3 +47,13 @@ export interface ExtractedSimulation {
     id: number,
     wavedrom: WaveDrom
 }
+
+export interface SimulationGetter {
+    id_simu: number;
+    id_circuit: number;
+    result: boolean;
+    from: number;
+    to: number;
+    wires: string[];
+  }
+  

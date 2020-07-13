@@ -9,14 +9,14 @@ export class CircuitsService {
   constructor(
     @InjectRepository(Circuit)
     private readonly circuitsRepository: Repository<Circuit>,
-  ) {}
+  ) { }
 
   create(createCircuitDto: CreateCircuitDto): Promise<Circuit> {
     const circuit = new Circuit();
     circuit.name = createCircuitDto.name
     circuit.path = createCircuitDto.path;
     circuit.simulator_path = '';
-    
+
     return this.circuitsRepository.save(circuit);
   }
 
@@ -26,12 +26,14 @@ export class CircuitsService {
 
   async findAll(): Promise<Circuit[]> {
     return this.circuitsRepository.find({
-      select: ["id", "name"] // return only the circuit ids and filenames
+      select: ["id", "name"] // return only the circuits ids and filenames
     });
   }
 
   findOne(id: string | number): Promise<Circuit> {
-    return this.circuitsRepository.findOne(id);
+    return this.circuitsRepository.findOne(id, {
+      select: ["id", "name"]
+    });
   }
 
   async remove(id: string | number): Promise<void> {

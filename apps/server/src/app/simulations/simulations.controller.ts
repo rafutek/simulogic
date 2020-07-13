@@ -46,11 +46,6 @@ export class SimulationsController {
 
   createAndSaveSimulator(circuit: Circuit) {
     const circuit_filename = circuit.path.split('/').pop();
-    // exec(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`, (err, out, std) => { // for testing
-    //   console.log(err);
-    //   console.log(out);
-    //   console.log(std);
-    // });
     execSync(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`);
     const simulatorPath = `simulator/home/user1/simulator/bin/${circuit_filename}`;
     if (fs.existsSync(simulatorPath)) {
@@ -70,48 +65,9 @@ export class SimulationsController {
     } else throw new InternalServerErrorException("Error in executing and saving simulation");
   }
 
-  /**
-   * Manage request for returning a simulation result.
-   * If the simulation is not done, it launches the circuit simulator and save the result.
-   * If the circuit simulator is not created, it creates and save it.
-   * @param idCirc id of circuit in the database
-   * @param idSimu id of simulation in the database
-   */
-  @Get(':idCirc/:idSimu')
-  async getResult(@Param('idCirc') idCirc: number, @Param('idSimu') idSimu: number) {
-    const simulation = await this.simulationsService.findOne(idSimu);
-    if (simulation) {
-      if (simulation.result_path === '') {
-        const circuit = await this.circuitsService.findOne(idCirc);
-        if (circuit) {
-          if (circuit.simulator_path === '') {
-            this.createAndSaveSimulator(circuit);
-          }
-          this.executeAndSaveSimulation(circuit, simulation);
-        } else throw new BadRequestException(`circuit ${idCirc} not found`);
-
-      }
-      if (fs.existsSync(simulation.result_path)) {
-        return this.simulationExtractor.getWaveDrom(idSimu, simulation.result_path);
-      }
-    } else throw new BadRequestException(`simulation ${idSimu} not found`);
-  }
-
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    const simulation = await this.simulationsService.findOne(id);
-    if (simulation) {
-      return this.simulationExtractor.getWaveDrom(id, simulation.path);
-    }
-  }
-
-  @Get(':id/:from/:to')
-  async findOneInterval(@Param() params) {
-    const simulation = await this.simulationsService.findOne(params.id);
-    if (simulation) {
-      return this.simulationExtractor
-        .getWaveDromInterval(params.id, simulation.path, params.from, params.to);
-    }
+    return this.simulationsService.findOne(id);
   }
 
   @Delete(':id')
