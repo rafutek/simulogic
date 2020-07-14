@@ -11,17 +11,16 @@ export class SimulationsService {
     private readonly simulationsRepository: Repository<Simulation>,
   ) { }
 
-  create(createSimulationDto: CreateSimulationDto): Promise<Simulation> {
+  async create(createSimulationDto: CreateSimulationDto) {
     const simulation = new Simulation();
     simulation.name = createSimulationDto.name
     simulation.path = createSimulationDto.path;
     simulation.result_path = '';
-
-    return this.simulationsRepository.save(simulation);
+    await this.simulationsRepository.save(simulation);
   }
 
-  update(simulation: Simulation): Promise<Simulation> {
-    return this.simulationsRepository.save(simulation);
+  async update(simulation: Simulation) {
+    await this.simulationsRepository.save(simulation);
   }
 
   async findAll(): Promise<Simulation[]> {
@@ -49,5 +48,13 @@ export class SimulationsService {
       where: { name: Like(search_expr) },
       select: ["id", "name"]
     })
+  }
+
+  async rename(id: string | number, new_name: string) {
+    const simulation = await this.simulationsRepository.findOne(id);
+    if(simulation){
+      simulation.name = new_name;
+      await this.simulationsRepository.save(simulation);
+    }
   }
 }

@@ -14,7 +14,7 @@ export class CircuitsController {
   @UseInterceptors(FileInterceptor('file', {
     dest: 'simulator/home/user1/circuitCreator/data'
   }))
-  async create(@UploadedFile() file: Express.Multer.File): Promise<Circuit> {
+  async create(@UploadedFile() file: Express.Multer.File) {
     const createCircuitDto = new CreateCircuitDto();
     createCircuitDto.name = file?.originalname;
     createCircuitDto.path = file?.path;
@@ -22,7 +22,7 @@ export class CircuitsController {
     if (errors.length > 0) {
       throw new BadRequestException('Validation failed');
     }
-    return this.circuitsService.create(createCircuitDto);
+    await this.circuitsService.create(createCircuitDto);
   }
 
   @Get()
@@ -36,7 +36,7 @@ export class CircuitsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: string) {
     const circuit = await this.circuitsService.findOne(id);
     if (circuit) {
       if (circuit.simulator_path != '' && fs.existsSync(circuit.simulator_path)) {
@@ -46,7 +46,7 @@ export class CircuitsController {
         fs.unlinkSync(circuit.path);
       }
     }
-    return this.circuitsService.remove(id);
+    await this.circuitsService.remove(id);
   }
 
   /**
@@ -55,5 +55,14 @@ export class CircuitsController {
   @Get('search/:expr')
   searchCircuits(@Param('expr') expr: string) {
     return this.circuitsService.searchNames('%' + expr + '%');
+  }
+
+  /**
+   * Renames a circuit if it exists. Throws an error otherwise.
+   * @param params Object containing the request id and new name.
+   */
+  @Get(':id/rename/:new_name')
+  async rename(@Param() params: any) {
+    await this.circuitsService.rename(params.id, params.new_name);
   }
 }

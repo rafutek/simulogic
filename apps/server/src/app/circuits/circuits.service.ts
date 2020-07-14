@@ -11,17 +11,16 @@ export class CircuitsService {
     private readonly circuitsRepository: Repository<Circuit>,
   ) { }
 
-  create(createCircuitDto: CreateCircuitDto): Promise<Circuit> {
+  async create(createCircuitDto: CreateCircuitDto) {
     const circuit = new Circuit();
     circuit.name = createCircuitDto.name
     circuit.path = createCircuitDto.path;
     circuit.simulator_path = '';
-
-    return this.circuitsRepository.save(circuit);
+    await this.circuitsRepository.save(circuit);
   }
 
-  update(circuit: Circuit): Promise<Circuit> {
-    return this.circuitsRepository.save(circuit);
+  async update(circuit: Circuit) {
+    await this.circuitsRepository.save(circuit);
   }
 
   findAll(): Promise<Circuit[]> {
@@ -50,5 +49,13 @@ export class CircuitsService {
       where: { name: Like(search_expr) },
       select: ["id", "name"]
     })
+  }
+
+  async rename(id: string | number, new_name: string) {
+    const circuit = await this.circuitsRepository.findOne(id);
+    if(circuit){
+      circuit.name = new_name;
+      await this.circuitsRepository.save(circuit);
+    }
   }
 }

@@ -28,7 +28,7 @@ export class SimulationsController {
   @UseInterceptors(FileInterceptor('file', {
     dest: 'simulator/home/user1/simulator/data'
   }))
-  async create(@UploadedFile() file: Express.Multer.File): Promise<Simulation> {
+  async create(@UploadedFile() file: Express.Multer.File) {
     const createSimulationDto = new CreateSimulationDto();
     createSimulationDto.name = file?.originalname;
     createSimulationDto.path = file?.path;
@@ -36,7 +36,7 @@ export class SimulationsController {
     if (errors.length > 0) {
       throw new BadRequestException('Validation failed');
     }
-    return this.simulationsService.create(createSimulationDto);
+    await this.simulationsService.create(createSimulationDto);
   }
 
   @Get()
@@ -129,12 +129,20 @@ export class SimulationsController {
     return wavedrom;
   }
 
-    /**
-   * Returns the simulations which name contains the expression.
-   */
+  /**
+ * Returns the simulations which name contains the expression.
+ */
   @Get('search/:expr')
   searchCircuits(@Param('expr') expr: string) {
     return this.simulationsService.searchNames('%' + expr + '%');
   }
 
+  /**
+ * Renames a simulation if it exists. Throws an error otherwise.
+ * @param params Object containing the request id and new name.
+ */
+  @Get(':id/rename/:new_name')
+  async rename(@Param() params: any) {
+    await this.simulationsService.rename(params.id, params.new_name);
+  }
 }
