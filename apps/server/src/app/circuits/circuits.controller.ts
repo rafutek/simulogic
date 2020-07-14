@@ -32,7 +32,7 @@ export class CircuitsController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Circuit> {
-    return this.circuitsService.findOne(id);
+    return this.circuitsService.findEntity(id);
   }
 
   @Delete(':id')
@@ -47,5 +47,13 @@ export class CircuitsController {
       }
     }
     return this.circuitsService.remove(id);
+  }
+
+  /**
+   * Returns the circuits which name contains the expression.
+   */
+  @Get('search/:expr')
+  searchCircuits(@Param('expr') expr: string) {
+    return this.circuitsService.searchNames('%' + expr + '%');
   }
 }

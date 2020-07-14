@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { Circuit } from './circuit.entity';
 
@@ -24,13 +24,18 @@ export class CircuitsService {
     return this.circuitsRepository.save(circuit);
   }
 
-  async findAll(): Promise<Circuit[]> {
+  findAll(): Promise<Circuit[]> {
     return this.circuitsRepository.find({
       select: ["id", "name"] // return only the circuits ids and filenames
     });
   }
 
   findOne(id: string | number): Promise<Circuit> {
+    return this.circuitsRepository.findOne(id);
+  }
+
+
+  findEntity(id: string | number): Promise<Circuit> {
     return this.circuitsRepository.findOne(id, {
       select: ["id", "name"]
     });
@@ -38,5 +43,12 @@ export class CircuitsService {
 
   async remove(id: string | number): Promise<void> {
     await this.circuitsRepository.delete(id);
+  }
+
+  searchNames(search_expr: string): Promise<Circuit[]> {
+    return this.circuitsRepository.find({
+      where: { name: Like(search_expr) },
+      select: ["id", "name"]
+    })
   }
 }

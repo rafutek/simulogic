@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { CreateSimulationDto } from './dto/create-simulation.dto';
 import { Simulation } from './simulation.entity';
 
@@ -42,5 +42,12 @@ export class SimulationsService {
 
   async remove(id: string | number): Promise<void> {
     await this.simulationsRepository.delete(id);
+  }
+
+  searchNames(search_expr: string): Promise<Simulation[]> {
+    return this.simulationsRepository.find({
+      where: { name: Like(search_expr) },
+      select: ["id", "name"]
+    })
   }
 }

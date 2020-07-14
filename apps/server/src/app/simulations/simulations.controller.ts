@@ -129,4 +129,12 @@ export class SimulationsController {
     return wavedrom;
   }
 
+    /**
+   * Returns the simulations which name contains the expression.
+   */
+  @Get('search/:expr')
+  searchCircuits(@Param('expr') expr: string) {
+    return this.simulationsService.searchNames('%' + expr + '%');
+  }
+
 }
