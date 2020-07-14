@@ -27,6 +27,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.10.2",
+    "@material-ui/icons": "^4.9.1",
     "@nestjs/common": "^6.8.3",
     "@nestjs/core": "^6.8.3",
     "@nestjs/platform-express": "^6.8.3",
