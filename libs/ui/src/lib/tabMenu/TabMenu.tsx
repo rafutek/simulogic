@@ -9,6 +9,8 @@ import InputIcon from '@material-ui/icons/Input';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
+import { SearchField, SearchFieldProps } from '../searchField/SearchField';
+import { Entity } from '@simulogic/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -51,7 +53,7 @@ const TabPanel = (props: TabPanelProps) => {
             {...other}
         >
             {value == index && (
-                <Box p={3}>
+                <Box p={1}>
                     <Typography>{children}</Typography>
                 </Box>
             )}
@@ -75,6 +77,19 @@ export const TabMenu = () => {
         setValue(newValue);
     };
 
+
+    const printSearchResult = (search_result: Entity) => {
+        console.log(search_result);
+    }
+    const searchCircuitsProps: SearchFieldProps = {
+        what: "circuits",
+        setSearchResult: printSearchResult
+    }
+    const searchSimulationsProps: SearchFieldProps = {
+        what: "simulations",
+        setSearchResult: printSearchResult
+    }
+
     return (
         <div className={classes.root}>
             <Tabs
@@ -91,10 +106,10 @@ export const TabMenu = () => {
             </Tabs>
             <div className={classes.panels}>
                 <TabPanel value={value} index={0} hide={hidePanel} >
-                    Item One
-            </TabPanel>
+                    <SearchField {...searchCircuitsProps} />
+                </TabPanel>
                 <TabPanel value={value} index={1} hide={hidePanel} >
-                    Item Two
+                <SearchField {...searchSimulationsProps} />
             </TabPanel>
                 <TabPanel value={value} index={2} hide={hidePanel} >
                     Item Three
