@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -9,29 +9,6 @@ import InputIcon from '@material-ui/icons/Input';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
-
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: any;
-    value: any;
-}
-
-function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div
-            hidden={value != index}
-            {...other}
-        >
-            {value == index && (
-                <Box p={3}>
-                    <Typography>{children}</Typography>
-                </Box>
-            )}
-        </div>
-    );
-}
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -58,14 +35,42 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }));
 
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+    hide: boolean;
+}
+
+const TabPanel = (props: TabPanelProps) => {
+    const { children, value, index, hide, ...other } = props;
+
+    return (
+        <div
+            hidden={hide || value != index}
+            {...other}
+        >
+            {value == index && (
+                <Box p={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
 
 export const TabMenu = () => {
     const classes = useStyles();
-    const [value, setValue] = React.useState<number>();
+    const [value, setValue] = useState(0);
+    const [hidePanel, setHidePanel] = useState(true);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-        if (newValue == value) {
-            newValue = null; // to toggle the tab panel
+        // Toggle tab panel
+        if (hidePanel) {
+            setHidePanel(false);
+        }
+        else if (newValue == value) {
+            setHidePanel(true);
         }
         setValue(newValue);
     };
@@ -85,19 +90,19 @@ export const TabMenu = () => {
                 <Tab icon={<SettingsIcon />} className={`${classes.tab} ${classes.bottom}`} />
             </Tabs>
             <div className={classes.panels}>
-                <TabPanel value={value} index={0}>
+                <TabPanel value={value} index={0} hide={hidePanel} >
                     Item One
             </TabPanel>
-                <TabPanel value={value} index={1}>
+                <TabPanel value={value} index={1} hide={hidePanel} >
                     Item Two
             </TabPanel>
-                <TabPanel value={value} index={2}>
+                <TabPanel value={value} index={2} hide={hidePanel} >
                     Item Three
             </TabPanel>
-                <TabPanel value={value} index={3}>
+                <TabPanel value={value} index={3} hide={hidePanel} >
                     Item Four
             </TabPanel>
-                <TabPanel value={value} index={4}>
+                <TabPanel value={value} index={4} hide={hidePanel} >
                     Item Five
             </TabPanel>
             </div>

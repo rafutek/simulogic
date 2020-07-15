@@ -11,7 +11,7 @@ const repoLink = "https://github.com/rafutek/simulogic";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            flexGrow: 1,
+            margin: 0
         },
         title: {
             flexGrow: 1,
@@ -23,6 +23,7 @@ export const AppBar = () => {
     const classes = useStyles();
 
     return (
+        <div className={classes.root}>
             <BaseBar position="static" color="primary">
                 <Toolbar variant="dense">
                     <Typography variant="h5" className={classes.title}>
@@ -33,5 +34,6 @@ export const AppBar = () => {
                     </IconButton>
                 </Toolbar>
             </BaseBar>
+        </div>
     )
 }
