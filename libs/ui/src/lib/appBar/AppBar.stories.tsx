@@ -1,22 +1,22 @@
 import React from 'react';
-import { SimulogicBar } from './SimulogicBar'
+import { AppBar } from './AppBar'
 import { theme } from '../SimulogicTheme';
 import { ThemeProvider } from '@material-ui/core/styles';
 
 
 export default {
-    title: 'SimulogicBar',
-    component: SimulogicBar,
+    title: 'AppBar',
+    component: AppBar,
 };
 
 export const Default = () => {
-    return <SimulogicBar />
+    return <AppBar />
 }
 
 export const WithTheme = () => {
     return (
         <ThemeProvider theme={theme}>
-            <SimulogicBar />
+            <AppBar />
         </ThemeProvider>
     )
 }

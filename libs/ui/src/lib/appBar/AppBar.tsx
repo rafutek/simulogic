@@ -1,5 +1,5 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
+import BaseBar from '@material-ui/core/AppBar';
 import {
     makeStyles, Theme, createStyles,
     IconButton, Toolbar, Typography
@@ -19,11 +19,11 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export const SimulogicBar = () => {
+export const AppBar = () => {
     const classes = useStyles();
 
     return (
-            <AppBar position="static" color="primary">
+            <BaseBar position="static" color="primary">
                 <Toolbar variant="dense">
                     <Typography variant="h5" className={classes.title}>
                         Simulogic
@@ -32,6 +32,6 @@ export const SimulogicBar = () => {
                         <GitHubIcon />
                     </IconButton>
                 </Toolbar>
-            </AppBar>
+            </BaseBar>
     )
 }
