@@ -11,6 +11,8 @@ import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
 import { Entity } from '@simulogic/core';
+import { List } from '@material-ui/core';
+import { EntityItem } from '../entityItem/EntityItem';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -65,6 +67,8 @@ export const TabMenu = () => {
     const classes = useStyles();
     const [value, setValue] = useState(0);
     const [hidePanel, setHidePanel] = useState(true);
+    const [circuits, setCircuits] = useState<Entity[]>();
+
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         // Toggle tab panel
@@ -78,16 +82,30 @@ export const TabMenu = () => {
     };
 
 
-    const printSearchResult = (search_result: Entity) => {
+    const printSearchResult = (search_result: Entity[]) => {
         console.log(search_result);
     }
     const searchCircuitsProps: SearchFieldProps = {
         what: "circuits",
-        setSearchResult: printSearchResult
+        setSearchResult: setCircuits
     }
     const searchSimulationsProps: SearchFieldProps = {
         what: "simulations",
         setSearchResult: printSearchResult
+    }
+    const searchWiresProps: SearchFieldProps = {
+        what: "wires",
+        setSearchResult: printSearchResult
+    }
+
+    const CircuitsList = () => {
+        if (circuits) {
+            return (
+                <List>
+                    {circuits.map(circuit => <EntityItem entity={circuit} />)}
+                </List>
+            )
+        } else return null;
     }
 
     return (
@@ -107,18 +125,19 @@ export const TabMenu = () => {
             <div className={classes.panels}>
                 <TabPanel value={value} index={0} hide={hidePanel} >
                     <SearchField {...searchCircuitsProps} />
+                    <CircuitsList />
                 </TabPanel>
                 <TabPanel value={value} index={1} hide={hidePanel} >
-                <SearchField {...searchSimulationsProps} />
-            </TabPanel>
+                    <SearchField {...searchSimulationsProps} />
+                </TabPanel>
                 <TabPanel value={value} index={2} hide={hidePanel} >
-                    Item Three
-            </TabPanel>
+                    <SearchField {...searchWiresProps} />
+                </TabPanel>
                 <TabPanel value={value} index={3} hide={hidePanel} >
-                    Item Four
+                    Workbench tweaks
             </TabPanel>
                 <TabPanel value={value} index={4} hide={hidePanel} >
-                    Item Five
+                    Parameters
             </TabPanel>
             </div>
         </div>

@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface SearchFieldProps {
     what: "circuits" | "simulations" | "wires",
-    setSearchResult: (search_result: Entity) => void
+    setSearchResult: (search_result: Entity[]) => void
 }
 
 export const SearchField = (props: SearchFieldProps) => {
