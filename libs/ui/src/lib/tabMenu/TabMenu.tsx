@@ -10,9 +10,10 @@ import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponen
 import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
-import { Entity } from '@simulogic/core';
+import { Entity, entity } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import { EntityItem } from '../entityItem/EntityItem';
+import { EntityUploader } from '../entityUploader/EntityUploader';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -68,7 +69,7 @@ export const TabMenu = () => {
     const [value, setValue] = useState(0);
     const [hidePanel, setHidePanel] = useState(true);
     const [circuits, setCircuits] = useState<Entity[]>();
-
+    const [simulations, setSimulations] = useState<Entity[]>();
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         // Toggle tab panel
@@ -86,23 +87,28 @@ export const TabMenu = () => {
         console.log(search_result);
     }
     const searchCircuitsProps: SearchFieldProps = {
-        what: "circuits",
+        what: "circuit",
         setSearchResult: setCircuits
     }
     const searchSimulationsProps: SearchFieldProps = {
-        what: "simulations",
-        setSearchResult: printSearchResult
+        what: "simulation",
+        setSearchResult: setSimulations
     }
     const searchWiresProps: SearchFieldProps = {
-        what: "wires",
+        what: "wire",
         setSearchResult: printSearchResult
     }
 
-    const CircuitsList = () => {
-        if (circuits) {
+    interface EntitiesListProps {
+        entities: Entity[],
+        what: entity
+    };
+    const EntitiesList = (props: EntitiesListProps) => {
+        const { entities, what } = props;
+        if (entities) {
             return (
                 <List>
-                    {circuits.map(circuit => <EntityItem entity={circuit} />)}
+                    {entities.map(entity => <EntityItem what={what} entity={entity} />)}
                 </List>
             )
         } else return null;
@@ -124,11 +130,13 @@ export const TabMenu = () => {
             </Tabs>
             <div className={classes.panels}>
                 <TabPanel value={value} index={0} hide={hidePanel} >
+                    <EntityUploader entity="circuit" onUpload={null} />
                     <SearchField {...searchCircuitsProps} />
-                    <CircuitsList />
+                    <EntitiesList entities={circuits} what={"circuit"} />
                 </TabPanel>
                 <TabPanel value={value} index={1} hide={hidePanel} >
                     <SearchField {...searchSimulationsProps} />
+                    <EntitiesList entities={simulations} what={"simulation"} />
                 </TabPanel>
                 <TabPanel value={value} index={2} hide={hidePanel} >
                     <SearchField {...searchWiresProps} />

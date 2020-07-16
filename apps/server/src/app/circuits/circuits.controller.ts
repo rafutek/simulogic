@@ -1,5 +1,5 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, BadRequestException } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, BadRequestException, UploadedFiles, ForbiddenException } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CircuitsService } from './circuits.service';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { Circuit } from './circuit.entity';
@@ -10,7 +10,32 @@ import { validate } from 'class-validator';
 export class CircuitsController {
   constructor(private readonly circuitsService: CircuitsService) { }
 
+
   @Post()
+  @UseInterceptors(FilesInterceptor('file', 20, {
+    dest: 'simulator/home/user1/circuitCreator/data'
+  }))
+  async uploadCircuitFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    const ext = ".logic";
+    const ext_regexp = RegExp(`${ext}$`);
+    let bad_extension = false;
+    files.forEach(async file => {
+      if (!file.originalname.match(ext_regexp)) {
+        fs.unlinkSync(file.path);
+        bad_extension = true;
+      } else {
+        const createCircuitDto = new CreateCircuitDto();
+        createCircuitDto.name = file.originalname;
+        createCircuitDto.path = file.path;
+        await this.circuitsService.create(createCircuitDto);
+      }
+    })
+    if(bad_extension){
+      throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
+    }
+  }
+
+  @Post("onefile")
   @UseInterceptors(FileInterceptor('file', {
     dest: 'simulator/home/user1/circuitCreator/data'
   }))
@@ -22,7 +47,6 @@ export class CircuitsController {
     if (errors.length > 0) {
       throw new BadRequestException('Validation failed');
     }
-    await this.circuitsService.create(createCircuitDto);
   }
 
   @Get()

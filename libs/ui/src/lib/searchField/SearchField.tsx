@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import axios from 'axios';
-import { Entity } from '@simulogic/core';
+import { Entity, entity } from '@simulogic/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export interface SearchFieldProps {
-    what: "circuits" | "simulations" | "wires",
+    what: entity | "wire",
     setSearchResult: (search_result: Entity[]) => void
 }
 
@@ -33,7 +33,7 @@ export const SearchField = (props: SearchFieldProps) => {
     const [search_exp, setSearchExp] = useState<string>();
 
     const search = () => {
-        axios.get(`/${props.what}/search/${search_exp}`)
+        axios.get(`/${props.what}s/search/${search_exp}`)
             .then(response => {
                 props.setSearchResult(response.data);
             })
@@ -56,7 +56,7 @@ export const SearchField = (props: SearchFieldProps) => {
             <Paper component="form" onSubmit={handleSubmit} className={classes.root}>
                 <InputBase
                     className={classes.input}
-                    placeholder={`Search ${props.what}`}
+                    placeholder={`Search ${props.what}s`}
                     onChange={handleChange}
                 />
                 <IconButton type="submit" className={classes.icon}>

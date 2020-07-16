@@ -34,6 +34,8 @@ export const EntityItem = (props: EntityItemProps) => {
         event.preventDefault();
         if(new_name){
             rename();
+            props.entity.name = new_name;
+            setEdit(false);
         }
     }
 

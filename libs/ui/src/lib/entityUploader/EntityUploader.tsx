@@ -1,83 +1,68 @@
 import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
 import { entity } from '@simulogic/core';
+import { Input, Button, makeStyles, Theme, createStyles } from '@material-ui/core';
 
 export interface EntityUploaderProps {
     entity: entity;
     onUpload: (uploaded: true) => void;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            marginBottom: theme.spacing(1)
+        },
+        button: {
+            width: "100%"
+        }
+    }),
+);
+
 export const EntityUploader = (props: EntityUploaderProps) => {
+    const classes = useStyles();
 
-    const [file, setFile] = useState<File>();
-    const [uploaded, setUploaded] = useState(false);
-
-    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
-            setFile(event.target.files[0]);
-        }
-    }
-
-    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            axios.post(`/${props.entity}s`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-                .then(() => {
-                    setUploaded(true);
-                    props.onUpload(true);
-                })
-                .catch((error) => {
-                    setUploaded(false);
-                    props.onUpload(true);
-                    console.log(error);
-                });
-        }
-    }
-
-    const UploadButton = () => {
-        if (file) {
-            return (
-                <div>
-                    <Button type="submit" variant="contained" color="primary">
-                        Upload
-                    </Button>
-                    {uploaded ? <p>uploaded</p> : <p>not uploaded</p>}
-                </div>
-            )
-        }
-        else return null;
-    }
+    // const [files, setFiles] = useState<FileList>();
 
     const Extension = Object.freeze({ "circuit": ".logic", "simulation": ".simu" })
     const extension = Extension[props.entity];
 
-    return (
-        <div>
-            <form onSubmit={onSubmit}>
-                <input
-                    hidden
-                    accept={extension}
-                    id={`contained-button-file-${extension}`}
-                    type="file"
-                    onChange={onChange}
-                />
-                <label htmlFor={`contained-button-file-${extension}`}>
-                    <Button variant="contained" color="primary" component="span">
-                        Choose {props.entity} to upload
-                    </Button>
-                </label>
+    const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('file', files[i]);
+            }
+            axios.post(`/${props.entity}s`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then(response => {
+                console.log(response)
+            }).catch((error) => {
+                console.log(error);
+            });
+        }
+    }
 
-                <h3>file: {file?.name}</h3>
-                <UploadButton />
-            </form>
+    return (
+        <div className={classes.root}>
+            <input
+                hidden
+                accept={extension}
+                id="contained-button-file"
+                multiple
+                type="file"
+                onChange={handleInput}
+            />
+            <label htmlFor="contained-button-file">
+                <Button className={classes.button} variant="contained" color="primary"
+                    component="span">
+                    <AddIcon />
+                </Button>
+            </label>
         </div>
     )
 }

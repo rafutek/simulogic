@@ -53,7 +53,7 @@ export class CircuitsService {
 
   async rename(id: string | number, new_name: string) {
     const circuit = await this.circuitsRepository.findOne(id);
-    if(circuit){
+    if (circuit) {
       circuit.name = new_name;
       await this.circuitsRepository.save(circuit);
     }
