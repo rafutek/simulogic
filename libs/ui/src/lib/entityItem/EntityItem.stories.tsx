@@ -9,9 +9,10 @@ export default {
 };
 
 const props: EntityItemProps = {
+    what: "circuit",
     entity: {
         id: 1,
-        name: "name test"
+        name: "adder.logic"
     }
 };
 
