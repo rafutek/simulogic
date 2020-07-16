@@ -27,25 +27,15 @@ export class CircuitsController {
         const createCircuitDto = new CreateCircuitDto();
         createCircuitDto.name = file.originalname;
         createCircuitDto.path = file.path;
+        // const errors = await validate(createCircuitDto);
+        // if (errors.length > 0) {
+        //   throw new BadRequestException('Validation failed');
+        // }
         await this.circuitsService.create(createCircuitDto);
       }
     })
     if(bad_extension){
       throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
-    }
-  }
-
-  @Post("onefile")
-  @UseInterceptors(FileInterceptor('file', {
-    dest: 'simulator/home/user1/circuitCreator/data'
-  }))
-  async create(@UploadedFile() file: Express.Multer.File) {
-    const createCircuitDto = new CreateCircuitDto();
-    createCircuitDto.name = file?.originalname;
-    createCircuitDto.path = file?.path;
-    const errors = await validate(createCircuitDto);
-    if (errors.length > 0) {
-      throw new BadRequestException('Validation failed');
     }
   }
 

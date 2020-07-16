@@ -1,8 +1,8 @@
 import {
   Controller, Post, Get, Delete, Param, UseInterceptors, UploadedFile,
-  BadRequestException, InternalServerErrorException, Body
+  BadRequestException, InternalServerErrorException, Body, UploadedFiles, ForbiddenException
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationsService } from './simulations.service';
 import { CreateSimulationDto } from './dto/create-simulation.dto';
 import { Simulation } from './simulation.entity';
@@ -25,18 +25,28 @@ export class SimulationsController {
   ) { }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', {
+  @UseInterceptors(FilesInterceptor('file', 20, {
     dest: 'simulator/home/user1/simulator/data'
   }))
-  async create(@UploadedFile() file: Express.Multer.File) {
-    const createSimulationDto = new CreateSimulationDto();
-    createSimulationDto.name = file?.originalname;
-    createSimulationDto.path = file?.path;
-    const errors = await validate(createSimulationDto);
-    if (errors.length > 0) {
-      throw new BadRequestException('Validation failed');
+  async uploadSimulationFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    const ext = ".simu";
+    const ext_regexp = RegExp(`${ext}$`);
+    let bad_extension = false;
+    files.forEach(async file => {
+      if (!file.originalname.match(ext_regexp)) {
+        console.log("error")
+        fs.unlinkSync(file.path);
+        bad_extension = true;
+      } else {
+        const simulation = new CreateSimulationDto();
+        simulation.name = file.originalname;
+        simulation.path = file.path;
+        await this.simulationsService.create(simulation);
+      }
+    })
+    if (bad_extension) {
+      throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
     }
-    await this.simulationsService.create(createSimulationDto);
   }
 
   @Get()

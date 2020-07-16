@@ -135,6 +135,7 @@ export const TabMenu = () => {
                     <EntitiesList entities={circuits} what={"circuit"} />
                 </TabPanel>
                 <TabPanel value={value} index={1} hide={hidePanel} >
+                    <EntityUploader entity="simulation" onUpload={null} />
                     <SearchField {...searchSimulationsProps} />
                     <EntitiesList entities={simulations} what={"simulation"} />
                 </TabPanel>
