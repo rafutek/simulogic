@@ -34,7 +34,6 @@ export class SimulationsController {
     let bad_extension = false;
     files.forEach(async file => {
       if (!file.originalname.match(ext_regexp)) {
-        console.log("error")
         fs.unlinkSync(file.path);
         bad_extension = true;
       } else {

@@ -18,6 +18,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 export interface EntityItemProps {
     what: entity,
     entity: Entity
+    onRename?: () => void,
+    onDelete?: () => void
 }
 
 export const EntityItem = (props: EntityItemProps) => {
@@ -32,15 +34,18 @@ export const EntityItem = (props: EntityItemProps) => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if(new_name){
+        if (new_name) {
             rename();
-            props.entity.name = new_name;
-            setEdit(false);
         }
     }
 
     const rename = () => {
         axios.get(`/${props.what}s/${props.entity.id}/rename/${new_name}`)
+            .then(val => {
+                props.entity.name = new_name;
+                setEdit(false);
+                props.onRename ? props.onRename() : null;
+            })
             .catch(error => {
                 console.log(error);
             });
@@ -50,6 +55,16 @@ export const EntityItem = (props: EntityItemProps) => {
         setEdit(false);
     }
 
+    const handleDelete = (event: any) => {
+        axios.delete(`/${props.what}s/${props.entity.id}`)
+            .then(val => {
+                props.onDelete ? props.onDelete() : null;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
     const NameField = () => {
         if (!edit) {
             return <ListItemText>{props.entity.name}</ListItemText>
@@ -57,8 +72,8 @@ export const EntityItem = (props: EntityItemProps) => {
             return (
                 <ListItemText>
                     <form onSubmit={handleSubmit} >
-                        <Input autoFocus placeholder="New name" defaultValue={props.entity.name} 
-                        onChange={(e) => new_name = e.target.value} onBlur={handleBlur}/>
+                        <Input autoFocus placeholder="New name" defaultValue={props.entity.name}
+                            onChange={(e) => new_name = e.target.value} onBlur={handleBlur} />
                     </form>
                 </ListItemText>
             )
@@ -72,7 +87,7 @@ export const EntityItem = (props: EntityItemProps) => {
                 <IconButton className={classes.icon} onClick={handleEdit}>
                     <EditIcon />
                 </IconButton>
-                <IconButton className={classes.icon}>
+                <IconButton className={classes.icon} onClick={handleDelete}>
                     <DeleteIcon />
                 </IconButton>
             </ListItem>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     makeStyles, Theme, createStyles,
     Paper, IconButton, InputBase
@@ -24,7 +24,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface SearchFieldProps {
     what: entity | "wire",
-    setSearchResult: (search_result: Entity[]) => void
+    setSearchResult: (search_result: Entity[]) => void,
+    refresh?: boolean,
+    setRefresh?: (refresh: boolean) => void
 }
 
 export const SearchField = (props: SearchFieldProps) => {
@@ -33,13 +35,19 @@ export const SearchField = (props: SearchFieldProps) => {
     const [search_exp, setSearchExp] = useState<string>();
 
     const search = () => {
-        axios.get(`/${props.what}s/search/${search_exp}`)
-            .then(response => {
-                props.setSearchResult(response.data);
-            })
-            .catch(error => {
-                console.log(error);
-            });
+        if (props.what != "wire") {
+            let search_address = `/${props.what}s`;
+            if (search_exp && search_exp.length > 0) {
+                search_address += `/search/${search_exp}`;
+            }
+            axios.get(search_address)
+                .then(response => {
+                    props.setSearchResult(response.data);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
     }
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -50,6 +58,14 @@ export const SearchField = (props: SearchFieldProps) => {
         event.preventDefault();
         search();
     }
+
+    useEffect(() => {
+        if (props.refresh) {
+            console.log("refresh")
+            search();
+            props.setRefresh ? props.setRefresh(false) : null;
+        }
+    }, [props.refresh]);
 
     return (
         <div>

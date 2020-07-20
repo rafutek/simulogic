@@ -12,7 +12,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
 import { Entity, entity } from '@simulogic/core';
 import { List } from '@material-ui/core';
-import { EntityItem } from '../entityItem/EntityItem';
+import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -67,13 +67,14 @@ const TabPanel = (props: TabPanelProps) => {
 export const TabMenu = () => {
     const classes = useStyles();
     const [value, setValue] = useState(0);
-    const [hidePanel, setHidePanel] = useState(true);
+    const [hide_panel, setHidePanel] = useState(true);
     const [circuits, setCircuits] = useState<Entity[]>();
     const [simulations, setSimulations] = useState<Entity[]>();
+    const [refresh_circuits, setRefreshCircuits] = useState(true);
+    const [refresh_simulations, setRefreshSimulations] = useState(true);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-        // Toggle tab panel
-        if (hidePanel) {
+        if (hide_panel) {
             setHidePanel(false);
         }
         else if (newValue == value) {
@@ -88,11 +89,15 @@ export const TabMenu = () => {
     }
     const searchCircuitsProps: SearchFieldProps = {
         what: "circuit",
-        setSearchResult: setCircuits
+        setSearchResult: setCircuits,
+        refresh: refresh_circuits,
+        setRefresh: setRefreshCircuits
     }
     const searchSimulationsProps: SearchFieldProps = {
         what: "simulation",
-        setSearchResult: setSimulations
+        setSearchResult: setSimulations,
+        refresh: refresh_simulations,
+        setRefresh: setRefreshSimulations
     }
     const searchWiresProps: SearchFieldProps = {
         what: "wire",
@@ -108,7 +113,21 @@ export const TabMenu = () => {
         if (entities) {
             return (
                 <List>
-                    {entities.map(entity => <EntityItem what={what} entity={entity} />)}
+                    {entities.map(entity => {
+                        const item_props: EntityItemProps = {
+                            what: what,
+                            entity: entity
+                        };
+                        if (what == "circuit") {
+                            item_props.onRename = () => setRefreshCircuits(true);
+                            item_props.onDelete = () => setRefreshCircuits(true);
+                        }
+                        else if (what == "simulation") {
+                            item_props.onRename = () => setRefreshSimulations(true);
+                            item_props.onDelete = () => setRefreshSimulations(true);
+                        }
+                        return <EntityItem {...item_props} />
+                    })}
                 </List>
             )
         } else return null;
@@ -129,23 +148,23 @@ export const TabMenu = () => {
                 <Tab icon={<SettingsIcon />} className={`${classes.tab} ${classes.bottom}`} />
             </Tabs>
             <div className={classes.panels}>
-                <TabPanel value={value} index={0} hide={hidePanel} >
-                    <EntityUploader entity="circuit" onUpload={null} />
+                <TabPanel value={value} index={0} hide={hide_panel} >
+                    <EntityUploader entity="circuit" onUpload={() => setRefreshCircuits(true)} />
                     <SearchField {...searchCircuitsProps} />
                     <EntitiesList entities={circuits} what={"circuit"} />
                 </TabPanel>
-                <TabPanel value={value} index={1} hide={hidePanel} >
-                    <EntityUploader entity="simulation" onUpload={null} />
+                <TabPanel value={value} index={1} hide={hide_panel} >
+                    <EntityUploader entity="simulation" onUpload={() => setRefreshSimulations(true)} />
                     <SearchField {...searchSimulationsProps} />
                     <EntitiesList entities={simulations} what={"simulation"} />
                 </TabPanel>
-                <TabPanel value={value} index={2} hide={hidePanel} >
+                <TabPanel value={value} index={2} hide={hide_panel} >
                     <SearchField {...searchWiresProps} />
                 </TabPanel>
-                <TabPanel value={value} index={3} hide={hidePanel} >
+                <TabPanel value={value} index={3} hide={hide_panel} >
                     Workbench tweaks
-            </TabPanel>
-                <TabPanel value={value} index={4} hide={hidePanel} >
+                </TabPanel>
+                <TabPanel value={value} index={4} hide={hide_panel} >
                     Parameters
             </TabPanel>
             </div>

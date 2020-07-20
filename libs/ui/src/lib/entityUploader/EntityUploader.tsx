@@ -5,8 +5,8 @@ import { entity } from '@simulogic/core';
 import { Input, Button, makeStyles, Theme, createStyles } from '@material-ui/core';
 
 export interface EntityUploaderProps {
-    entity: entity;
-    onUpload: (uploaded: true) => void;
+    entity: entity,
+    onUpload: () => void,
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -39,6 +39,8 @@ export const EntityUploader = (props: EntityUploaderProps) => {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
+            }).then(val => {
+                props.onUpload();
             }).catch((error) => {
                 console.log(error);
             });
