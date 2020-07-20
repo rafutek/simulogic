@@ -72,6 +72,8 @@ export const TabMenu = () => {
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
     const [refresh_simulations, setRefreshSimulations] = useState(true);
+    const [selected_circuit_id, setSelectedCircuitId] = useState<number>();
+    const [selected_simu_id, setSelectedSimuId] = useState<number>();
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         if (hide_panel) {
@@ -116,15 +118,21 @@ export const TabMenu = () => {
                     {entities.map(entity => {
                         const item_props: EntityItemProps = {
                             what: what,
-                            entity: entity
+                            entity: entity,
+                            selected_entity_id: null,
+                            setSelectedEntityId: null
                         };
                         if (what == "circuit") {
                             item_props.onRename = () => setRefreshCircuits(true);
                             item_props.onDelete = () => setRefreshCircuits(true);
+                            item_props.selected_entity_id = selected_circuit_id;
+                            item_props.setSelectedEntityId = setSelectedCircuitId;
                         }
                         else if (what == "simulation") {
                             item_props.onRename = () => setRefreshSimulations(true);
                             item_props.onDelete = () => setRefreshSimulations(true);
+                            item_props.selected_entity_id = selected_simu_id;
+                            item_props.setSelectedEntityId = setSelectedSimuId;
                         }
                         return <EntityItem {...item_props} />
                     })}

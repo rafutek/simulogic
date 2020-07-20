@@ -19,7 +19,9 @@ export interface EntityItemProps {
     what: entity,
     entity: Entity
     onRename?: () => void,
-    onDelete?: () => void
+    onDelete?: () => void,
+    selected_entity_id: number,
+    setSelectedEntityId: (id: number) => void
 }
 
 export const EntityItem = (props: EntityItemProps) => {
@@ -82,7 +84,10 @@ export const EntityItem = (props: EntityItemProps) => {
 
     return (
         <div>
-            <ListItem className={classes.root}>
+            <ListItem className={classes.root} button
+                selected={props.selected_entity_id == props.entity.id}
+                onClick={() => props.setSelectedEntityId(props.entity.id)}
+            >
                 <NameField />
                 <IconButton className={classes.icon} onClick={handleEdit}>
                     <EditIcon />
