@@ -9,5 +9,12 @@ export const theme = createMuiTheme({
         secondary: {
             main: grey[600],
         },
+    },
+    overrides: {
+        MuiTab: {
+            selected: {
+                backgroundColor: grey[600]
+            }
+        }
     }
 });
