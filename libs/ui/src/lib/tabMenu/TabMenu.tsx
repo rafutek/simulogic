@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -64,25 +64,30 @@ const TabPanel = (props: TabPanelProps) => {
     );
 }
 
-export const TabMenu = () => {
+export interface TabMenuProps {
+    selected_circuit: Entity,
+    setSelectedCircuit: (circuit: Entity) => void,
+    selected_simulation: Entity,
+    setSelectedSimulation: (simulation: Entity) => void
+}
+
+export const TabMenu = (props: TabMenuProps) => {
     const classes = useStyles();
-    const [value, setValue] = useState(0);
+    const [selected_tab_id, setSelectedTabId] = useState(0);
     const [hide_panel, setHidePanel] = useState(true);
     const [circuits, setCircuits] = useState<Entity[]>();
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
     const [refresh_simulations, setRefreshSimulations] = useState(true);
-    const [selected_circuit_id, setSelectedCircuitId] = useState<number>();
-    const [selected_simu_id, setSelectedSimuId] = useState<number>();
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         if (hide_panel) {
             setHidePanel(false);
         }
-        else if (newValue == value) {
+        else if (newValue == selected_tab_id) {
             setHidePanel(true);
         }
-        setValue(newValue);
+        setSelectedTabId(newValue);
     };
 
 
@@ -110,8 +115,8 @@ export const TabMenu = () => {
         entities: Entity[],
         what: entity
     };
-    const EntitiesList = (props: EntitiesListProps) => {
-        const { entities, what } = props;
+    const EntitiesList = (entities_props: EntitiesListProps) => {
+        const { entities, what } = entities_props;
         if (entities) {
             return (
                 <List>
@@ -119,20 +124,20 @@ export const TabMenu = () => {
                         const item_props: EntityItemProps = {
                             what: what,
                             entity: entity,
-                            selected_entity_id: null,
-                            setSelectedEntityId: null
+                            selected_entity: null,
+                            setSelectedEntity: null
                         };
                         if (what == "circuit") {
                             item_props.onRename = () => setRefreshCircuits(true);
                             item_props.onDelete = () => setRefreshCircuits(true);
-                            item_props.selected_entity_id = selected_circuit_id;
-                            item_props.setSelectedEntityId = setSelectedCircuitId;
+                            item_props.selected_entity = props.selected_circuit;
+                            item_props.setSelectedEntity = props.setSelectedCircuit;
                         }
                         else if (what == "simulation") {
                             item_props.onRename = () => setRefreshSimulations(true);
                             item_props.onDelete = () => setRefreshSimulations(true);
-                            item_props.selected_entity_id = selected_simu_id;
-                            item_props.setSelectedEntityId = setSelectedSimuId;
+                            item_props.selected_entity = props.selected_simulation;
+                            item_props.setSelectedEntity = props.setSelectedSimulation;
                         }
                         return <EntityItem {...item_props} />
                     })}
@@ -145,7 +150,7 @@ export const TabMenu = () => {
         <div className={classes.root}>
             <Tabs
                 orientation="vertical"
-                value={value}
+                value={selected_tab_id}
                 onChange={handleChange}
                 className={classes.tabs}
             >
@@ -156,23 +161,23 @@ export const TabMenu = () => {
                 <Tab icon={<SettingsIcon />} className={`${classes.tab} ${classes.bottom}`} />
             </Tabs>
             <div className={classes.panels}>
-                <TabPanel value={value} index={0} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={0} hide={hide_panel} >
                     <EntityUploader entity="circuit" onUpload={() => setRefreshCircuits(true)} />
                     <SearchField {...searchCircuitsProps} />
                     <EntitiesList entities={circuits} what={"circuit"} />
                 </TabPanel>
-                <TabPanel value={value} index={1} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={1} hide={hide_panel} >
                     <EntityUploader entity="simulation" onUpload={() => setRefreshSimulations(true)} />
                     <SearchField {...searchSimulationsProps} />
                     <EntitiesList entities={simulations} what={"simulation"} />
                 </TabPanel>
-                <TabPanel value={value} index={2} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={2} hide={hide_panel} >
                     <SearchField {...searchWiresProps} />
                 </TabPanel>
-                <TabPanel value={value} index={3} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
                     Workbench tweaks
                 </TabPanel>
-                <TabPanel value={value} index={4} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={4} hide={hide_panel} >
                     Parameters
             </TabPanel>
             </div>
