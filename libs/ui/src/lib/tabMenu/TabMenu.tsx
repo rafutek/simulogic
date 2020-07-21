@@ -14,6 +14,7 @@ import { Entity, entity } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
+import classes from '*.module.css';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -37,32 +38,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     panels: {
         backgroundColor: theme.palette.secondary.main
+    },
+    panel: {
+        padding: 10
     }
 }));
-
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-    hide: boolean;
-}
-
-const TabPanel = (props: TabPanelProps) => {
-    const { children, value, index, hide, ...other } = props;
-
-    return (
-        <div
-            hidden={hide || value != index}
-            {...other}
-        >
-            {value == index && (
-                <Box p={1}>
-                    <Typography>{children}</Typography>
-                </Box>
-            )}
-        </div>
-    );
-}
 
 export interface TabMenuProps {
     selected_circuit: Entity,
@@ -79,6 +59,26 @@ export const TabMenu = (props: TabMenuProps) => {
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
     const [refresh_simulations, setRefreshSimulations] = useState(true);
+
+    interface TabPanelProps {
+        children?: React.ReactNode;
+        index: number;
+        value: number;
+        hide: boolean;
+    }
+    
+    const TabPanel = (props: TabPanelProps) => {
+        const { children, value, index, hide, ...other } = props;
+    
+        return (
+            <div className={classes.panel}
+                hidden={hide || value != index}
+                {...other}
+            >
+                {children}
+            </div>
+        );
+    }
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         if (hide_panel) {

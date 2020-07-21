@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { entity, Entity } from '@simulogic/core';
+import React, { useState, useEffect } from 'react';
+import { entity, Entity, WaveDrom, SimulationProps } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
+import axios from 'axios';
+import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
         alignContent: "center"
     },
-
+    item: {
+        textAlign: "center"
+    }
 }));
 
 export interface WorkbenchProps {
@@ -16,6 +20,7 @@ export interface WorkbenchProps {
 
 export const Workbench = (props: WorkbenchProps) => {
     const classes = useStyles();
+    const [simulation_wavedrom, setSimulationWaveDrom] = useState<WaveDrom>();
 
     interface EntityStatusProps {
         what: entity
@@ -33,16 +38,31 @@ export const Workbench = (props: WorkbenchProps) => {
         )
     }
 
+    useEffect(() => {
+        if (props.simulation) {
+            const post_obj: SimulationProps = {
+                id_simu: props.simulation.id
+            };
+            axios.post(`/simulations/extract`, post_obj)
+                .then(response => {
+                    console.log(response.data)
+                    setSimulationWaveDrom(response.data);
+                }).catch(err => {
+                    console.log(err);
+                })
+        }
+    }, [props.simulation])
+
     return (
         <Grid container direction="column" className={classes.root}>
-            <Grid item>
+            <Grid item className={classes.item}>
                 <EntityStatus what={"circuit"} />
                 <EntityStatus what={"simulation"} />
             </Grid>
-            <Grid item >
-                item 2
+            <Grid item className={classes.item}>
+                <TimeDiagram data={simulation_wavedrom} />
             </Grid>
-            <Grid item>
+            <Grid item className={classes.item}>
                 item 3
             </Grid>
         </Grid>

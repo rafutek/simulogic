@@ -22,7 +22,7 @@ export const TimeDiagram = (props: TimeDiagramProps) => {
     useEffect(() => {
         const WaveDrom = window["WaveDrom"];
         if (WaveDrom) {
-            WaveDrom.ProcessAll();
+            props.data ? WaveDrom.ProcessAll() : null;
         } else {
             throw new Error("WaveDrom is missing");
         }
@@ -31,7 +31,7 @@ export const TimeDiagram = (props: TimeDiagramProps) => {
     return (
         <div>
             <script type="WaveDrom">
-                {JSON.stringify(props.data)}
+                {props.data ? JSON.stringify(props.data) : null}
             </script>
         </div>
     )
