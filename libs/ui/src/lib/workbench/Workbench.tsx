@@ -3,13 +3,14 @@ import { entity, Entity, WaveDrom, SimulationProps } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
+import { Player } from '../player/Player';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        alignContent: "center"
+        display: "flex"
     },
     item: {
-        textAlign: "center"
+        textAlign: "center",
     }
 }));
 
@@ -59,12 +60,15 @@ export const Workbench = (props: WorkbenchProps) => {
                 <EntityStatus what={"circuit"} />
                 <EntityStatus what={"simulation"} />
             </Grid>
+
             <Grid item className={classes.item}>
                 <TimeDiagram data={simulation_wavedrom} />
             </Grid>
             <Grid item className={classes.item}>
-                item 3
+                <Player />
             </Grid>
+
+
         </Grid>
     );
 }

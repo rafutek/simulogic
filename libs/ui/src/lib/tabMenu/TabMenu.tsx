@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
 import MemoryIcon from '@material-ui/icons/Memory';
 import InputIcon from '@material-ui/icons/Input';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
@@ -14,7 +12,6 @@ import { Entity, entity } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
-import classes from '*.module.css';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -24,13 +21,14 @@ const useStyles = makeStyles((theme: Theme) => ({
         height: "100%"
     },
     tabs: {
-        color: "white",
+        color: "white"
     },
     tab: {
+        position: "relative",
         minWidth: 0,
         "&:hover": {
             backgroundColor: theme.palette.secondary.main
-        }
+        },
     },
     bottom: {
         position: "fixed",
@@ -66,10 +64,10 @@ export const TabMenu = (props: TabMenuProps) => {
         value: number;
         hide: boolean;
     }
-    
+
     const TabPanel = (props: TabPanelProps) => {
         const { children, value, index, hide, ...other } = props;
-    
+
         return (
             <div className={classes.panel}
                 hidden={hide || value != index}
