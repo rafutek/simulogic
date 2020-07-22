@@ -7,10 +7,14 @@ import { Player } from '../player/Player';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-        display: "flex"
+        display: "grid",
+        position: "fixed",
+        zIndex: -1,
+        height: "100%"
     },
     item: {
         textAlign: "center",
+        margin: "auto"
     }
 }));
 

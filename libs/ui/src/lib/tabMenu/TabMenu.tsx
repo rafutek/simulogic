@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => ({
         color: "white"
     },
     tab: {
-        position: "relative",
+        zIndex: 1,
         minWidth: 0,
         "&:hover": {
             backgroundColor: theme.palette.secondary.main
