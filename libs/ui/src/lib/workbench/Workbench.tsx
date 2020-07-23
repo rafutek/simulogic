@@ -4,6 +4,7 @@ import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 import { Player } from '../player/Player';
+import { isNullOrUndefined } from 'util';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -64,15 +65,17 @@ export const Workbench = (props: WorkbenchProps) => {
                 <EntityStatus what={"circuit"} />
                 <EntityStatus what={"simulation"} />
             </Grid>
-
-            <Grid item className={classes.item}>
+            <Grid item className={classes.item}
+                hidden={isNullOrUndefined(simulation_wavedrom)}
+            >
                 <TimeDiagram data={simulation_wavedrom} />
             </Grid>
-            <Grid item className={classes.item}>
-                <Player />
+            <Grid item className={classes.item}
+                hidden={isNullOrUndefined(simulation_wavedrom)}
+            >
+                <Player circuit={props.circuit} simulation={props.simulation}
+                    setSimulationWaveDrom={setSimulationWaveDrom} />
             </Grid>
-
-
         </Grid>
     );
 }

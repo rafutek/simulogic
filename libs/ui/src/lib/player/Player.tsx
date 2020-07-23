@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme, Box, IconButton } from '@material-ui/core';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import ReplayIcon from '@material-ui/icons/Replay';
+import { SimulationProps, Entity, WaveDrom } from '@simulogic/core';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -23,36 +24,54 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }));
 
-export const Player = () => {
+export interface PlayerProps {
+    circuit: Entity,
+    simulation: Entity,
+    setSimulationWaveDrom: (wavedrom: WaveDrom) => void
+}
+
+export const Player = (props: PlayerProps) => {
     const classes = useStyles();
+    const [contain_result, setContainResult] = useState(false);
+    let post_obj: SimulationProps = {
+        id_simu: props.simulation?.id
+    };
+    const [reached_start, setReachedStart] = useState(true);
+    const [reached_end, setReachedEnd] = useState(true);
 
-    interface IconProps {
-        children: React.ReactNode
-    }
-    const Icon = (icon_props: IconProps) => {
-        return <IconButton className={classes.icon}>
-            {icon_props.children}
-        </IconButton>
+    const handlePlayOrReset = () => {
+        post_obj.id_simu = props.simulation.id;
+        post_obj.id_circuit = props.simulation.id;
+        post_obj.result = !contain_result;
 
+        axios.post(`/simulations/extract`, post_obj)
+            .then(response => {
+                props.setSimulationWaveDrom(response.data);
+                setContainResult(post_obj.result);
+            }).catch(err => {
+                console.log(err);
+            })
     }
 
     return (
         <Box className={classes.root}>
-            <Icon>
-                <SkipPreviousIcon />
-            </Icon>
-            <Icon>
+            <IconButton className={classes.icon} disabled={reached_start}>
+                <SkipPreviousIcon/>
+            </IconButton>
+            <IconButton className={classes.icon} disabled={reached_start}>
                 <NavigateBeforeIcon />
-            </Icon>
-            <Icon>
-                <PlayArrowIcon />
-            </Icon>
-            <Icon>
+            </IconButton>
+            <IconButton className={classes.icon} onClick={handlePlayOrReset}
+                disabled={!(props.circuit && props.simulation)}
+            >
+                {contain_result ? <ReplayIcon /> : <PlayArrowIcon />}
+            </IconButton>
+            <IconButton className={classes.icon} disabled={reached_end}>
                 <NavigateNextIcon />
-            </Icon>
-            <Icon>
+            </IconButton>
+            <IconButton className={classes.icon} disabled={reached_end}>
                 <SkipNextIcon />
-            </Icon>
+            </IconButton>
         </Box>
     )
 }
