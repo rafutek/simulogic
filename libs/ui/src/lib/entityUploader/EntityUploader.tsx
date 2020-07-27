@@ -52,12 +52,12 @@ export const EntityUploader = (props: EntityUploaderProps) => {
             <input
                 hidden
                 accept={extension}
-                id="contained-button-file"
+                id={`button-file-${props.entity}`}
                 multiple
                 type="file"
                 onChange={handleInput}
             />
-            <label htmlFor="contained-button-file">
+            <label htmlFor={`button-file-${props.entity}`}>
                 <Button className={classes.button} variant="contained" color="primary"
                     component="span">
                     <AddIcon />
