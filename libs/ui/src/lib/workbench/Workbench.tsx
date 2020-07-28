@@ -57,6 +57,9 @@ export const Workbench = (props: WorkbenchProps) => {
                     console.log(err);
                 })
         }
+        else {
+            setSimulationWaveDrom(null);
+        }
     }, [props.simulation])
 
     return (

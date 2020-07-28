@@ -53,6 +53,11 @@ export const Player = (props: PlayerProps) => {
             })
     }
 
+    // Reset Play button when user changes circuit or simulation
+    useEffect(() => {
+        setContainResult(false);
+    }, [props.circuit, props.simulation]);
+
     return (
         <Box className={classes.root}>
             <IconButton className={classes.icon} disabled={reached_start}>

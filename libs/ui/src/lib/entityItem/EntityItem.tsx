@@ -61,6 +61,7 @@ export const EntityItem = (props: EntityItemProps) => {
         axios.delete(`/${props.what}s/${props.entity.id}`)
             .then(val => {
                 props.onDelete ? props.onDelete() : null;
+                props.setSelectedEntity(null); // the selected entity has been deleted
             })
             .catch(error => {
                 console.log(error);
@@ -93,10 +94,12 @@ export const EntityItem = (props: EntityItemProps) => {
                 onClick={() => props.setSelectedEntity(props.entity)}
             >
                 <NameField />
-                <IconButton className={classes.icon} onClick={handleEdit}>
+                <IconButton className={classes.icon} onClick={handleEdit}
+                    disabled={!isSelected(props.entity, props.selected_entity)}>
                     <EditIcon />
                 </IconButton>
-                <IconButton className={classes.icon} onClick={handleDelete}>
+                <IconButton className={classes.icon} onClick={handleDelete}
+                    disabled={!isSelected(props.entity, props.selected_entity)}>
                     <DeleteIcon />
                 </IconButton>
             </ListItem>
