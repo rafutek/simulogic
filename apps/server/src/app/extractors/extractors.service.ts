@@ -427,6 +427,38 @@ export class ExtractorsService {
         });
     }
 
+    organizeIntoGroups(wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom) {
+        const new_wavedrom = {
+            signal: [],
+            foot: wavedrom.foot
+        };
+        const input_group = [];
+        const output_group = [];
+
+        if (input) {
+            wavedrom.signal.forEach(signal => {
+                const input_signal_found = input.signal.find(
+                    input_signal => input_signal.name == signal.name);
+                if (input_signal_found)
+                    input_group.push(input_signal_found);
+            });
+            input_group.unshift("input");
+            new_wavedrom.signal.push(input_group);
+        }
+        if (output) {
+            wavedrom.signal.forEach(signal => {
+                const output_signal_found = output.signal.find(
+                    output_signal => output_signal.name == signal.name);
+                if (output_signal_found)
+                    output_group.push(output_signal_found);
+            });
+            output_group.unshift("output");
+            new_wavedrom.signal.push(output_group);
+        }
+
+        return new_wavedrom;
+    }
+
     /**
      * Returns a WaveDrom with the wanted wires. It does not
      * remove their events times from the absissa and points from other wires waves.
@@ -439,7 +471,7 @@ export class ExtractorsService {
             foot: wavedrom.foot
         };
         wavedrom.signal.forEach(s => {
-            if(wires.includes(s.name)){
+            if (wires.includes(s.name)) {
                 wavedrom_wires.signal.push(s);
             }
         })

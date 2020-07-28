@@ -95,11 +95,12 @@ export class SimulationsController {
 
   @Post('extract')
   async getSimulation(@Body() getSimulationDto: GetSimulationDto) {
-    let wavedrom: WaveDrom;
+    let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
     const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
-        wavedrom = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu, simulation.path);
+        wavedrom = input = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu,
+          simulation.path);
       } else throw new InternalServerErrorException(
         `simulation ${getSimulationDto.id_simu} file not found`);
 
@@ -116,7 +117,7 @@ export class SimulationsController {
         }
 
         if (fs.existsSync(simulation.result_path)) {
-          wavedrom = this.simulationExtractor.getWaveDromResult(
+          wavedrom = output = this.simulationExtractor.getWaveDromResult(
             getSimulationDto.id_simu, simulation.result_path);
         } else throw new InternalServerErrorException(
           `result file of simulation ${getSimulationDto.id_simu} not found`);
@@ -133,9 +134,12 @@ export class SimulationsController {
         wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
           getSimulationDto.from, getSimulationDto.to);
       }
+
+      final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);
+
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
 
-    return wavedrom;
+    return final_wavedrom;
   }
 
   /**

@@ -41,7 +41,7 @@ export const Player = (props: PlayerProps) => {
 
     const handlePlayOrReset = () => {
         post_obj.id_simu = props.simulation.id;
-        post_obj.id_circuit = props.simulation.id;
+        post_obj.id_circuit = props.circuit.id;
         post_obj.result = !contain_result;
 
         axios.post(`/simulations/extract`, post_obj)

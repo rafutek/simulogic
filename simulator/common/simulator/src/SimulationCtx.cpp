@@ -18,8 +18,6 @@ SimulationCtx::SimulationCtx(string inputFilePath)
     string circuitName = getCircuitName(inputFilePath);
     vector<string> watchlist = getWatchList(inputFilePath);
 
-    // cout << circuitName << endl;
-
     m_gateMap = new vector<Gate *>();
 
     m_watchList = watchlist;
@@ -80,7 +78,7 @@ void SimulationCtx::displayWatchedWires()
             //Affiche les events 1 à 1
             for (int i(0); i < (int)eventsOutputs.size(); i++)
             {
-                cout << "EVENT "+ output_name+" "+eventsOutputs[i]->getStateStr()+" " << eventsOutputs[i]->getTime() << endl;
+                cout << "EVENT " + output_name + " " + eventsOutputs[i]->getStateStr() + " " << eventsOutputs[i]->getTime() << endl;
             }
             alreadyDisp.push_back(m_wireList->at(i)->getName());
         }
@@ -154,6 +152,7 @@ std::string SimulationCtx::getCircuitName(std::string inputFilePath)
 {
     string line;
     ifstream infile;
+    string circuit = "circuit";
     infile.open(inputFilePath);
     while (!infile.eof()) // To get you all the lines.
     {
@@ -163,18 +162,20 @@ std::string SimulationCtx::getCircuitName(std::string inputFilePath)
             vector<string> parsedLine = parseLine(line);
             if (parsedLine[0] == "CIRCUIT_NAME")
             {
-                return parsedLine[1];
+                circuit = parsedLine[1];
+                break;
             }
         }
     }
     infile.close();
-    return "circuit";
+    return circuit;
 }
 
 std::vector<std::string> SimulationCtx::getWatchList(std::string inputFilePath)
 {
     string line;
     ifstream infile;
+    vector<string> watchlist;
     infile.open(inputFilePath);
     while (!infile.eof()) // To get you all the lines.
     {
@@ -185,12 +186,13 @@ std::vector<std::string> SimulationCtx::getWatchList(std::string inputFilePath)
             if (parsedLine[0] == "WATCHLIST")
             {
                 parsedLine.erase(parsedLine.begin());
-                return parsedLine;
+                watchlist = parsedLine;
+                break;
             }
         }
     }
     infile.close();
-    return vector<string>();
+    return watchlist;
 }
 
 void SimulationCtx::initializeFromFile(std::string inputFilePath)
@@ -199,10 +201,11 @@ void SimulationCtx::initializeFromFile(std::string inputFilePath)
     ifstream infile;
     infile.open(inputFilePath);
     int startTime = getStartSimTime(inputFilePath);
+
     while (!infile.eof()) // To get you all the lines.
     {
         getline(infile, line);
-        if (line != "\r")
+        if (line != "\r" && line.length() > 0)
         {
             vector<string> parsedLine = parseLine(line);
             if (parsedLine[0] == "EVENT")
