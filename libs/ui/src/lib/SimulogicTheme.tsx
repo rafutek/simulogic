@@ -15,6 +15,11 @@ export const theme = createMuiTheme({
             selected: {
                 backgroundColor: grey[600]
             }
+        },
+        MuiAccordionDetails: {
+            root: {
+                display: "block"
+            }
         }
     }
 });

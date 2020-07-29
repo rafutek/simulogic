@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { entity, Entity, WaveDrom, SimulationProps } from '@simulogic/core';
+import { entity, Entity, WaveDrom, SimulationProps, SignalGroup } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export interface WorkbenchProps {
     circuit: Entity,
-    simulation: Entity
+    simulation: Entity,
+    getAndSetWires: () => void
 }
 
 export const Workbench = (props: WorkbenchProps) => {
@@ -46,21 +47,29 @@ export const Workbench = (props: WorkbenchProps) => {
 
     useEffect(() => {
         if (props.simulation) {
-            const post_obj: SimulationProps = {
-                id_simu: props.simulation.id
-            };
-            axios.post(`/simulations/extract`, post_obj)
-                .then(response => {
-                    console.log(response.data)
-                    setSimulationWaveDrom(response.data);
-                }).catch(err => {
-                    console.log(err);
-                })
+            effect();
         }
         else {
             setSimulationWaveDrom(null);
         }
     }, [props.simulation])
+
+    const effect = async () => {
+        // First we get the simulation and then we can get its wires
+        await getSimulation();
+        props.getAndSetWires();
+    }
+
+    const getSimulation = async () => {
+        const post_obj: SimulationProps = {
+            id_simu: props.simulation.id
+        };
+        await axios.post(`/simulations/extract`, post_obj)
+            .then(response => {
+                setSimulationWaveDrom(response.data);
+            }).catch(err => console.error(err))
+    }
+
 
     return (
         <Grid container direction="column" className={classes.root}>
@@ -77,7 +86,9 @@ export const Workbench = (props: WorkbenchProps) => {
                 hidden={isNullOrUndefined(simulation_wavedrom)}
             >
                 <Player circuit={props.circuit} simulation={props.simulation}
-                    setSimulationWaveDrom={setSimulationWaveDrom} />
+                    setSimulationWaveDrom={setSimulationWaveDrom} 
+                    getAndSetWires={props.getAndSetWires}
+                />
             </Grid>
         </Grid>
     );

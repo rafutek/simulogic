@@ -8,10 +8,11 @@ import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponen
 import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
-import { Entity, entity } from '@simulogic/core';
+import { Entity, entity, SignalGroup } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
+import { WiresList } from '../wiresList/WiresList';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -46,7 +47,8 @@ export interface TabMenuProps {
     selected_circuit: Entity,
     setSelectedCircuit: (circuit: Entity) => void,
     selected_simulation: Entity,
-    setSelectedSimulation: (simulation: Entity) => void
+    setSelectedSimulation: (simulation: Entity) => void,
+    wires: SignalGroup[]
 }
 
 export const TabMenu = (props: TabMenuProps) => {
@@ -171,6 +173,7 @@ export const TabMenu = (props: TabMenuProps) => {
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={2} hide={hide_panel} >
                     <SearchField {...searchWiresProps} />
+                    <WiresList signal_groups={props.wires} />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
                     Workbench tweaks

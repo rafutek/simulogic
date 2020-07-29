@@ -27,7 +27,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 export interface PlayerProps {
     circuit: Entity,
     simulation: Entity,
-    setSimulationWaveDrom: (wavedrom: WaveDrom) => void
+    setSimulationWaveDrom: (wavedrom: WaveDrom) => void,
+    getAndSetWires: () => void
 }
 
 export const Player = (props: PlayerProps) => {
@@ -48,6 +49,7 @@ export const Player = (props: PlayerProps) => {
             .then(response => {
                 props.setSimulationWaveDrom(response.data);
                 setContainResult(post_obj.result);
+                props.getAndSetWires();
             }).catch(err => {
                 console.log(err);
             })
@@ -61,7 +63,7 @@ export const Player = (props: PlayerProps) => {
     return (
         <Box className={classes.root}>
             <IconButton className={classes.icon} disabled={reached_start}>
-                <SkipPreviousIcon/>
+                <SkipPreviousIcon />
             </IconButton>
             <IconButton className={classes.icon} disabled={reached_start}>
                 <NavigateBeforeIcon />

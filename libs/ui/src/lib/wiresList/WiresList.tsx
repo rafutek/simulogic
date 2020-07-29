@@ -9,7 +9,7 @@ import { WireItem, WireItemProps } from '../wireItem/WireItem';
 
 
 const useStyles = makeStyles((theme: Theme) => ({
-    accordion_details: {
+    block: {
         display: "block"
     }
 }));
@@ -39,7 +39,7 @@ export const WiresList = (props: WiresListProps) => {
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         {signal_group.name}
                     </AccordionSummary>
-                    <AccordionDetails className={classes.accordion_details}>
+                    <AccordionDetails>
                         {wires_list}
                     </AccordionDetails>
                 </Accordion>
@@ -50,9 +50,10 @@ export const WiresList = (props: WiresListProps) => {
 
     return (
         <List>
-            {props.signal_groups.map(signal_group =>
-                <SignalGroup signal_group={signal_group} />
-            )}
+            {props.signal_groups ?
+                props.signal_groups.map(signal_group =>
+                    <SignalGroup signal_group={signal_group} />)
+                : null}
         </List>
     );
 }
