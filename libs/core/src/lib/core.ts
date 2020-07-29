@@ -51,6 +51,13 @@ export interface WaveDrom {
     }
 }
 
+export interface WaveDromBase {
+    signal: any,
+    foot: {
+        tick: string
+    }
+}
+
 /**
  * Linker between a simulation and its resulting WaveDrom.
  */
@@ -70,4 +77,9 @@ export interface SimulationProps {
     to?: number;
     wires?: string[];
   }
-  
+
+export interface SignalGroup {
+    name?: string,
+    signals?: string[],
+    signal_group?: SignalGroup[]
+}

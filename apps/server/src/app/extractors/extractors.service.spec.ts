@@ -1,5 +1,5 @@
 import { ExtractorsService } from './extractors.service'
-import { WaveDrom, Signal } from '@simulogic/core';
+import { WaveDrom, Signal, WaveDromBase, SignalGroup } from '@simulogic/core';
 
 describe("SimulationExtractor", () => {
   let extractor: ExtractorsService;
@@ -291,5 +291,65 @@ describe("SimulationExtractor", () => {
       };
       expect(new_wavedrom).toEqual(expected_wavedrom);
     });
+  });
+
+  describe("getWires", () => {
+    let s1: Signal, s2: Signal, s3: Signal, s4: Signal;
+    let initial_wavedrom: WaveDromBase;
+
+    beforeEach(() => {
+      s1 = { name: "s1", wave: "" };
+      s2 = { name: "s2", wave: "" };
+      s3 = { name: "s3", wave: "" };
+      s4 = { name: "s4", wave: "" };
+      initial_wavedrom = {
+        signal: [],
+        foot: { tick: "" }
+      };
+    })
+
+    it("should return a signal group without name", () => {
+      // Given a wavedrom without groups
+      initial_wavedrom.signal.push(s1, s2, s3, s4);
+
+      // When getting the wires
+      const result: SignalGroup[] = [];
+      extractor.getWires(initial_wavedrom.signal, result);
+
+      // Then we should have
+      const group: SignalGroup = {
+        signals: ["s1", "s2", "s3", "s4"]
+      };
+      const expected = [group];
+
+      expect(result).toEqual(expected);
+
+    });
+
+    it("should return signal groups with names", () => {
+      // Given a wavedrom with a signal group
+      const group1 = ["input", s1, s2];
+      const group2 = ["output", s3, s4];
+      initial_wavedrom.signal.push(group1, group2);
+
+      // When getting the wires
+      const result: SignalGroup[] = [];
+      extractor.getWires(initial_wavedrom.signal, result);
+
+      // Then we should have on group with a name and another without
+      const input_group: SignalGroup = {
+        name: "input",
+        signals: ["s1", "s2"]
+      };
+      const output_group: SignalGroup = {
+        name: "output",
+        signals: ["s3", "s4"]
+      };
+      const expected = [input_group, output_group];
+
+      expect(result).toEqual(expected);
+
+    });
+
   });
 });

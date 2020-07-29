@@ -136,6 +136,7 @@ export class SimulationsController {
       }
 
       final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);
+      this.simulationExtractor.setExtractionSent(final_wavedrom);
 
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
 
@@ -157,5 +158,13 @@ export class SimulationsController {
   @Get(':id/rename/:new_name')
   async rename(@Param() params: any) {
     await this.simulationsService.rename(params.id, params.new_name);
+  }
+
+  /**
+   * Returns the wires of the last extracted and sent wavedrom.
+   */
+  @Get('extract/wires')
+  getWires() {
+    return this.simulationExtractor.getExtractionSentWires();
   }
 }

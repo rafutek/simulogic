@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import {
     ExtractedSimulation, WaveDrom, Signal,
-    Timestep, Wire
+    Timestep, Wire, WaveDromBase, SignalGroup
 } from '@simulogic/core'
 
 export class ExtractorsService {
@@ -9,6 +9,7 @@ export class ExtractorsService {
     extracted_simu: ExtractedSimulation;
     extracted_simu_result: ExtractedSimulation;
     extracted_combination: ExtractedSimulation;
+    extraction_sent: WaveDromBase;
 
     getWaveDrom(id: number, file_path: string) {
         if (!this.extracted_simu || this.extracted_simu.id != id) {
@@ -476,5 +477,57 @@ export class ExtractorsService {
             }
         })
         return wavedrom_wires;
+    }
+
+    setExtractionSent(extraction: WaveDromBase) {
+        this.extraction_sent = extraction;
+    }
+
+    getExtractionSentWires() {
+        console.log("get wires")
+        if (this.extraction_sent && this.extraction_sent.signal.length > 0) {
+            const signal_groups: SignalGroup[] = [];
+            this.getWires(this.extraction_sent.signal, signal_groups);
+            console.log(signal_groups);
+        }
+    }
+
+    /**
+     * Returns a SignalGroup array containing the names of the signals
+     * arranged by groups.
+     * @param signals Array of signals or/and group of signals
+     * @param output Array of signal groups corresponding to the signals
+     * @param group_idx index of the group (0 by default)
+     */
+    getWires(signals: any[], output: SignalGroup[], group_idx?: number) {
+        group_idx = group_idx ? group_idx : 0;
+        if (signals[0]) {
+            if (typeof signals[0] == "string") { // signals is a group
+                if (!output[group_idx]) {
+                    output[group_idx] = {};
+                }
+                output[group_idx].name = signals.shift();
+                this.getWires(signals, output, group_idx);
+            }
+            else { // signals is an array of objects
+                signals.forEach((element) => {
+                    if (element.name) { // element is a signal object
+                        if (!output[group_idx]) {
+                            output[group_idx] = {};
+                        }
+                        if (!output[group_idx].signals) {
+                            output[group_idx].signals = [];
+                        }
+                        output[group_idx].signals.push(element.name);
+                    }
+                    else { // element is an object so we get its wires
+                        if (!output[group_idx]) {
+                            this.getWires(element, output, group_idx);
+                        }
+                        else this.getWires(element, output, group_idx + 1);
+                    }
+                })
+            }
+        }
     }
 }
