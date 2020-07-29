@@ -484,12 +484,11 @@ export class ExtractorsService {
     }
 
     getExtractionSentWires() {
-        console.log("get wires")
         if (this.extraction_sent && this.extraction_sent.signal.length > 0) {
             const signal_groups: SignalGroup[] = [];
             this.getWires(this.extraction_sent.signal, signal_groups);
-            console.log(signal_groups);
-        }
+            return signal_groups;
+        } else return null;
     }
 
     /**
@@ -506,8 +505,8 @@ export class ExtractorsService {
                 if (!output[group_idx]) {
                     output[group_idx] = {};
                 }
-                output[group_idx].name = signals.shift();
-                this.getWires(signals, output, group_idx);
+                output[group_idx].name = signals[0];
+                this.getWires(signals.slice(1), output, group_idx);
             }
             else { // signals is an array of objects
                 signals.forEach((element) => {
