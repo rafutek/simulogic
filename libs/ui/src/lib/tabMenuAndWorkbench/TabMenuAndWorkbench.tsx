@@ -8,11 +8,13 @@ export const TabMenuAndWorkbench = () => {
 
     const [selected_circuit, setSelectedCircuit] = useState<Entity>();
     const [selected_simulation, setSelectedSimulation] = useState<Entity>();
-    const [wires, setWires] = useState<SignalGroup[]>()
+    const [signal_groups, setSignalGroups] = useState<SignalGroup[]>()
+    const [visible_wires, setVisibleWires] = useState<string[]>([]);
 
-    const getAndSetWires = () => {
+
+    const getAndSetSignalGroups = () => {
         axios.get('/simulations/extract/wires')
-            .then(response => setWires(response.data))
+            .then(response => setSignalGroups(response.data))
             .catch(error => console.error(error))
     }
 
@@ -21,18 +23,17 @@ export const TabMenuAndWorkbench = () => {
         setSelectedCircuit: setSelectedCircuit,
         selected_simulation,
         setSelectedSimulation: setSelectedSimulation,
-        wires: wires
+        signal_groups: signal_groups,
+        visible_wires: visible_wires,
+        setVisibleWires: setVisibleWires
     }
 
     const workbenchProps: WorkbenchProps = {
         circuit: selected_circuit,
         simulation: selected_simulation,
-        getAndSetWires: getAndSetWires
+        getAndSetSignalGroups: getAndSetSignalGroups,
+        visible_wires: visible_wires
     }
-
-    useEffect(() => {
-        console.log("wires:", wires)
-    }, [wires]);
 
     return (
         <div>

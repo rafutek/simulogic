@@ -15,20 +15,20 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 export interface WiresListProps {
-    signal_groups: SignalGroup[]
+    signal_groups: SignalGroup[],
+    visible_wires: string[],
+    setVisibleWires: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export const WiresList = (props: WiresListProps) => {
 
     const classes = useStyles();
-    const [visible_wires, setVisibleWires] = useState<string[]>([]);
-
 
     const handleClickVisibility = (wire: string) => {
-        if (visible_wires.includes(wire)) {
-            setVisibleWires(visible_wires.filter(visible_wire => visible_wire != wire));
+        if (props.visible_wires.includes(wire)) {
+            props.setVisibleWires(props.visible_wires.filter(visible_wire => visible_wire != wire));
         }
-        else setVisibleWires(visible_wires.concat(wire));
+        else props.setVisibleWires(props.visible_wires.concat(wire));
     }
 
     interface SignalGroupProps {
@@ -39,7 +39,7 @@ export const WiresList = (props: WiresListProps) => {
 
         const wires_list = <List>
             {signal_group.signals.map(signal =>
-                <WireItem name={signal} visible={visible_wires.includes(signal)}
+                <WireItem name={signal} visible={props.visible_wires.includes(signal)}
                     handleClickVisibility={handleClickVisibility} />
             )}
         </List>
@@ -71,9 +71,11 @@ export const WiresList = (props: WiresListProps) => {
     // Set all wires each time signal groups change
     useEffect(() => {
         if (props.signal_groups) {
-            setVisibleWires(listWires(props.signal_groups));
+            const all_wires = listWires(props.signal_groups);
+            console.log("set visible wires:",all_wires);
+            props.setVisibleWires(all_wires); // loop
         }
-    }, props.signal_groups);
+    }, [props.signal_groups]);
 
     return (
         <List>

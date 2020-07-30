@@ -16,7 +16,9 @@ const props: WorkbenchProps = {
     simulation: {
         id: 1,
         name: "test.simu"
-    }
+    },
+    visible_wires: [],
+    getAndSetSignalGroups: () => console.log("get and set signal groups")
 };
 
 export const Default = () => {

@@ -48,7 +48,9 @@ export interface TabMenuProps {
     setSelectedCircuit: (circuit: Entity) => void,
     selected_simulation: Entity,
     setSelectedSimulation: (simulation: Entity) => void,
-    wires: SignalGroup[]
+    signal_groups: SignalGroup[]
+    visible_wires: string[],
+    setVisibleWires: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export const TabMenu = (props: TabMenuProps) => {
@@ -173,7 +175,8 @@ export const TabMenu = (props: TabMenuProps) => {
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={2} hide={hide_panel} >
                     <SearchField {...searchWiresProps} />
-                    <WiresList signal_groups={props.wires} />
+                    <WiresList signal_groups={props.signal_groups} visible_wires={props.visible_wires}
+                        setVisibleWires={props.setVisibleWires} />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
                     Workbench tweaks

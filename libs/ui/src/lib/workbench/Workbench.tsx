@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 export interface WorkbenchProps {
     circuit: Entity,
     simulation: Entity,
-    getAndSetWires: () => void
+    getAndSetSignalGroups: () => void,
+    visible_wires: string[]
 }
 
 export const Workbench = (props: WorkbenchProps) => {
@@ -45,19 +46,20 @@ export const Workbench = (props: WorkbenchProps) => {
         )
     }
 
+    // Manage simulation change
     useEffect(() => {
         if (props.simulation) {
-            effect();
+            getSimulationAndWires();
         }
         else {
             setSimulationWaveDrom(null);
         }
-    }, [props.simulation])
+    }, [props.simulation]);
 
-    const effect = async () => {
-        // First we get the simulation and then we can get its wires
+    const getSimulationAndWires = async () => {
+        console.log("get simu and wires")
         await getSimulation();
-        props.getAndSetWires();
+        props.getAndSetSignalGroups();
     }
 
     const getSimulation = async () => {
@@ -69,6 +71,13 @@ export const Workbench = (props: WorkbenchProps) => {
                 setSimulationWaveDrom(response.data);
             }).catch(err => console.error(err))
     }
+
+    // Manage visible wires change
+    useEffect(() => {
+        if (props.visible_wires) {
+            console.log("workbench visible wires:", props.visible_wires);
+        }
+    }, [props.visible_wires]);
 
 
     return (
@@ -86,8 +95,8 @@ export const Workbench = (props: WorkbenchProps) => {
                 hidden={isNullOrUndefined(simulation_wavedrom)}
             >
                 <Player circuit={props.circuit} simulation={props.simulation}
-                    setSimulationWaveDrom={setSimulationWaveDrom} 
-                    getAndSetWires={props.getAndSetWires}
+                    setSimulationWaveDrom={setSimulationWaveDrom}
+                    getAndSetWires={props.getAndSetSignalGroups}
                 />
             </Grid>
         </Grid>
