@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { WireItem, WireItemProps } from './WireItem';
 import { ThemeProvider } from '@material-ui/core';
 import { theme } from '../SimulogicTheme';
@@ -9,9 +9,9 @@ export default {
 };
 
 const props: WireItemProps = {
-    index: 1,
     name: "wire1",
-    visible_wires: ["wire"]
+    visible: true,
+    handleClickVisibility: (wire: string) => console.log(`toggle ${wire} visibility`)
 };
 
 export const Default = () => {

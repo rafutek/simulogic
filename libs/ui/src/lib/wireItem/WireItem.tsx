@@ -16,42 +16,29 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 export interface WireItemProps {
-    index: number,
     name: string,
-    visible_wires: string[]
+    visible: boolean,
+    handleClickVisibility: (wire: string) => void
 }
 
 export const WireItem = (props: WireItemProps) => {
 
     const classes = useStyles();
-    const [visible, setVisible] = useState<boolean>();
 
     const VisibilityOnOffIcon = () => {
-        if (visible) {
+        if (props.visible) {
             return <VisibilityOffIcon />
         } else {
             return <VisibilityIcon />
         }
     }
 
-    const handleVisibility = () => {
-        setVisible(!visible);
-    }
-
-    useEffect(() => {
-        if (props.visible_wires && props.visible_wires.length > 0 &&
-            !props.visible_wires.includes(props.name)) {
-            setVisible(false);
-        } else {
-            setVisible(true);
-        }
-    }, [props.visible_wires])
-
     return (
         <div>
             <ListItem className={classes.root}>
                 <ListItemText>{props.name}</ListItemText>
-                <IconButton className={classes.icon} onClick={handleVisibility}>
+                <IconButton className={classes.icon}
+                    onClick={() => props.handleClickVisibility(props.name)}>
                     <VisibilityOnOffIcon />
                 </IconButton>
             </ListItem>
