@@ -50,7 +50,7 @@ export interface TabMenuProps {
     setSelectedSimulation: (simulation: Entity) => void,
     signal_groups: SignalGroup[]
     visible_wires: string[],
-    setVisibleWires: React.Dispatch<React.SetStateAction<string[]>>
+    setVisibleWires: (visible_wires: string[]) => void
 }
 
 export const TabMenu = (props: TabMenuProps) => {

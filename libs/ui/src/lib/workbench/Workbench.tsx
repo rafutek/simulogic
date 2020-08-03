@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export interface WorkbenchProps {
     circuit: Entity,
     simulation: Entity,
-    getAndSetSignalGroups: () => void,
+    onChangeSimulation: () => void,
     visible_wires: string[]
 }
 
@@ -49,17 +49,17 @@ export const Workbench = (props: WorkbenchProps) => {
     // Manage simulation change
     useEffect(() => {
         if (props.simulation) {
-            getSimulationAndWires();
+            handleSimulationChange();
         }
         else {
             setSimulationWaveDrom(null);
         }
     }, [props.simulation]);
 
-    const getSimulationAndWires = async () => {
-        console.log("get simu and wires")
+    const handleSimulationChange = async () => {
+        console.log("handle simulation change")
         await getSimulation();
-        props.getAndSetSignalGroups();
+        props.onChangeSimulation();
     }
 
     const getSimulation = async () => {
@@ -73,11 +73,11 @@ export const Workbench = (props: WorkbenchProps) => {
     }
 
     // Manage visible wires change
-    useEffect(() => {
-        if (props.visible_wires) {
-            console.log("workbench visible wires:", props.visible_wires);
-        }
-    }, [props.visible_wires]);
+    // useEffect(() => {
+    //     if (props.visible_wires) {
+    //         console.log("workbench visible wires:", props.visible_wires);
+    //     }
+    // }, [props.visible_wires]);
 
 
     return (
@@ -96,7 +96,7 @@ export const Workbench = (props: WorkbenchProps) => {
             >
                 <Player circuit={props.circuit} simulation={props.simulation}
                     setSimulationWaveDrom={setSimulationWaveDrom}
-                    getAndSetWires={props.getAndSetSignalGroups}
+                    onChangeSimulation={props.onChangeSimulation}
                 />
             </Grid>
         </Grid>
