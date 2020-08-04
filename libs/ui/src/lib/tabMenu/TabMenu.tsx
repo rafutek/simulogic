@@ -50,7 +50,8 @@ export interface TabMenuProps {
     setSelectedSimulation: (simulation: Entity) => void,
     signal_groups: SignalGroup[]
     visible_wires: string[],
-    setVisibleWires: (visible_wires: string[]) => void
+    setVisibleWires: (visible_wires: string[]) => void,
+    onSearchWires: (result: SignalGroup[]) => void
 }
 
 export const TabMenu = (props: TabMenuProps) => {
@@ -61,6 +62,7 @@ export const TabMenu = (props: TabMenuProps) => {
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
     const [refresh_simulations, setRefreshSimulations] = useState(true);
+    const [signal_groups_found, setSignalGroupsFound] = useState<SignalGroup[]>();
 
     interface TabPanelProps {
         children?: React.ReactNode;
@@ -92,27 +94,28 @@ export const TabMenu = (props: TabMenuProps) => {
         setSelectedTabId(newValue);
     };
 
-
-    const printSearchResult = (search_result: Entity[]) => {
-        console.log(search_result);
-    }
     const searchCircuitsProps: SearchFieldProps = {
         what: "circuit",
-        setSearchResult: setCircuits,
+        setSearchEntityResult: setCircuits,
         refresh: refresh_circuits,
         setRefresh: setRefreshCircuits
     }
     const searchSimulationsProps: SearchFieldProps = {
         what: "simulation",
-        setSearchResult: setSimulations,
+        setSearchEntityResult: setSimulations,
         refresh: refresh_simulations,
         setRefresh: setRefreshSimulations
     }
     const searchWiresProps: SearchFieldProps = {
         what: "wire",
-        setSearchResult: printSearchResult
+        setSearchWiresResult: setSignalGroupsFound
     }
 
+    useEffect(() => {
+        signal_groups_found ? props.onSearchWires(signal_groups_found) : null;
+    }, [signal_groups_found]);
+
+    // EntitiesList is a local component for listing the circuits or simulations
     interface EntitiesListProps {
         entities: Entity[],
         what: entity

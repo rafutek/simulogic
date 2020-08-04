@@ -147,7 +147,7 @@ export class SimulationsController {
  * Returns the simulations which name contains the expression.
  */
   @Get('search/:expr')
-  searchCircuits(@Param('expr') expr: string) {
+  searchSimulations(@Param('expr') expr: string) {
     return this.simulationsService.searchNames('%' + expr + '%');
   }
 
@@ -166,5 +166,15 @@ export class SimulationsController {
   @Get('extract/wires')
   getWires() {
     return this.simulationExtractor.getExtractionSentWires();
+  }
+
+    /**
+   * Returns the wires of the last extracted and sent wavedrom
+   * which names contain the expression.
+   */
+  @Get('extract/wires/:expr')
+  getSpecialWires(@Param('expr') expr: string) {
+    const signal_groups = this.simulationExtractor.getExtractionSentWires();
+    return this.simulationExtractor.searchWires(signal_groups, expr);
   }
 }

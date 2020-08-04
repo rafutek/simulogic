@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import axios from 'axios';
-import { Entity, entity } from '@simulogic/core';
+import { Entity, entity, SignalGroup } from '@simulogic/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -24,7 +24,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface SearchFieldProps {
     what: entity | "wire",
-    setSearchResult: (search_result: Entity[]) => void,
+    setSearchEntityResult?: (search_result: Entity[]) => void,
+    setSearchWiresResult?: (search_result: SignalGroup[]) => void,
     refresh?: boolean,
     setRefresh?: (refresh: boolean) => void
 }
@@ -35,14 +36,27 @@ export const SearchField = (props: SearchFieldProps) => {
     const [search_exp, setSearchExp] = useState<string>();
 
     const search = () => {
+        let search_address: string;
+        let setSearchResult: (search_result: Entity[] | SignalGroup[]) => void;
+
         if (props.what != "wire") {
-            let search_address = `/${props.what}s`;
+            setSearchResult = props.setSearchEntityResult;
+            search_address = `/${props.what}s`; // to get all simulations or circuits
             if (search_exp && search_exp.length > 0) {
                 search_address += `/search/${search_exp}`;
             }
+        } else {
+            setSearchResult = props.setSearchWiresResult;
+            if (search_exp && search_exp.length > 0) {
+                search_address = `/simulations/extract/wires/${search_exp}`;
+            } else {
+                search_address = `/simulations/extract/wires`;
+            }
+        }
+        if (search_address) {
             axios.get(search_address)
                 .then(response => {
-                    props.setSearchResult(response.data);
+                    setSearchResult ? setSearchResult(response.data) : null;
                 })
                 .catch(error => {
                     console.log(error);

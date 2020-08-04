@@ -491,6 +491,22 @@ export class ExtractorsService {
         } else return null;
     }
 
+    searchWires(signal_groups: SignalGroup[], expression: string) {
+        if (signal_groups) {
+            signal_groups = signal_groups.map(signal_group => {
+                const new_group = {
+                    name: signal_group.name,
+                    signals: signal_group.signals.filter(signal_name =>
+                        signal_name.includes(expression)
+                    )
+                }
+                return new_group.signals.length > 0 ? new_group : null;
+            });
+            signal_groups = signal_groups.filter(signal_group => signal_group != null);
+            return signal_groups;
+        } else return null;
+    }
+
     /**
      * Returns a SignalGroup array containing the names of the signals
      * arranged by groups.

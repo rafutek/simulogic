@@ -10,6 +10,7 @@ export const TabMenuAndWorkbench = () => {
     const [selected_simulation, setSelectedSimulation] = useState<Entity>();
     const [signal_groups, setSignalGroups] = useState<SignalGroup[]>()
     const [visible_wires, setVisibleWires] = useState<string[]>();
+    const [update_visible_wires, setUpdateVisibleWires] = useState(true);
 
     const onChangeSimulation = () => {
         getAndSetSignalGroups();
@@ -40,9 +41,14 @@ export const TabMenuAndWorkbench = () => {
     useEffect(() => {
         if (signal_groups) {
             console.log("signal groups received:", signal_groups);
-            changeVisibleWires();
+            update_visible_wires ? changeVisibleWires() : setUpdateVisibleWires(true);
         }
     }, [signal_groups]);
+
+    const onSearchWires = (result: SignalGroup[]) => {
+        setUpdateVisibleWires(false);
+        setSignalGroups(result);
+    }
 
     const tabMenuProps: TabMenuProps = {
         selected_circuit,
@@ -51,7 +57,8 @@ export const TabMenuAndWorkbench = () => {
         setSelectedSimulation: setSelectedSimulation,
         signal_groups: signal_groups,
         visible_wires: visible_wires,
-        setVisibleWires: setVisibleWires
+        setVisibleWires: setVisibleWires,
+        onSearchWires: onSearchWires
     }
 
     const workbenchProps: WorkbenchProps = {

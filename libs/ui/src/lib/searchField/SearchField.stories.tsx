@@ -9,22 +9,22 @@ export default {
     component: SearchField,
 };
 
-const printSearchResult = (search_result: Entity) => {
+const printSearchResult = (search_result: any) => {
     console.log(search_result);
 }
 
 export const Circuits = () => {
     const props: SearchFieldProps = {
-        what: "circuits",
-        setSearchResult: printSearchResult
+        what: "circuit",
+        setSearchEntityResult: printSearchResult
     };
     return <SearchField {...props} />
 }
 
 export const CircuitsWithTheme = () => {
     const props: SearchFieldProps = {
-        what: "circuits",
-        setSearchResult: printSearchResult
+        what: "circuit",
+        setSearchEntityResult: printSearchResult
     };
     return (
         <ThemeProvider theme={theme}>
@@ -35,8 +35,8 @@ export const CircuitsWithTheme = () => {
 
 export const Simulations = () => {
     const props: SearchFieldProps = {
-        what: "simulations",
-        setSearchResult: printSearchResult
+        what: "simulation",
+        setSearchEntityResult: printSearchResult
     };
     return <SearchField {...props} />
 }
