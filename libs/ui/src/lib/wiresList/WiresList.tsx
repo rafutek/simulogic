@@ -40,27 +40,29 @@ export const WiresList = (props: WiresListProps) => {
     const SignalGroup = (group_props: SignalGroupProps) => {
         const { signal_group } = group_props;
 
-        const wires_list = <List>
-            {signal_group.signals.map(signal =>
-                <WireItem name={signal} visible={props.visible_wires?.includes(signal)}
-                    handleClickVisibility={handleClickVisibility} />
-            )}
-        </List>
+        if (signal_group.signals && signal_group.signals.length > 0) {
+            const wires_list = <List>
+                {signal_group.signals.map(signal =>
+                    <WireItem name={signal} visible={props.visible_wires?.includes(signal)}
+                        handleClickVisibility={handleClickVisibility} />
+                )}
+            </List>
 
-        if (signal_group.name) {
-            return (
-                <Accordion defaultExpanded>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        {signal_group.name}
-                    </AccordionSummary>
-                    <Divider />
-                    <AccordionDetails>
-                        {wires_list}
-                    </AccordionDetails>
-                </Accordion>
-            )
-        }
-        else return wires_list
+            if (signal_group.name) {
+                return (
+                    <Accordion defaultExpanded>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            {signal_group.name}
+                        </AccordionSummary>
+                        <Divider />
+                        <AccordionDetails>
+                            {wires_list}
+                        </AccordionDetails>
+                    </Accordion>
+                )
+            }
+            else return wires_list
+        } else return null
     }
 
     return (

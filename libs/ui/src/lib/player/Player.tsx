@@ -43,6 +43,7 @@ export const Player = (props: PlayerProps) => {
     const [reached_end, setReachedEnd] = useState(true);
 
     const handlePlayOrReset = () => {
+        console.log("\nplay or reset")
         props.onPlayOrReset ? props.onPlayOrReset() : null;
         const new_extraction: ExtractionDetails = {
             id_simu: props.simulation.id,
@@ -50,7 +51,7 @@ export const Player = (props: PlayerProps) => {
             result: !props.extraction_details.result,
             from: props.extraction_details.from,
             to: props.extraction_details.to,
-            wires: props.extraction_details.wires
+            wires: null // to show all the wires
         };
         props.setExtractionDetails(new_extraction);
     }

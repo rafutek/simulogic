@@ -119,7 +119,10 @@ export const Workbench = (props: WorkbenchProps) => {
                     setSimulationWaveDrom={setSimulationWaveDrom}
                     extraction_details={extraction_details}
                     setExtractionDetails={setExtractionDetails}
-                    onPlayOrReset={() => setSimulationChanged(true)}
+                    onPlayOrReset={() => {
+                        setSimulationChanged(true);
+                        setNewVisibleWires(true);
+                    }}
                 />
             </Grid>
         </Grid>

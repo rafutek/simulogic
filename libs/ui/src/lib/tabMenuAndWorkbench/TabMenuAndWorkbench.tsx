@@ -31,14 +31,15 @@ export const TabMenuAndWorkbench = () => {
 
     const listWires = (signal_groups: SignalGroup[]) => {
         let wires_list: string[] = [];
-        signal_groups.forEach(signal_group => {
-            wires_list.push(...signal_group.signals);
+        signal_groups?.forEach(signal_group => {
+            signal_group.signals?.forEach(signal_name => wires_list.push(signal_name));
         });
         return wires_list;
     }
 
     useEffect(() => {
         if (signal_groups) {
+            console.log("signal groups received:", signal_groups);
             changeVisibleWires();
         }
     }, [signal_groups]);
