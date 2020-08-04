@@ -13,6 +13,7 @@ import { List } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
 import { WiresList } from '../wiresList/WiresList';
+import { SimulationConfig } from '../simulationConfig/SimulationConfig';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -182,7 +183,7 @@ export const TabMenu = (props: TabMenuProps) => {
                         setVisibleWires={props.setVisibleWires} />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
-                    Workbench tweaks
+                    <SimulationConfig />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={4} hide={hide_panel} >
                     Parameters
