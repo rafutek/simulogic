@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles, Theme, Box, IconButton, Grid } from '@material-ui/core';
-import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
-import SkipNextIcon from '@material-ui/icons/SkipNext';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import ReplayIcon from '@material-ui/icons/Replay';
-import { ExtractionDetails, Entity, WaveDrom } from '@simulogic/core';
-import axios from 'axios';
+import { makeStyles, Theme, Grid, Button } from '@material-ui/core';
+import CheckIcon from '@material-ui/icons/Check';
 import { IntervalSelector } from '../intervalSelector/IntervalSelector';
 import { NumEventsInput } from '../numEventsInput/NumEventsInput';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
-    }
+    },
+    "@global": {
+        ".MuiFormHelperText-root.Mui-error": {
+            color: "white"   
+        }
+    },
 }));
 
 export interface SimulationConfigProps {
@@ -22,9 +20,19 @@ export interface SimulationConfigProps {
 export const SimulationConfig = (props: SimulationConfigProps) => {
     const classes = useStyles();
 
+    const [disabled, setDisabled] = useState(true);
     const [start, setStart] = useState<number>();
     const [end, setEnd] = useState<number>();
 
+    useEffect(() => {
+        if(start && end && start < end) {
+            setDisabled(false);
+        } else setDisabled(true);
+    }, [start, end]);
+
+    const handleConfiguration = () => {
+        setDisabled(true);
+    }
 
     return (
         <Grid container className={classes.root} direction={"column"} alignItems={"center"}>
@@ -33,6 +41,12 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
             </Grid>
             <Grid item>
                 <NumEventsInput />
+            </Grid>
+            <Grid item>
+                <Button variant="contained" color="primary" disabled={disabled} 
+                    onClick={handleConfiguration}>
+                    <CheckIcon />
+                </Button>
             </Grid>
         </Grid>
     )
