@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { TextField, makeStyles, Theme, createStyles, Grid } from '@material-ui/core';
 
 export interface IntervalSelectorProps {
-    from: number,
-    to: number,
-    setFrom: (from: number) => void,
-    setTo: (to: number) => void
+    start: number,
+    end: number,
+    setStart: (start: number) => void,
+    setEnd: (to: number) => void
 }
 
 export const IntervalSelector = (props: IntervalSelectorProps) => {
@@ -13,21 +13,19 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
     const useStyles = makeStyles((theme: Theme) => createStyles(
         {
             container: {
-                margin: theme.spacing(1)
             },
             item: {
-                // margin: "auto",
-                padding: theme.spacing(1)
+                margin: theme.spacing(1)
             }
         })
     );
     const classes = useStyles();
 
-    const [error_from, setErrorFrom] = useState(false);
-    const [error_msg_from, setErrorMsgFrom] = useState("");
+    const [error_start, setErrorFrom] = useState(false);
+    const [error_msg_start, setErrorMsgFrom] = useState("");
 
-    const [error_to, setErrorTo] = useState(false);
-    const [error_msg_to, setErrorMsgTo] = useState("");
+    const [error_end, setErrorTo] = useState(false);
+    const [error_msg_end, setErrorMsgTo] = useState("");
 
     interface checkInputProps {
         event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -52,60 +50,60 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
         }
     };
 
-    const from_props: checkInputProps = {
+    const start_props: checkInputProps = {
         event: undefined,
         setError: setErrorFrom,
         setErrorMsg: setErrorMsgFrom,
-        setValue: props.setFrom
+        setValue: props.setStart
     };
-    const from_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        from_props.event = event;
-        checkAndSetInput(from_props);
+    const start_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        start_props.event = event;
+        checkAndSetInput(start_props);
     };
 
-    const to_props: checkInputProps = {
+    const end_props: checkInputProps = {
         event: undefined,
         setError: setErrorTo,
         setErrorMsg: setErrorMsgTo,
-        setValue: props.setTo
+        setValue: props.setEnd
     };
-    const to_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        to_props.event = event;
-        checkAndSetInput(to_props);
+    const end_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        end_props.event = event;
+        checkAndSetInput(end_props);
     };
 
     useEffect(() => {
-        if (props.from >= props.to) {
+        if (props.start >= props.end) {
             setErrorFrom(true);
-            setErrorMsgFrom("Must be less than 'to' value");
+            setErrorMsgFrom("Must be less than end value");
         } else {
             setErrorFrom(false);
             setErrorMsgFrom("");
         }
-    }, [props.from]);
+    }, [props.start]);
 
     useEffect(() => {
-        if (props.to <= props.from) {
+        if (props.end <= props.start) {
             setErrorTo(true);
-            setErrorMsgTo("Must be greater than 'from' value");
+            setErrorMsgTo("Must be greater than start value");
         } else {
             setErrorTo(false);
             setErrorMsgTo("");
         }
-    }, [props.to]);
+    }, [props.end]);
 
-    const from_input = <TextField onChange={from_onChange} error={error_from}
-        helperText={error_msg_from} label="from" variant="outlined"
+    const start_input = <TextField onChange={start_onChange} error={error_start}
+        helperText={error_msg_start} label="interval start" variant="outlined"
     />;
 
-    const to_input = <TextField onChange={to_onChange} error={error_to}
-        helperText={error_msg_to} label="to" variant="outlined"
+    const end_input = <TextField onChange={end_onChange} error={error_end}
+        helperText={error_msg_end} label="interval end" variant="outlined"
     />;
 
     return (
-        <Grid container className={classes.container}>
-            <Grid item className={classes.item}>{from_input}</Grid>
-            <Grid item className={classes.item}>{to_input}</Grid>
+        <Grid container className={classes.container} direction={"column"}>
+            <Grid item className={classes.item}>{start_input}</Grid>
+            <Grid item className={classes.item}>{end_input}</Grid>
         </Grid>
     )
 }

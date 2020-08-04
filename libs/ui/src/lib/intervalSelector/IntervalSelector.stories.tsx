@@ -8,13 +8,12 @@ export default {
 
 export const Default = () => {
 
-    const [from, setFrom] = useState<number>();
-    const [to, setTo] = useState<number>();
+    const [start, setStart] = useState<number>();
+    const [end, setEnd] = useState<number>();
 
     return (
         <div>
-            <IntervalSelector setFrom={setFrom} setTo={setTo} />
-            {from && to ? <p>selected interval from {from} to {to}.</p> : null}
+            <IntervalSelector start={start} end={end} setStart={setStart} setEnd={setEnd} />
         </div>
     )
 }
