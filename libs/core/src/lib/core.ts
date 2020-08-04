@@ -69,7 +69,7 @@ export interface ExtractedSimulation {
 /**
  * Description of a simulation extraction.
  */
-export interface SimulationProps {
+export interface ExtractionDetails {
     id_simu: number;
     id_circuit?: number;
     result?: boolean;

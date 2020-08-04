@@ -24,7 +24,7 @@ export const TabMenuAndWorkbench = () => {
 
     const changeVisibleWires = () => {
         const all_wires = listWires(signal_groups);
-        console.log("\nprevious visible wires:", visible_wires);
+        console.log("previous visible wires:", visible_wires);
         console.log("new visible wires:", all_wires);
         setVisibleWires(all_wires);
     }

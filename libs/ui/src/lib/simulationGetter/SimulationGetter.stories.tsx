@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { SimulationGetter, SimulationGetterProps } from './SimulationGetter';
-import { WaveDrom, SimulationProps } from '@simulogic/core';
+import { WaveDrom, ExtractionDetails } from '@simulogic/core';
 
 export default {
     title: 'SimulationGetter',
     component: SimulationGetter,
 };
 
-let simu_props: SimulationProps;
+let simu_props: ExtractionDetails;
 let props: SimulationGetterProps;
 
 export const getSimu_1 = () => {
@@ -16,7 +16,7 @@ export const getSimu_1 = () => {
         id_simu: 1
     }
     props = {
-        simu_props: simu_props,
+        extraction_details: simu_props,
         setSimulation: setSimulation
     }
 
@@ -36,7 +36,7 @@ export const getSimu_1_withResult = () => {
         result: true
     }
     props = {
-        simu_props: simu_props,
+        extraction_details: simu_props,
         setSimulation: setSimulation
     }
 
@@ -56,7 +56,7 @@ export const getSimu_1_Interval = () => {
         to: 60
     }
     props = {
-        simu_props: simu_props,
+        extraction_details: simu_props,
         setSimulation: setSimulation
     }
 

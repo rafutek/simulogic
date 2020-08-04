@@ -1,17 +1,17 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
 import axios from 'axios';
-import { WaveDrom, SimulationProps } from '@simulogic/core'
+import { WaveDrom, ExtractionDetails } from '@simulogic/core'
 
 export interface SimulationGetterProps {
-    simu_props: SimulationProps,
+    extraction_details: ExtractionDetails,
     setSimulation: (simulation: WaveDrom) => void
 }
 
 export const SimulationGetter = (props: SimulationGetterProps) => {
 
     const getSimulation = () => {
-        axios.post(`/simulations/extract`, props.simu_props)
+        axios.post(`/simulations/extract`, props.extraction_details)
             .then((response) => {
                 console.log(response.data)
                 props.setSimulation(response.data);

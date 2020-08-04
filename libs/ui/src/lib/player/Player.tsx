@@ -6,7 +6,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import ReplayIcon from '@material-ui/icons/Replay';
-import { SimulationProps, Entity, WaveDrom } from '@simulogic/core';
+import { ExtractionDetails, Entity, WaveDrom } from '@simulogic/core';
 import axios from 'axios';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -28,37 +28,32 @@ export interface PlayerProps {
     circuit: Entity,
     simulation: Entity,
     setSimulationWaveDrom: (wavedrom: WaveDrom) => void,
-    onChangeSimulation: () => void
+    extraction_details: ExtractionDetails,
+    setExtractionDetails: (extraction_details: ExtractionDetails) => void,
+    onPlayOrReset?: () => void
 }
 
 export const Player = (props: PlayerProps) => {
     const classes = useStyles();
     const [contain_result, setContainResult] = useState(false);
-    let post_obj: SimulationProps = {
+    let post_obj: ExtractionDetails = {
         id_simu: props.simulation?.id
     };
     const [reached_start, setReachedStart] = useState(true);
     const [reached_end, setReachedEnd] = useState(true);
 
     const handlePlayOrReset = () => {
-        post_obj.id_simu = props.simulation.id;
-        post_obj.id_circuit = props.circuit.id;
-        post_obj.result = !contain_result;
-
-        axios.post(`/simulations/extract`, post_obj)
-            .then(response => {
-                props.setSimulationWaveDrom(response.data);
-                setContainResult(post_obj.result);
-                props.onChangeSimulation();
-            }).catch(err => {
-                console.log(err);
-            })
+        props.onPlayOrReset ? props.onPlayOrReset() : null;
+        const new_extraction: ExtractionDetails = {
+            id_simu: props.simulation.id,
+            id_circuit: props.circuit.id,
+            result: !props.extraction_details.result,
+            from: props.extraction_details.from,
+            to: props.extraction_details.to,
+            wires: props.extraction_details.wires
+        };
+        props.setExtractionDetails(new_extraction);
     }
-
-    // Reset Play button when user changes circuit or simulation
-    useEffect(() => {
-        setContainResult(false);
-    }, [props.circuit, props.simulation]);
 
     return (
         <Box className={classes.root}>
@@ -71,7 +66,7 @@ export const Player = (props: PlayerProps) => {
             <IconButton className={classes.icon} onClick={handlePlayOrReset}
                 disabled={!(props.circuit && props.simulation)}
             >
-                {contain_result ? <ReplayIcon /> : <PlayArrowIcon />}
+                {props.extraction_details?.result ? <ReplayIcon /> : <PlayArrowIcon />}
             </IconButton>
             <IconButton className={classes.icon} disabled={reached_end}>
                 <NavigateNextIcon />

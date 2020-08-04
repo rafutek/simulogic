@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { entity, Entity, WaveDrom, SimulationProps, SignalGroup } from '@simulogic/core';
+import { entity, Entity, WaveDrom, ExtractionDetails, SignalGroup } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
@@ -29,6 +29,9 @@ export interface WorkbenchProps {
 export const Workbench = (props: WorkbenchProps) => {
     const classes = useStyles();
     const [simulation_wavedrom, setSimulationWaveDrom] = useState<WaveDrom>();
+    const [extraction_details, setExtractionDetails] = useState<ExtractionDetails>();
+    const [simulation_changed, setSimulationChanged] = useState(false);
+    const [new_visible_wires, setNewVisibleWires] = useState(false);
 
     interface EntityStatusProps {
         what: entity
@@ -58,27 +61,45 @@ export const Workbench = (props: WorkbenchProps) => {
 
     const handleSimulationChange = async () => {
         console.log("handle simulation change")
-        await getSimulation();
-        props.onChangeSimulation();
-    }
-
-    const getSimulation = async () => {
-        const post_obj: SimulationProps = {
-            id_simu: props.simulation.id
-        };
-        await axios.post(`/simulations/extract`, post_obj)
-            .then(response => {
-                setSimulationWaveDrom(response.data);
-            }).catch(err => console.error(err))
+        setSimulationChanged(true);
+        setNewVisibleWires(true);
+        setExtractionDetails({ id_simu: props.simulation.id });
     }
 
     // Manage visible wires change
-    // useEffect(() => {
-    //     if (props.visible_wires) {
-    //         console.log("workbench visible wires:", props.visible_wires);
-    //     }
-    // }, [props.visible_wires]);
+    useEffect(() => {
+        if (new_visible_wires) {
+            setNewVisibleWires(false);
+        }
+        else if (props.visible_wires) {
+            console.log("workbench visible wires:", props.visible_wires);
+            const new_extraction: ExtractionDetails = {
+                id_simu: props.simulation.id,
+                id_circuit: props.circuit.id,
+                result: extraction_details.result,
+                from: extraction_details.from,
+                to: extraction_details.to,
+                wires: props.visible_wires
+            };
+            setExtractionDetails(new_extraction);
+        }
+    }, [props.visible_wires]);
 
+    // Get the simulation extracted from the server
+    // when the extraction details change
+    useEffect(() => {
+        if (extraction_details) {
+            console.log("send extraction details")
+            axios.post(`/simulations/extract`, extraction_details)
+                .then(response => {
+                    setSimulationWaveDrom(response.data);
+                    if (simulation_changed) {
+                        props.onChangeSimulation();
+                        setSimulationChanged(false);
+                    }
+                }).catch(err => console.error(err))
+        }
+    }, [extraction_details]);
 
     return (
         <Grid container direction="column" className={classes.root}>
@@ -96,7 +117,9 @@ export const Workbench = (props: WorkbenchProps) => {
             >
                 <Player circuit={props.circuit} simulation={props.simulation}
                     setSimulationWaveDrom={setSimulationWaveDrom}
-                    onChangeSimulation={props.onChangeSimulation}
+                    extraction_details={extraction_details}
+                    setExtractionDetails={setExtractionDetails}
+                    onPlayOrReset={() => setSimulationChanged(true)}
                 />
             </Grid>
         </Grid>
