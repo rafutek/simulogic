@@ -76,21 +76,15 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
         if (props.start >= props.end) {
             setErrorFrom(true);
             setErrorMsgFrom("Must be less than end value");
-        } else {
-            setErrorFrom(false);
-            setErrorMsgFrom("");
-        }
-    }, [props.start]);
-
-    useEffect(() => {
-        if (props.end <= props.start) {
             setErrorTo(true);
             setErrorMsgTo("Must be greater than start value");
         } else {
+            setErrorFrom(false);
+            setErrorMsgFrom("");
             setErrorTo(false);
             setErrorMsgTo("");
         }
-    }, [props.end]);
+    }, [props.start, props.end]);
 
     const start_input = <TextField onChange={start_onChange} error={error_start}
         helperText={error_msg_start} label="interval start" variant="outlined"

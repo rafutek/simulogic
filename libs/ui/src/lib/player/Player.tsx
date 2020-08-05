@@ -35,10 +35,6 @@ export interface PlayerProps {
 
 export const Player = (props: PlayerProps) => {
     const classes = useStyles();
-    const [contain_result, setContainResult] = useState(false);
-    let post_obj: ExtractionDetails = {
-        id_simu: props.simulation?.id
-    };
     const [reached_start, setReachedStart] = useState(true);
     const [reached_end, setReachedEnd] = useState(true);
 

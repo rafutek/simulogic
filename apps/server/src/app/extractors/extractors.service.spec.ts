@@ -12,7 +12,7 @@ describe("SimulationExtractor", () => {
     const wavedrom: WaveDrom = {
       signal: [],
       foot: {
-        tick: "x 0 100 200 350 670 x "
+        tick: "- 0 100 200 350 670 + "
       }
     };
     const s1: Signal = {
@@ -32,12 +32,12 @@ describe("SimulationExtractor", () => {
         // When initilizing the interval wavedrom
         const interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
 
-        // Then the interval wavedrom must respect these conditions
-        expect(interval_wavedrom.foot.tick).toEqual("");
-        expect(interval_wavedrom.signal[0].name == s1.name &&
-          interval_wavedrom.signal[0].wave == "").toBeTruthy();
-        expect(interval_wavedrom.signal[1].name == s2.name &&
-          interval_wavedrom.signal[1].wave == "").toBeTruthy();
+        // Then the initialized interval wavedrom must be
+        const expected_wavedrom: WaveDrom = {
+          signal: [{ name: s1.name, wave: "" }, { name: s2.name, wave: "" }],
+          foot: { tick: "" }
+        }
+        expect(interval_wavedrom).toEqual(expected_wavedrom);
       });
     });
 
@@ -54,12 +54,12 @@ describe("SimulationExtractor", () => {
         const from = 90, to = 250;
         interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
 
-        // Then the interval wavedrom must contain these values
-        const tick = "100 200 ";
-        const interval_wave_s1 = ".1", interval_wave_s2 = "1.";
-        expect(interval_wavedrom.foot.tick).toEqual(tick);
-        expect(interval_wavedrom.signal[0].wave).toEqual(interval_wave_s1);
-        expect(interval_wavedrom.signal[1].wave).toEqual(interval_wave_s2);
+        // Then the interval wavedrom must be
+        const expected_wavedrom: WaveDrom = {
+          signal: [{ name: s1.name, wave: ".1" }, { name: s2.name, wave: "1." }],
+          foot: { tick: "100 200 " }
+        }
+        expect(interval_wavedrom).toEqual(expected_wavedrom);
       });
 
       it("should respect interval inclusion rule", () => {
@@ -70,12 +70,12 @@ describe("SimulationExtractor", () => {
         const from = 100, to = 200;
         interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
 
-        // Then the interval wavedrom must contain the two events
-        const tick = "100 200 ";
-        const interval_wave_s1 = ".1", interval_wave_s2 = "1.";
-        expect(interval_wavedrom.foot.tick).toEqual(tick);
-        expect(interval_wavedrom.signal[0].wave).toEqual(interval_wave_s1);
-        expect(interval_wavedrom.signal[1].wave).toEqual(interval_wave_s2);
+        // Then the interval wavedrom must be
+        const expected_wavedrom: WaveDrom = {
+          signal: [{ name: s1.name, wave: ".1" }, { name: s2.name, wave: "1." }],
+          foot: { tick: "100 200 " }
+        }
+        expect(interval_wavedrom).toEqual(expected_wavedrom);
       });
 
       it("should contain all next events", () => {
@@ -88,11 +88,11 @@ describe("SimulationExtractor", () => {
 
         // Then the interval wavedrom must contain all events
         // except those before 100
-        const tick = "100 200 350 670 ";
-        const interval_wave_s1 = ".1..", interval_wave_s2 = "1.01";
-        expect(interval_wavedrom.foot.tick).toEqual(tick);
-        expect(interval_wavedrom.signal[0].wave).toEqual(interval_wave_s1);
-        expect(interval_wavedrom.signal[1].wave).toEqual(interval_wave_s2);
+        const expected_wavedrom: WaveDrom = {
+          signal: [{ name: s1.name, wave: ".1.." }, { name: s2.name, wave: "1.01" }],
+          foot: { tick: "100 200 350 670 " }
+        }
+        expect(interval_wavedrom).toEqual(expected_wavedrom);
       });
     });
 
@@ -242,13 +242,13 @@ describe("SimulationExtractor", () => {
       const s2: Signal = { name: "s2", wave: "x0...1..x" };
       const wavedrom1: WaveDrom = {
         signal: [s1, s2],
-        foot: { tick: "x 0 10 11 20 25 39 40 x " }
+        foot: { tick: "- 0 10 11 20 25 39 40 + " }
       };
 
       const s3: Signal = { name: "s3", wave: "x0.1.0.2567.x" };
       const wavedrom2: WaveDrom = {
         signal: [s3],
-        foot: { tick: "x 30 40 100 111 120 123 200 205 206 207 230 x " }
+        foot: { tick: "- 30 40 100 111 120 123 200 205 206 207 230 + " }
       };
 
       // When combining the thwo wavedroms
@@ -261,7 +261,7 @@ describe("SimulationExtractor", () => {
       const expected_wavedrom: WaveDrom = {
         signal: [s1, s2, s3],
         foot: {
-          tick: "x 0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 x "
+          tick: "- 0 10 11 20 25 30 39 40 100 111 120 123 200 205 206 207 230 + "
         }
       };
       expect(combined_wavedrom).toEqual(expected_wavedrom);
@@ -277,7 +277,7 @@ describe("SimulationExtractor", () => {
       const s4: Signal = { name: "s4", wave: "x.1.0.1x" };
       const initial_wavedrom: WaveDrom = {
         signal: [s1, s2, s3, s4],
-        foot: { tick: "x 12 28 45 76 79 81 90 x " }
+        foot: { tick: "- 12 28 45 76 79 81 90 + " }
       };
 
       // When selecting these signals
