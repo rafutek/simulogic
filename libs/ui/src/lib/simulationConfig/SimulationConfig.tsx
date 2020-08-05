@@ -3,18 +3,22 @@ import { makeStyles, Theme, Grid, Button } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import { IntervalSelector } from '../intervalSelector/IntervalSelector';
 import { NumEventsInput } from '../numEventsInput/NumEventsInput';
+import { Configuration, Entity } from '@simulogic/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
     },
     "@global": {
         ".MuiFormHelperText-root.Mui-error": {
-            color: "white"   
+            color: "white"
         }
     },
 }));
 
 export interface SimulationConfigProps {
+    configuration: Configuration,
+    setConfiguration: (config: Configuration) => void,
+    selected_simulation: Entity
 }
 
 export const SimulationConfig = (props: SimulationConfigProps) => {
@@ -25,17 +29,25 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     const [end, setEnd] = useState<number>();
 
     useEffect(() => {
-        if(start && end && start < end) {
+        if (props.selected_simulation && start >= 0 && end > 0 && start < end) {
             setDisabled(false);
         } else setDisabled(true);
     }, [start, end]);
 
-    const handleConfiguration = () => {
-        setDisabled(true);
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const config: Configuration = {
+            interval_start: start,
+            interval_end: end,
+            max_events: 0
+        };
+        props.setConfiguration(config);
     }
 
     return (
-        <Grid container className={classes.root} direction={"column"} alignItems={"center"}>
+        <Grid container className={classes.root} direction={"column"} alignItems={"center"}
+            component={"form"} onSubmit={handleSubmit}
+        >
             <Grid item >
                 <IntervalSelector start={start} end={end} setStart={setStart} setEnd={setEnd} />
             </Grid>
@@ -43,8 +55,7 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
                 <NumEventsInput />
             </Grid>
             <Grid item>
-                <Button variant="contained" color="primary" disabled={disabled} 
-                    onClick={handleConfiguration}>
+                <Button variant="contained" color="primary" disabled={disabled} type="submit">
                     <CheckIcon />
                 </Button>
             </Grid>

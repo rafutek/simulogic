@@ -10,7 +10,6 @@ export const NumEventsInput = (props: NumEventsInputProps) => {
         {
             root: {
                 margin: theme.spacing(1),
-                // width: "100%"
             }
         })
     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { entity, Entity, WaveDrom, ExtractionDetails, SignalGroup } from '@simulogic/core';
+import { entity, Entity, WaveDrom, ExtractionDetails, SignalGroup, Configuration } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
@@ -23,7 +23,8 @@ export interface WorkbenchProps {
     circuit: Entity,
     simulation: Entity,
     onChangeSimulation: () => void,
-    visible_wires: string[]
+    visible_wires: string[],
+    configuration: Configuration
 }
 
 export const Workbench = (props: WorkbenchProps) => {
@@ -75,7 +76,7 @@ export const Workbench = (props: WorkbenchProps) => {
             console.log("workbench visible wires:", props.visible_wires);
             const new_extraction: ExtractionDetails = {
                 id_simu: props.simulation.id,
-                id_circuit: props.circuit.id,
+                id_circuit: props.circuit?.id,
                 result: extraction_details.result,
                 from: extraction_details.from,
                 to: extraction_details.to,
@@ -84,6 +85,21 @@ export const Workbench = (props: WorkbenchProps) => {
             setExtractionDetails(new_extraction);
         }
     }, [props.visible_wires]);
+
+    // Manage configuration change
+    useEffect(() => {
+        if(props.configuration && simulation_wavedrom){
+            const new_extraction: ExtractionDetails = {
+                id_simu: props.simulation.id,
+                id_circuit: props.circuit?.id,
+                result: extraction_details.result,
+                from: props.configuration.interval_start,
+                to: props.configuration.interval_end,
+                wires: extraction_details.wires
+            };
+            setExtractionDetails(new_extraction);
+        }
+    }, [props.configuration]);
 
     // Get the simulation extracted from the server
     // when the extraction details change

@@ -437,9 +437,9 @@ export class ExtractorsService {
         const output_group = [];
 
         if (input) {
-            wavedrom.signal.forEach(signal => {
-                const input_signal_found = input.signal.find(
-                    input_signal => input_signal.name == signal.name);
+            input.signal.forEach(input_signal => {
+                const input_signal_found = wavedrom.signal.find(
+                    signal => signal.name == input_signal.name);
                 if (input_signal_found)
                     input_group.push(input_signal_found);
             });
@@ -447,16 +447,15 @@ export class ExtractorsService {
             new_wavedrom.signal.push(input_group);
         }
         if (output) {
-            wavedrom.signal.forEach(signal => {
-                const output_signal_found = output.signal.find(
-                    output_signal => output_signal.name == signal.name);
+            output.signal.forEach(output_signal => {
+                const output_signal_found = wavedrom.signal.find(
+                    signal => signal.name == output_signal.name);
                 if (output_signal_found)
                     output_group.push(output_signal_found);
             });
             output_group.unshift("output");
             new_wavedrom.signal.push(output_group);
         }
-
         return new_wavedrom;
     }
 

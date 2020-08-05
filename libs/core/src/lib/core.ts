@@ -83,3 +83,9 @@ export interface SignalGroup {
     signals?: string[],
     signal_group?: SignalGroup[]
 }
+
+export interface Configuration {
+    interval_start: number,
+    interval_end: number,
+    max_events: number
+}

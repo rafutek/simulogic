@@ -8,7 +8,7 @@ import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponen
 import BuildIcon from '@material-ui/icons/Build';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
-import { Entity, entity, SignalGroup } from '@simulogic/core';
+import { Entity, entity, SignalGroup, Configuration } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
@@ -52,7 +52,9 @@ export interface TabMenuProps {
     signal_groups: SignalGroup[]
     visible_wires: string[],
     setVisibleWires: (visible_wires: string[]) => void,
-    onSearchWires: (result: SignalGroup[]) => void
+    onSearchWires: (result: SignalGroup[]) => void,
+    configuration: Configuration,
+    setConfiguration: (config: Configuration) => void
 }
 
 export const TabMenu = (props: TabMenuProps) => {
@@ -183,7 +185,10 @@ export const TabMenu = (props: TabMenuProps) => {
                         setVisibleWires={props.setVisibleWires} />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
-                    <SimulationConfig />
+                    <SimulationConfig configuration={props.configuration}
+                        setConfiguration={props.setConfiguration}
+                        selected_simulation={props.selected_simulation}
+                    />
                 </TabPanel>
                 <TabPanel value={selected_tab_id} index={4} hide={hide_panel} >
                     Parameters

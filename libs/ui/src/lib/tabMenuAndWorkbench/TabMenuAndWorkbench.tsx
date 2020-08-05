@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Entity, SignalGroup } from '@simulogic/core';
+import { Entity, SignalGroup, Configuration } from '@simulogic/core';
 import { TabMenu, TabMenuProps } from '../tabMenu/TabMenu';
 import { Workbench, WorkbenchProps } from '../workbench/Workbench';
 import axios from 'axios';
@@ -11,6 +11,7 @@ export const TabMenuAndWorkbench = () => {
     const [signal_groups, setSignalGroups] = useState<SignalGroup[]>()
     const [visible_wires, setVisibleWires] = useState<string[]>();
     const [update_visible_wires, setUpdateVisibleWires] = useState(true);
+    const [configuration, setConfiguration] = useState<Configuration>();
 
     const onChangeSimulation = () => {
         getAndSetSignalGroups();
@@ -58,14 +59,17 @@ export const TabMenuAndWorkbench = () => {
         signal_groups: signal_groups,
         visible_wires: visible_wires,
         setVisibleWires: setVisibleWires,
-        onSearchWires: onSearchWires
+        onSearchWires: onSearchWires,
+        configuration: configuration,
+        setConfiguration: setConfiguration
     }
 
     const workbenchProps: WorkbenchProps = {
         circuit: selected_circuit,
         simulation: selected_simulation,
         onChangeSimulation: onChangeSimulation,
-        visible_wires: visible_wires
+        visible_wires: visible_wires,
+        configuration: configuration
     }
 
     return (
