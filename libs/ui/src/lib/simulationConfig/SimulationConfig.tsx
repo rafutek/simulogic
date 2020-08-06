@@ -28,6 +28,7 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     const [disabled, setDisabled] = useState(true);
     const [start, setStart] = useState<number>();
     const [end, setEnd] = useState<number>();
+    const [max_events, setMaxEvents] = useState<number>();
 
     useEffect(() => {
         if (props.selected_simulation && start >= 0 && end > 0 && start < end) {
@@ -40,7 +41,7 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
         const config: Configuration = {
             interval_start: start,
             interval_end: end,
-            max_events: 0
+            max_events: max_events
         };
         props.setConfiguration(config);
     }
@@ -69,7 +70,7 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
                 <IntervalSelector start={start} end={end} setStart={setStart} setEnd={setEnd} />
             </Grid>
             <Grid item>
-                <NumEventsInput />
+                <NumEventsInput max_events={max_events} setMaxEvents={setMaxEvents} />
             </Grid>
             <Grid item>
                 <Grid container spacing={2}>

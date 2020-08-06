@@ -9,16 +9,6 @@ export interface IntervalSelectorProps {
 }
 
 export const IntervalSelector = (props: IntervalSelectorProps) => {
-    const useStyles = makeStyles((theme: Theme) => createStyles(
-        {
-            container: {
-            },
-            item: {
-                // margin: theme.spacing(1)
-            }
-        })
-    );
-    const classes = useStyles();
 
     const [error_start, setErrorFrom] = useState(false);
     const [error_msg_start, setErrorMsgFrom] = useState("");
@@ -95,9 +85,9 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
     />;
 
     return (
-        <Grid container className={classes.container} direction={"column"} spacing={1}>
-            <Grid item className={classes.item}>{start_input}</Grid>
-            <Grid item className={classes.item}>{end_input}</Grid>
+        <Grid container direction={"column"} spacing={1}>
+            <Grid item >{start_input}</Grid>
+            <Grid item >{end_input}</Grid>
         </Grid>
     )
 }
