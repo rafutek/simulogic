@@ -9,13 +9,12 @@ export interface IntervalSelectorProps {
 }
 
 export const IntervalSelector = (props: IntervalSelectorProps) => {
-
     const useStyles = makeStyles((theme: Theme) => createStyles(
         {
             container: {
             },
             item: {
-                margin: theme.spacing(1)
+                // margin: theme.spacing(1)
             }
         })
     );
@@ -56,7 +55,7 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
         setErrorMsg: setErrorMsgFrom,
         setValue: props.setStart
     };
-    const start_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const onChangeStart = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         start_props.event = event;
         checkAndSetInput(start_props);
     };
@@ -67,7 +66,7 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
         setErrorMsg: setErrorMsgTo,
         setValue: props.setEnd
     };
-    const end_onChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const onChangeEnd = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         end_props.event = event;
         checkAndSetInput(end_props);
     };
@@ -86,16 +85,17 @@ export const IntervalSelector = (props: IntervalSelectorProps) => {
         }
     }, [props.start, props.end]);
 
-    const start_input = <TextField onChange={start_onChange} error={error_start}
+    const start_input = <TextField onChange={onChangeStart} error={error_start}
         helperText={error_msg_start} label="interval start" variant="outlined"
+        defaultValue={props.start}
     />;
 
-    const end_input = <TextField onChange={end_onChange} error={error_end}
+    const end_input = <TextField onChange={onChangeEnd} error={error_end}
         helperText={error_msg_end} label="interval end" variant="outlined"
     />;
 
     return (
-        <Grid container className={classes.container} direction={"column"}>
+        <Grid container className={classes.container} direction={"column"} spacing={1}>
             <Grid item className={classes.item}>{start_input}</Grid>
             <Grid item className={classes.item}>{end_input}</Grid>
         </Grid>

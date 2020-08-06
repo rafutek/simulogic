@@ -4,6 +4,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import { IntervalSelector } from '../intervalSelector/IntervalSelector';
 import { NumEventsInput } from '../numEventsInput/NumEventsInput';
 import { Configuration, Entity } from '@simulogic/core';
+import UndoIcon from '@material-ui/icons/Undo';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -44,9 +45,25 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
         props.setConfiguration(config);
     }
 
+    const isUndoDisabled = () => {
+        if (!props.configuration || props.configuration.interval_start == null) {
+            return true;
+        }
+        else return false;
+    }
+
+    const handleUndo = () => {
+        const config: Configuration = {
+            interval_start: null,
+            interval_end: null,
+            max_events: null
+        };
+        props.setConfiguration(config);
+    }
+
     return (
         <Grid container className={classes.root} direction={"column"} alignItems={"center"}
-            component={"form"} onSubmit={handleSubmit}
+            component={"form"} onSubmit={handleSubmit} spacing={2}
         >
             <Grid item >
                 <IntervalSelector start={start} end={end} setStart={setStart} setEnd={setEnd} />
@@ -55,9 +72,20 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
                 <NumEventsInput />
             </Grid>
             <Grid item>
-                <Button variant="contained" color="primary" disabled={disabled} type="submit">
-                    <CheckIcon />
-                </Button>
+                <Grid container spacing={2}>
+                    <Grid item>
+                        <Button variant="contained" color="primary" disabled={isUndoDisabled()}
+                            onClick={handleUndo} >
+                            <UndoIcon />
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button variant="contained" color="primary" disabled={disabled}
+                            type="submit">
+                            <CheckIcon />
+                        </Button>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     )
