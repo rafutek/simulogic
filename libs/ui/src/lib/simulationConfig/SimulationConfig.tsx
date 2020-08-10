@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme, Grid, Button } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import { IntervalSelector } from '../intervalSelector/IntervalSelector';
-import { Configuration, Entity } from '@simulogic/core';
+import { Configuration, Entity, Interval } from '@simulogic/core';
 import UndoIcon from '@material-ui/icons/Undo';
 import { TimeShiftInput } from '../timeShiftInput/TimeShiftInput';
+import { isEmpty } from 'class-validator';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -43,22 +44,24 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const config: Configuration = {
-            interval_start: start,
-            interval_end: end,
+            interval: { start: start, end: end },
             time_shift: time_shift
         };
         props.setConfiguration(config);
     }
 
     const isUndoDisabled = () => {
-        return props.configuration?.interval_start == null ||
-            props.configuration?.time_shift == null;
+        return isEmptyInterval(props.configuration?.interval) &&
+            isEmpty(props.configuration?.time_shift);
+    }
+
+    const isEmptyInterval = (interval: Interval) => {
+        return isEmpty(interval?.start) && isEmpty(interval?.end);
     }
 
     const handleUndo = () => {
         const config: Configuration = {
-            interval_start: null,
-            interval_end: null,
+            interval: { start: null, end: null },
             time_shift: null
         };
         props.setConfiguration(config);

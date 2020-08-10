@@ -223,18 +223,12 @@ export class ExtractorsService {
         return wavedrom;
     }
 
-    getWaveDromInterval(id: number, file_path: string, from: number, to: number) {
-        const wavedrom = this.getWaveDrom(id, file_path);
-        const interval_wavedrom = this.extractWaveDromInterval(wavedrom, from, to);
-        return interval_wavedrom;
-    }
-
-    extractWaveDromInterval(wavedrom: WaveDrom, from: number, to: number) {
+    extractWaveDromInterval(wavedrom: WaveDrom, interval: Interval) {
         if (wavedrom) {
             let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
-            interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, from, to);
-            interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, from);
-            interval_wavedrom = this.appendEndTime(interval_wavedrom, wavedrom, to);
+            interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+            interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, interval.start);
+            interval_wavedrom = this.appendEndTime(interval_wavedrom, wavedrom, interval.end);
             this.manageIntervalLimits(interval_wavedrom);
             return interval_wavedrom;
         }
@@ -258,22 +252,22 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
-    fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number, to: number) {
+    fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, interval: Interval) {
         this.reached_end = this.reached_start = true;
         const str_time_axis = wavedrom.foot.tick.split(' '); // full array
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick); // array reduced to numbers
         time_axis.forEach(t => {
-            if (t >= from && t <= to) {
+            if (t >= interval.start && t <= interval.end) {
                 interval_wavedrom.foot.tick += `${t} `;
                 interval_wavedrom.signal.forEach((s, s_index) => {
                     const idx = str_time_axis.findIndex(str_t => str_t == String(t));
                     s.wave += wavedrom.signal[s_index].wave[idx];
                 })
             }
-            else if (t < from) {
+            else if (t < interval.start) {
                 this.reached_start = false;
             }
-            else if (t > to) {
+            else if (t > interval.end) {
                 this.reached_end = false;
             }
         })

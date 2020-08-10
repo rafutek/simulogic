@@ -73,9 +73,8 @@ export interface ExtractionDetails {
     id_simu: number;
     id_circuit?: number;
     result?: boolean;
-    from?: number;
-    to?: number;
-    wires?: string[];
+    wires?: string[],
+    interval?: Interval
   }
 
 export interface SignalGroup {
@@ -85,8 +84,7 @@ export interface SignalGroup {
 }
 
 export interface Configuration {
-    interval_start: number,
-    interval_end: number,
+    interval: Interval,
     time_shift: number
 }
 

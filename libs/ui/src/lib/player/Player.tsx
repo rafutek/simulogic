@@ -44,8 +44,7 @@ export const Player = (props: PlayerProps) => {
             id_simu: props.simulation.id,
             id_circuit: props.circuit?.id,
             result: props.extraction_details?.result,
-            from: props.extraction_details?.from,
-            to: props.extraction_details?.to,
+            interval: props.extraction_details?.interval,
             wires: props.extraction_details?.wires
         };
         return extraction;
@@ -74,13 +73,13 @@ export const Player = (props: PlayerProps) => {
         const new_extraction = getBaseExtraction();
         const time_shift = props.configuration?.time_shift;
         if (time_shift > 0) {
-            new_extraction.from += time_shift;
-            new_extraction.to += time_shift;
+            new_extraction.interval.start += time_shift;
+            new_extraction.interval.end += time_shift;
             props.setExtractionDetails(new_extraction);
         } else {
-            const space = new_extraction.to - new_extraction.from;
-            new_extraction.to += space;
-            new_extraction.from += space;
+            const space = new_extraction.interval.end - new_extraction.interval.start;
+            new_extraction.interval.start += space;
+            new_extraction.interval.end += space;
             props.setExtractionDetails(new_extraction);
         }
     }
@@ -90,14 +89,17 @@ export const Player = (props: PlayerProps) => {
         const new_extraction = getBaseExtraction();
         const time_shift = props.configuration?.time_shift;
         if (time_shift > 0) {
-            new_extraction.from -= time_shift;
-            new_extraction.to -= time_shift;
+            new_extraction.interval.start -= time_shift;
+            new_extraction.interval.end -= time_shift;
             props.setExtractionDetails(new_extraction);
         } else {
-            const space = new_extraction.to - new_extraction.from;
-            new_extraction.to -= space;
-            new_extraction.from -= space;
-            if (new_extraction.from < 0) new_extraction.from = 0;
+            const space = new_extraction.interval.end - new_extraction.interval.start;
+            new_extraction.interval.end -= space;
+            new_extraction.interval.start -= space;
+            if (new_extraction.interval.start < 0) {
+                new_extraction.interval.start = 0;
+                new_extraction.interval.end = space;
+            }
             props.setExtractionDetails(new_extraction);
         }
     }

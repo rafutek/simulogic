@@ -1,6 +1,8 @@
 import { IsBoolean, IsString, Min, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
 import { IsGreaterThan } from '../../validation-decorators/IsGreaterThan';
 import { DependsOn, DependsOnIfTrue } from '../../validation-decorators/DependsOn';
+import { Interval } from '@simulogic/core';
+import { IntervalChecker } from '../../validation-decorators/IntervalChecker';
 
 export class GetSimulationDto {
 
@@ -20,14 +22,8 @@ export class GetSimulationDto {
   result: boolean;
 
   @IsOptional()
-  @DependsOn("to", { message: "'to' value is missing" })
-  @Min(0)
-  from: number;
-
-  @IsOptional()
-  @DependsOn("from", { message: "'from' value is missing" })
-  @IsGreaterThan("from", { message: "'to' must be greater than 'from'" })
-  to: number;
+  @IntervalChecker({ message: "'interval' object is not correct" })
+  interval: Interval;
 
   @IsOptional()
   @IsString({ each: true })

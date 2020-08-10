@@ -130,9 +130,9 @@ export class SimulationsController {
         wavedrom = this.simulationExtractor.selectWires(wavedrom, getSimulationDto.wires);
       }
 
-      if (isNotEmpty(getSimulationDto.from) && isNotEmpty(getSimulationDto.to)) {
+      if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
         wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
-          getSimulationDto.from, getSimulationDto.to);
+          getSimulationDto.interval);
       }
 
       final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);

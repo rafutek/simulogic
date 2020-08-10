@@ -79,8 +79,7 @@ export const Workbench = (props: WorkbenchProps) => {
                 id_simu: props.simulation.id,
                 id_circuit: props.circuit?.id,
                 result: extraction_details.result,
-                from: extraction_details.from,
-                to: extraction_details.to,
+                interval: extraction_details.interval,
                 wires: props.visible_wires
             };
             setExtractionDetails(new_extraction);
@@ -94,13 +93,13 @@ export const Workbench = (props: WorkbenchProps) => {
                 id_simu: props.simulation.id,
                 id_circuit: props.circuit?.id,
                 result: extraction_details.result,
-                from: props.configuration.interval_start,
-                to: props.configuration.interval_end,
-                wires: extraction_details.wires
+                wires: extraction_details.wires,
+                interval: props.configuration.interval
             };
+            console.log("extract_details:", new_extraction)
             setExtractionDetails(new_extraction);
         }
-    }, [props.configuration?.interval_start]);
+    }, [props.configuration]);
 
     // Get the simulation extracted from the server
     // when the extraction details change
