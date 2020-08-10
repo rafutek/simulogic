@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import {
     ExtractedSimulation, WaveDrom, Signal,
-    Timestep, Wire, WaveDromBase, SignalGroup
+    Timestep, Wire, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
 
 export class ExtractorsService {
@@ -536,5 +536,36 @@ export class ExtractorsService {
                 })
             }
         }
+    }
+
+    getSimulationInterval() {
+        const interval: Interval = {
+            start: this.getSimulationStart(),
+            end: this.getSimulationEnd()
+        };
+        return interval;
+    }
+
+    getSimulationStart() {
+        const time_array = this.getSimulationTimeArray();
+        return time_array?.shift();
+    }
+
+    getSimulationTimeArray() {
+        let time_array: number[];
+        if (this.extracted_combination?.wavedrom) { // simu with result
+            time_array = this.tickToTimeAxis(this.extracted_combination.wavedrom.foot.tick);
+        }
+        else if (this.extracted_simu?.wavedrom) { // only simu
+            time_array = this.tickToTimeAxis(this.extracted_simu.wavedrom.foot.tick);
+        }
+        // else, no simulation extracted
+
+        return time_array;
+    }
+
+    getSimulationEnd() {
+        const time_array = this.getSimulationTimeArray();
+        return time_array?.pop();
     }
 }

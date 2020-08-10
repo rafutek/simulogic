@@ -89,3 +89,8 @@ export interface Configuration {
     interval_end: number,
     time_shift: number
 }
+
+export interface Interval {
+    start: number,
+    end: number
+}

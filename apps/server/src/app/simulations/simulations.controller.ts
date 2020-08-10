@@ -177,4 +177,13 @@ export class SimulationsController {
     const signal_groups = this.simulationExtractor.getExtractionSentWires();
     return this.simulationExtractor.searchWires(signal_groups, expr);
   }
+
+      /**
+   * Returns the interval of the actual simulation,
+   * so its beginning and end time.
+   */
+  @Get('extract/interval')
+  getInterval() {
+    return this.simulationExtractor.getSimulationInterval();
+  }
 }
