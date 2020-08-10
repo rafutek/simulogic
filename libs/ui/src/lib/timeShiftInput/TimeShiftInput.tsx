@@ -1,12 +1,12 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { TextField, makeStyles, Theme, createStyles, Grid } from '@material-ui/core';
+import React, { useState, ChangeEvent } from 'react';
+import { TextField } from '@material-ui/core';
 
-export interface NumEventsInputProps {
-    max_events: number,
-    setMaxEvents: (max_events: number) => void
+export interface TimeShiftInputProps {
+    time_shift: number,
+    setTimeShift: (time_shift: number) => void
 }
 
-export const NumEventsInput = (props: NumEventsInputProps) => {
+export const TimeShiftInput = (props: TimeShiftInputProps) => {
 
     const [error, setError] = useState(false);
     const [error_msg, setErrorMsg] = useState("");
@@ -20,11 +20,11 @@ export const NumEventsInput = (props: NumEventsInputProps) => {
         else {
             setError(false);
             setErrorMsg("");
-            props.setMaxEvents(val);
+            props.setTimeShift(val);
         }
     }
 
     return <TextField onChange={checkAndSet} error={error}
-        helperText={error_msg} label="maximum of events" variant="outlined"
+        helperText={error_msg} label="shift" variant="outlined"
     />
 }

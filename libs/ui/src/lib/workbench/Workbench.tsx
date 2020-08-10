@@ -5,6 +5,7 @@ import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 import { Player } from '../player/Player';
 import { isNullOrUndefined } from 'util';
+import { config } from 'process';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -88,7 +89,7 @@ export const Workbench = (props: WorkbenchProps) => {
 
     // Manage configuration change
     useEffect(() => {
-        if(props.configuration && simulation_wavedrom){
+        if (props.configuration && simulation_wavedrom) {
             const new_extraction: ExtractionDetails = {
                 id_simu: props.simulation.id,
                 id_circuit: props.circuit?.id,
@@ -99,7 +100,7 @@ export const Workbench = (props: WorkbenchProps) => {
             };
             setExtractionDetails(new_extraction);
         }
-    }, [props.configuration]);
+    }, [props.configuration?.interval_start]);
 
     // Get the simulation extracted from the server
     // when the extraction details change
@@ -132,13 +133,14 @@ export const Workbench = (props: WorkbenchProps) => {
                 hidden={isNullOrUndefined(simulation_wavedrom)}
             >
                 <Player circuit={props.circuit} simulation={props.simulation}
-                    setSimulationWaveDrom={setSimulationWaveDrom}
+                    wavedrom={simulation_wavedrom}
                     extraction_details={extraction_details}
                     setExtractionDetails={setExtractionDetails}
                     onPlayOrReset={() => {
                         setSimulationChanged(true);
                         setNewVisibleWires(true);
                     }}
+                    configuration={props.configuration}
                 />
             </Grid>
         </Grid>

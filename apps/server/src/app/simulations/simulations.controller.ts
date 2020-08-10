@@ -105,7 +105,7 @@ export class SimulationsController {
         `simulation ${getSimulationDto.id_simu} file not found`);
 
       if (getSimulationDto.result) {
-        if (isEmpty(simulation.result_path)) {
+        // if (isEmpty(simulation.result_path)) { execute simulation each time
           const circuit = await this.circuitsService.findOne(getSimulationDto.id_circuit);
           if (circuit) {
             if (isEmpty(circuit.simulator_path)) {
@@ -114,7 +114,7 @@ export class SimulationsController {
             this.executeAndSaveSimulation(circuit, simulation);
           } else throw new BadRequestException(
             `circuit ${getSimulationDto.id_circuit} not found`);
-        }
+        // }
 
         if (fs.existsSync(simulation.result_path)) {
           wavedrom = output = this.simulationExtractor.getWaveDromResult(
