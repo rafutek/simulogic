@@ -87,6 +87,5 @@ export interface SignalGroup {
 export interface Configuration {
     interval_start: number,
     interval_end: number,
-    time_shift: number,
-    max_events: number
+    time_shift: number
 }

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme, Grid, Button } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import { IntervalSelector } from '../intervalSelector/IntervalSelector';
-import { NumEventsInput } from '../numEventsInput/NumEventsInput';
 import { Configuration, Entity } from '@simulogic/core';
 import UndoIcon from '@material-ui/icons/Undo';
 import { TimeShiftInput } from '../timeShiftInput/TimeShiftInput';
@@ -29,7 +28,6 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     const [disabled, setDisabled] = useState(true);
     const [start, setStart] = useState<number>();
     const [end, setEnd] = useState<number>();
-    const [max_events, setMaxEvents] = useState<number>();
     const [time_shift, setTimeShift] = useState<number>();
 
     useEffect(() => {
@@ -39,38 +37,29 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
         else if (time_shift) {
             setDisabled(false);
         }
-        else if (max_events) {
-            setDisabled(false);
-        }
         else setDisabled(true);
-    }, [start, end, time_shift, max_events]);
+    }, [start, end, time_shift]);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const config: Configuration = {
             interval_start: start,
             interval_end: end,
-            time_shift: time_shift,
-            max_events: max_events
+            time_shift: time_shift
         };
         props.setConfiguration(config);
     }
 
     const isUndoDisabled = () => {
-        if (props.configuration?.interval_start != null ||
-            props.configuration?.time_shift != null || props.configuration?.max_events != null
-        ) {
-            return false;
-        }
-        else return true;
+        return props.configuration?.interval_start == null ||
+            props.configuration?.time_shift == null;
     }
 
     const handleUndo = () => {
         const config: Configuration = {
             interval_start: null,
             interval_end: null,
-            time_shift: null,
-            max_events: null
+            time_shift: null
         };
         props.setConfiguration(config);
     }
@@ -84,9 +73,6 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
             </Grid>
             <Grid item>
                 <TimeShiftInput time_shift={time_shift} setTimeShift={setTimeShift} />
-            </Grid>
-            <Grid item>
-                <NumEventsInput max_events={max_events} setMaxEvents={setMaxEvents} />
             </Grid>
             <Grid item>
                 <Grid container spacing={2}>
