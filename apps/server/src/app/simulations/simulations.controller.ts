@@ -131,9 +131,10 @@ export class SimulationsController {
       }
 
       if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
+        console.log(getSimulationDto.interval)
         wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
           getSimulationDto.interval);
-      }
+        }
 
       final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);
       this.simulationExtractor.setExtractionSent(final_wavedrom);

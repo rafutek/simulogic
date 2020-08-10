@@ -3,6 +3,7 @@ import {
     ExtractedSimulation, WaveDrom, Signal,
     Timestep, Wire, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
+import { isEmpty, isNotEmpty } from 'class-validator';
 
 export class ExtractorsService {
 
@@ -227,8 +228,10 @@ export class ExtractorsService {
         if (wavedrom) {
             let interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
             interval_wavedrom = this.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
-            interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, interval.start);
-            interval_wavedrom = this.appendEndTime(interval_wavedrom, wavedrom, interval.end);
+            if (isNotEmpty(interval.start))
+                interval_wavedrom = this.manageStartTime(interval_wavedrom, wavedrom, interval.start);
+            if (isNotEmpty(interval.end))
+                interval_wavedrom = this.appendEndTime(interval_wavedrom, wavedrom, interval.end);
             this.manageIntervalLimits(interval_wavedrom);
             return interval_wavedrom;
         }
@@ -257,7 +260,7 @@ export class ExtractorsService {
         const str_time_axis = wavedrom.foot.tick.split(' '); // full array
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick); // array reduced to numbers
         time_axis.forEach(t => {
-            if (t >= interval.start && t <= interval.end) {
+            if (this.isInside(t, interval)) {
                 interval_wavedrom.foot.tick += `${t} `;
                 interval_wavedrom.signal.forEach((s, s_index) => {
                     const idx = str_time_axis.findIndex(str_t => str_t == String(t));
@@ -274,22 +277,42 @@ export class ExtractorsService {
         return interval_wavedrom;
     }
 
-    manageStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
-        interval_wavedrom = this.prependStartTime(interval_wavedrom, wavedrom, from);
-        interval_wavedrom = this.replaceStartPointsWithValues(interval_wavedrom, wavedrom, from);
+    /**
+     * Returns true if time is inside the interval.
+     * If interval end value is unknown, interval starts from start value,
+     * and if start value is unknown, interval ends at end value.
+     * @param t time to evaluate
+     * @param interval interval containing start and/or end values
+     */
+    isInside(t: number, interval: Interval) {
+        if (t >= interval.start && t <= interval.end) {
+            return true;
+        }
+        else if (isNotEmpty(interval.start) && isEmpty(interval.end) && t >= interval.start) {
+            return true;
+        }
+        else if (isNotEmpty(interval.end) && isEmpty(interval.start) && t <= interval.end) {
+            return true;
+        }
+        else return false;
+    }
+
+    manageStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, start: number) {
+        interval_wavedrom = this.prependStartTime(interval_wavedrom, wavedrom, start);
+        interval_wavedrom = this.replaceStartPointsWithValues(interval_wavedrom, wavedrom, start);
         return interval_wavedrom;
     }
 
-    prependStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
-        if (!interval_wavedrom.foot.tick.startsWith(from + " ")) {
-            interval_wavedrom.foot.tick = from + " " + interval_wavedrom.foot.tick;
+    prependStartTime(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, start: number) {
+        if (!interval_wavedrom.foot.tick.startsWith(start + " ")) {
+            interval_wavedrom.foot.tick = start + " " + interval_wavedrom.foot.tick;
             interval_wavedrom.signal.forEach(signal => signal.wave = "." + signal.wave);
         }
         return interval_wavedrom;
     }
 
-    replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, from: number) {
-        const wavedrom_start_idx = this.getWaveDromIndexStart(wavedrom.foot.tick, from);
+    replaceStartPointsWithValues(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, start: number) {
+        const wavedrom_start_idx = this.getWaveDromIndexStart(wavedrom.foot.tick, start);
         interval_wavedrom.signal.forEach((signal, idx) => {
             if (signal.wave.startsWith('.')) {
                 signal.wave = signal.wave.substr(1); // removes point

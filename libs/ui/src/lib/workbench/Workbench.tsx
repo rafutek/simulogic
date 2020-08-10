@@ -96,7 +96,6 @@ export const Workbench = (props: WorkbenchProps) => {
                 wires: extraction_details.wires,
                 interval: props.configuration.interval
             };
-            console.log("extract_details:", new_extraction)
             setExtractionDetails(new_extraction);
         }
     }, [props.configuration]);
@@ -105,7 +104,6 @@ export const Workbench = (props: WorkbenchProps) => {
     // when the extraction details change
     useEffect(() => {
         if (extraction_details) {
-            console.log("send extraction details")
             axios.post(`/simulations/extract`, extraction_details)
                 .then(response => {
                     setSimulationWaveDrom(response.data);

@@ -5,7 +5,7 @@ import { IntervalSelector } from '../intervalSelector/IntervalSelector';
 import { Configuration, Entity, Interval } from '@simulogic/core';
 import UndoIcon from '@material-ui/icons/Undo';
 import { TimeShiftInput } from '../timeShiftInput/TimeShiftInput';
-import { isEmpty } from 'class-validator';
+import { isEmpty, isNotEmpty } from 'class-validator';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -31,8 +31,21 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     const [end, setEnd] = useState<number>();
     const [time_shift, setTimeShift] = useState<number>();
 
+    const isIntervalOK = (start: number, end: number) => {
+        if (isEmpty(start) && isNotEmpty(end) && end > 0) {
+            return true;
+        }
+        else if (isEmpty(end) && isNotEmpty(start) && start >= 0) {
+            return true;
+        }
+        else if (isNotEmpty(start) && isNotEmpty(end) && end > 0 && start < end) {
+            return true;
+        }
+        else return false;
+    }
+
     useEffect(() => {
-        if (props.selected_simulation && start >= 0 && end > 0 && start < end) {
+        if (props.selected_simulation && isIntervalOK(start, end)) {
             setDisabled(false);
         }
         else if (time_shift) {
