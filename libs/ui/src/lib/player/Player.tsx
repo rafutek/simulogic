@@ -52,7 +52,6 @@ export const Player = (props: PlayerProps) => {
     }
 
     const handlePlayOrReset = () => {
-        console.log("\nplay or reset")
         props.onPlayOrReset ? props.onPlayOrReset() : null;
         const new_extraction = getBaseExtraction();
         new_extraction.result = !new_extraction.result;

@@ -30,6 +30,12 @@ export const EntityItem = (props: EntityItemProps) => {
     const [edit, setEdit] = useState(false);
     let new_name: string;
 
+    const getKey = () => {
+        const key = `${props.what}_${props.entity.id}`;
+        console.log(key)
+        return key;
+    }
+
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setEdit(true);
     }
@@ -88,21 +94,19 @@ export const EntityItem = (props: EntityItemProps) => {
     }
 
     return (
-        <div>
-            <ListItem className={classes.root} button
-                selected={isSelected(props.entity, props.selected_entity)}
-                onClick={() => props.setSelectedEntity(props.entity)}
-            >
-                <NameField />
-                <IconButton className={classes.icon} onClick={handleEdit}
-                    disabled={!isSelected(props.entity, props.selected_entity)}>
-                    <EditIcon />
-                </IconButton>
-                <IconButton className={classes.icon} onClick={handleDelete}
-                    disabled={!isSelected(props.entity, props.selected_entity)}>
-                    <DeleteIcon />
-                </IconButton>
-            </ListItem>
-        </div>
+        <ListItem className={classes.root} button
+            selected={isSelected(props.entity, props.selected_entity)}
+            onClick={() => props.setSelectedEntity(props.entity)}
+        >
+            <NameField />
+            <IconButton className={classes.icon} onClick={handleEdit}
+                disabled={!isSelected(props.entity, props.selected_entity)}>
+                <EditIcon />
+            </IconButton>
+            <IconButton className={classes.icon} onClick={handleDelete}
+                disabled={!isSelected(props.entity, props.selected_entity)}>
+                <DeleteIcon />
+            </IconButton>
+        </ListItem>
     );
 }

@@ -106,14 +106,14 @@ export class SimulationsController {
 
       if (getSimulationDto.result) {
         // if (isEmpty(simulation.result_path)) { execute simulation each time
-          const circuit = await this.circuitsService.findOne(getSimulationDto.id_circuit);
-          if (circuit) {
-            if (isEmpty(circuit.simulator_path)) {
-              this.createAndSaveSimulator(circuit);
-            }
-            this.executeAndSaveSimulation(circuit, simulation);
-          } else throw new BadRequestException(
-            `circuit ${getSimulationDto.id_circuit} not found`);
+        const circuit = await this.circuitsService.findOne(getSimulationDto.id_circuit);
+        if (circuit) {
+          if (isEmpty(circuit.simulator_path)) {
+            this.createAndSaveSimulator(circuit);
+          }
+          this.executeAndSaveSimulation(circuit, simulation);
+        } else throw new BadRequestException(
+          `circuit ${getSimulationDto.id_circuit} not found`);
         // }
 
         if (fs.existsSync(simulation.result_path)) {
@@ -131,10 +131,9 @@ export class SimulationsController {
       }
 
       if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
-        console.log(getSimulationDto.interval)
         wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
           getSimulationDto.interval);
-        }
+      }
 
       final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);
       this.simulationExtractor.setExtractionSent(final_wavedrom);
@@ -169,20 +168,20 @@ export class SimulationsController {
     return this.simulationExtractor.getExtractionSentWires();
   }
 
-    /**
-   * Returns the wires of the last extracted and sent wavedrom
-   * which names contain the expression.
-   */
+  /**
+ * Returns the wires of the last extracted and sent wavedrom
+ * which names contain the expression.
+ */
   @Get('extract/wires/:expr')
   getSpecialWires(@Param('expr') expr: string) {
     const signal_groups = this.simulationExtractor.getExtractionSentWires();
     return this.simulationExtractor.searchWires(signal_groups, expr);
   }
 
-      /**
-   * Returns the interval of the actual simulation,
-   * so its beginning and end time.
-   */
+  /**
+* Returns the interval of the actual simulation,
+* so its beginning and end time.
+*/
   @Get('extract/interval')
   getInterval() {
     return this.simulationExtractor.getSimulationInterval();

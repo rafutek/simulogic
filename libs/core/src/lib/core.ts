@@ -1,3 +1,6 @@
+/**
+ * An entity can be a circuit or a simulation.
+ */
 export type entity = "circuit" | "simulation";
 
 /**
@@ -51,6 +54,10 @@ export interface WaveDrom {
     }
 }
 
+/**
+ * Same as WaveDrom, but signal field can have any type.
+ * Used for grouped signals.
+ */
 export interface WaveDromBase {
     signal: any,
     foot: {
@@ -67,6 +74,14 @@ export interface ExtractedSimulation {
 }
 
 /**
+ * Simple structure to store start and end values.
+ */
+export interface Interval {
+    start: number,
+    end: number
+}
+
+/**
  * Description of a simulation extraction.
  */
 export interface ExtractionDetails {
@@ -75,20 +90,20 @@ export interface ExtractionDetails {
     result?: boolean;
     wires?: string[],
     interval?: Interval
-  }
-
-export interface SignalGroup {
-    name?: string,
-    signals?: string[],
-    signal_group?: SignalGroup[]
 }
 
+/**
+ * Structure to group signals under a common name.
+ */
+export interface SignalGroup {
+    name?: string,
+    signals?: string[]
+}
+
+/**
+ * Configuration panel settings.
+ */
 export interface Configuration {
     interval: Interval,
     time_shift: number
-}
-
-export interface Interval {
-    start: number,
-    end: number
 }

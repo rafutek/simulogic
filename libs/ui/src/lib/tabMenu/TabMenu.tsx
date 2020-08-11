@@ -147,7 +147,7 @@ export const TabMenu = (props: TabMenuProps) => {
                             item_props.selected_entity = props.selected_simulation;
                             item_props.setSelectedEntity = props.setSelectedSimulation;
                         }
-                        return <EntityItem {...item_props} />
+                        return <EntityItem key={`${what}_${entity.id}`} {...item_props} />
                     })}
                 </List>
             )
@@ -166,7 +166,6 @@ export const TabMenu = (props: TabMenuProps) => {
                 <Tab icon={<InputIcon />} className={classes.tab} />
                 <Tab icon={<SettingsInputComponentIcon />} className={classes.tab} />
                 <Tab icon={<BuildIcon />} className={classes.tab} />
-                <Tab icon={<SettingsIcon />} className={`${classes.tab} ${classes.bottom}`} />
             </Tabs>
             <div className={classes.panels}>
                 <TabPanel value={selected_tab_id} index={0} hide={hide_panel} >
@@ -190,9 +189,6 @@ export const TabMenu = (props: TabMenuProps) => {
                         selected_simulation={props.selected_simulation}
                     />
                 </TabPanel>
-                <TabPanel value={selected_tab_id} index={4} hide={hide_panel} >
-                    Parameters
-            </TabPanel>
             </div>
         </div>
     );

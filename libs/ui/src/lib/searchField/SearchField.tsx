@@ -75,7 +75,6 @@ export const SearchField = (props: SearchFieldProps) => {
 
     useEffect(() => {
         if (props.refresh) {
-            console.log("refresh")
             search();
             props.setRefresh ? props.setRefresh(false) : null;
         }

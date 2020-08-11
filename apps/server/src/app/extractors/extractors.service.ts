@@ -16,7 +16,6 @@ export class ExtractorsService {
 
     getWaveDrom(id: number, file_path: string) {
         if (!this.extracted_simu || this.extracted_simu.id != id) {
-            console.log("extract")
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
                 this.extracted_simu = {
@@ -30,7 +29,6 @@ export class ExtractorsService {
 
     getWaveDromResult(id: number, file_path: string) {
         if (!this.extracted_simu_result || this.extracted_simu_result.id != id) {
-            console.log("extract result")
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
                 this.extracted_simu_result = {
@@ -44,11 +42,8 @@ export class ExtractorsService {
 
     getCombinedWaveDrom(id: number, simu_file_path: string, result_file_path: string) {
         if (!this.extracted_combination || this.extracted_combination.id != id) {
-            console.log("combine")
             const wavedrom = this.getWaveDrom(id, simu_file_path);
-            // console.log(wavedrom.foot)
             const wavedrom_result = this.getWaveDromResult(id, result_file_path);
-            // console.log(wavedrom_result.foot)
             const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
             if (combined_wavedrom) {
                 this.extracted_combination = {

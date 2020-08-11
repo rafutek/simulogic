@@ -12,8 +12,10 @@ export const theme = createMuiTheme({
     },
     overrides: {
         MuiTab: {
-            selected: {
-                backgroundColor: grey[600]
+            "root": {
+                "&$selected": {
+                    "backgroundColor": grey[600]
+                }
             }
         },
         MuiAccordionDetails: {

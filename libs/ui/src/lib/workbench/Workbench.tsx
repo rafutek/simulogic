@@ -62,7 +62,6 @@ export const Workbench = (props: WorkbenchProps) => {
     }, [props.simulation]);
 
     const handleSimulationChange = async () => {
-        console.log("handle simulation change")
         setSimulationChanged(true);
         setNewVisibleWires(true);
         setExtractionDetails({ id_simu: props.simulation.id });
@@ -74,7 +73,6 @@ export const Workbench = (props: WorkbenchProps) => {
             setNewVisibleWires(false);
         }
         else if (props.visible_wires) {
-            console.log("workbench visible wires:", props.visible_wires);
             const new_extraction: ExtractionDetails = {
                 id_simu: props.simulation.id,
                 id_circuit: props.circuit?.id,

@@ -25,7 +25,6 @@ export const WiresList = (props: WiresListProps) => {
     const classes = useStyles();
 
     const handleClickVisibility = (wire: string) => {
-        console.log("handle visibility")
         if (props.visible_wires) {
             if (props.visible_wires.includes(wire)) {
                 props.setVisibleWires(props.visible_wires.filter(visible_wire => visible_wire != wire));
@@ -43,7 +42,7 @@ export const WiresList = (props: WiresListProps) => {
         if (signal_group.signals && signal_group.signals.length > 0) {
             const wires_list = <List>
                 {signal_group.signals.map(signal =>
-                    <WireItem name={signal} visible={props.visible_wires?.includes(signal)}
+                    <WireItem key={signal} name={signal} visible={props.visible_wires?.includes(signal)}
                         handleClickVisibility={handleClickVisibility} />
                 )}
             </List>
@@ -69,7 +68,7 @@ export const WiresList = (props: WiresListProps) => {
         <List>
             {props.signal_groups ?
                 props.signal_groups.map(signal_group =>
-                    <SignalGroup signal_group={signal_group} />)
+                    <SignalGroup key={signal_group.name} signal_group={signal_group} />)
                 : null}
         </List>
     );

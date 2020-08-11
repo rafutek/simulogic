@@ -18,7 +18,6 @@ export const TabMenuAndWorkbench = () => {
     }
 
     const getAndSetSignalGroups = () => {
-        console.log("get and set signal groups")
         axios.get('/simulations/extract/wires')
             .then(response => setSignalGroups(response.data))
             .catch(error => console.error(error))
@@ -26,8 +25,6 @@ export const TabMenuAndWorkbench = () => {
 
     const changeVisibleWires = () => {
         const all_wires = listWires(signal_groups);
-        console.log("previous visible wires:", visible_wires);
-        console.log("new visible wires:", all_wires);
         setVisibleWires(all_wires);
     }
 
@@ -41,7 +38,6 @@ export const TabMenuAndWorkbench = () => {
 
     useEffect(() => {
         if (signal_groups) {
-            console.log("signal groups received:", signal_groups);
             update_visible_wires ? changeVisibleWires() : setUpdateVisibleWires(true);
         }
     }, [signal_groups]);
