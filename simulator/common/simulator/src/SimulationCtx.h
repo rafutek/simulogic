@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <math.h>
 
-
 #include "Wire.h"
 #include "EqNode.h"
 #include "Gate.h"
@@ -25,30 +24,33 @@
 #include "Event.h"
 #include "LogicElement.h"
 
-
-class SimulationCtx {
+class SimulationCtx
+{
 
 public:
-    SimulationCtx(std::string inputFileName);
-    Timeline* getTimelineAddr();
+    SimulationCtx(string inputFileName);
+    Timeline *getTimelineAddr();
     void displayWatchedWires();
-    Wire* getWireByName(std::string wireName);
-    std::vector<std::string> parseLine(std::string line);
-    int getStartSimTime(std::string inputFileName);
-    int getMaxSimTime(std::string inputFileName);
-    std::string getCircuitName(std::string inputFileName);
-    std::vector<std::string> getWatchList(std::string inputFileName);
-    void initializeFromFile(std::string inputFileName);
+    Wire *getWireByName(string wireName);
+
+    vector<string> parseLine(string line);
+    vector<vector<string>> findAndParseLines(string file_path, string line_name);
+    vector<string> findAndParseLine(string file_path, string line_name);
+    string findString(string file_path, string string_name);
+    int findValue(string file_path, string value_name);
+    int getStartSimTime(string inputFileName);
+    int getMaxSimTime(string inputFileName);
+    string getCircuitName(string inputFileName);
+    vector<string> getWatchList(string inputFileName);
+    void getEvents(string inputFilePath, int start_time);
+    void getClock(string inputFilePath, int start_time, int end_time);
 
 private:
-    Timeline* m_timeline;
-    LogicElement* m_circuitAddr; //Adresse du bloc de plus haut niveau
-    std::vector<std::string> m_watchList;
-    std::vector<Wire*>* m_wireList;
-    std::vector<Gate*>* m_gateMap;
-
-
+    Timeline *m_timeline;
+    LogicElement *m_circuitAddr; //Adresse du bloc de plus haut niveau
+    vector<string> m_watchList;
+    vector<Wire *> *m_wireList;
+    vector<Gate *> *m_gateMap;
 };
-
 
 #endif //UNTITLED_SIMULATIONCTX_H

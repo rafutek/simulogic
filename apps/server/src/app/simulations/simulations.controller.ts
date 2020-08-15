@@ -101,6 +101,9 @@ export class SimulationsController {
       if (fs.existsSync(simulation.path)) {
         wavedrom = input = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu,
           simulation.path);
+        if (!wavedrom) {
+          throw new InternalServerErrorException("could not get wavedrom");
+        }
       } else throw new InternalServerErrorException(
         `simulation ${getSimulationDto.id_simu} file not found`);
 
@@ -119,6 +122,9 @@ export class SimulationsController {
         if (fs.existsSync(simulation.result_path)) {
           wavedrom = output = this.simulationExtractor.getWaveDromResult(
             getSimulationDto.id_simu, simulation.result_path);
+          if (!wavedrom) {
+            throw new InternalServerErrorException("could not get result wavedrom");
+          }
         } else throw new InternalServerErrorException(
           `result file of simulation ${getSimulationDto.id_simu} not found`);
 

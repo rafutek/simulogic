@@ -23,6 +23,7 @@ export class ExtractorsService {
                     wavedrom: wavedrom
                 };
             }
+            else return null;
         }
         return this.extracted_simu.wavedrom;
     }
@@ -35,7 +36,7 @@ export class ExtractorsService {
                     id: id,
                     wavedrom: wavedrom
                 };
-            }
+            } else return null;
         }
         return this.extracted_simu_result.wavedrom;
     }
@@ -64,6 +65,13 @@ export class ExtractorsService {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
         const events = file_content.match(/EVENT (.*)/g);
+        if (!events) {
+            const no_events: WaveDrom = {
+                signal: [],
+                foot: {tick: ""}
+            }
+            return no_events;
+        }
         const timeline = this.extractTimeline(events);
         const wavedrom = this.createWaveDrom(start, end, timeline);
         return wavedrom;

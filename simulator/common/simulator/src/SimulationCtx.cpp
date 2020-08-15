@@ -48,7 +48,8 @@ SimulationCtx::SimulationCtx(string inputFilePath)
     }
 
     //initialize events
-    initializeFromFile(inputFilePath);
+    getClock(inputFilePath, startTime, maxTime);
+    getEvents(inputFilePath, startTime);
 
     // decrease time by 1 so the simulation takes into acount first events
     m_timeline->increaseTime(-1);
@@ -85,7 +86,7 @@ void SimulationCtx::displayWatchedWires()
     }
 }
 
-Wire *SimulationCtx::getWireByName(std::string wireName)
+Wire *SimulationCtx::getWireByName(string wireName)
 {
     for (int i(0); i < (int)m_wireList->size(); i++)
     {
@@ -97,162 +98,172 @@ Wire *SimulationCtx::getWireByName(std::string wireName)
     return nullptr;
 }
 
-std::vector<std::string> SimulationCtx::parseLine(string line)
+vector<string> SimulationCtx::parseLine(string line)
 {
-    std::vector<std::string> parsedLine;
-    std::istringstream iss(line);
-    for (std::string line; iss >> line;)
+    vector<string> parsedLine;
+    istringstream iss(line);
+    for (string line; iss >> line;)
         parsedLine.push_back(line);
     return parsedLine;
 }
 
-int SimulationCtx::getStartSimTime(std::string inputFilePath)
+void printParsedLine(vector<string> parsed_line)
 {
-    string line;
-    ifstream infile;
-    infile.open(inputFilePath);
-    while (!infile.eof()) // To get you all the lines.
+    for (auto &&s : parsed_line)
     {
-        getline(infile, line);
-        if (line != "\r")
-        {
-            vector<string> parsedLine = parseLine(line);
-            if (parsedLine[0] == "START_TIME")
-            {
-                return stoi(parsedLine[1]);
-            }
-        }
+        cout << s << " ";
     }
-    infile.close();
-    return 0;
+    cout << '\n';
 }
 
-int SimulationCtx::getMaxSimTime(std::string inputFilePath)
+vector<vector<string>> SimulationCtx::findAndParseLines(string file_path, string line_name)
 {
+    vector<vector<string>> parsed_lines;
     string line;
     ifstream infile;
-    infile.open(inputFilePath);
-    while (!infile.eof()) // To get you all the lines.
+    infile.open(file_path);
+    while (!infile.eof())
     {
         getline(infile, line);
-        if (line != "\r")
+        if (!line.empty())
         {
-            vector<string> parsedLine = parseLine(line);
-            if (parsedLine[0] == "END_TIME")
+            vector<string> parsed_line = parseLine(line);
+            if (!parsed_line.empty() && parsed_line[0] == line_name)
             {
-                return stoi(parsedLine[1]);
+                parsed_lines.push_back(parsed_line);
             }
         }
     }
     infile.close();
-    return 10000;
+    return parsed_lines;
 }
 
-std::string SimulationCtx::getCircuitName(std::string inputFilePath)
+vector<string> SimulationCtx::findAndParseLine(string file_path, string line_name)
 {
-    string line;
-    ifstream infile;
-    string circuit = "circuit";
-    infile.open(inputFilePath);
-    while (!infile.eof()) // To get you all the lines.
+    vector<string> parsed_line;
+    vector<vector<string>> parsed_lines = findAndParseLines(file_path, line_name);
+    if (!parsed_lines.empty())
     {
-        getline(infile, line);
-        if (line != "\r")
-        {
-            vector<string> parsedLine = parseLine(line);
-            if (parsedLine[0] == "CIRCUIT_NAME")
-            {
-                circuit = parsedLine[1];
-                break;
-            }
-        }
+        parsed_line = parsed_lines[parsed_line.size()];
     }
-    infile.close();
+    return parsed_line;
+}
+
+string SimulationCtx::findString(string file_path, string string_name)
+{
+    string s;
+    vector<string> parsed_line = findAndParseLine(file_path, string_name);
+    if (parsed_line.size() > 1 && !parsed_line[1].empty())
+    {
+        s = parsed_line[1];
+    }
+    return s;
+}
+
+int SimulationCtx::findValue(string file_path, string value_name)
+{
+    int value = -1;
+    string val_str = findString(file_path, value_name);
+    int val = stoi(val_str);
+    if (!isnan(val))
+    {
+        value = val;
+    }
+    return value;
+}
+
+int SimulationCtx::getStartSimTime(string inputFilePath)
+{
+    int start = findValue(inputFilePath, "START_TIME");
+    if (start == -1)
+    {
+        start = 0;
+    }
+    return start;
+}
+
+int SimulationCtx::getMaxSimTime(string inputFilePath)
+{
+    int end = findValue(inputFilePath, "END_TIME");
+    if (end == -1)
+    {
+        end = 10000;
+    }
+    return end;
+}
+
+string SimulationCtx::getCircuitName(string inputFilePath)
+{
+    string circuit = findString(inputFilePath, "CIRCUIT_NAME");
+    if (circuit.empty())
+    {
+        circuit = "circuit";
+    }
     return circuit;
 }
 
-std::vector<std::string> SimulationCtx::getWatchList(std::string inputFilePath)
+vector<string> SimulationCtx::getWatchList(string inputFilePath)
 {
-    string line;
-    ifstream infile;
-    vector<string> watchlist;
-    infile.open(inputFilePath);
-    while (!infile.eof()) // To get you all the lines.
+    vector<string> parsed_line = findAndParseLine(inputFilePath, "WATCHLIST");
+    if (!parsed_line.empty())
     {
-        getline(infile, line);
-        if (line != "\r")
-        {
-            vector<string> parsedLine = parseLine(line);
-            if (parsedLine[0] == "WATCHLIST")
-            {
-                parsedLine.erase(parsedLine.begin());
-                watchlist = parsedLine;
-                break;
-            }
-        }
+        parsed_line.erase(parsed_line.begin());
     }
-    infile.close();
-    return watchlist;
+    return parsed_line;
 }
 
-void SimulationCtx::initializeFromFile(std::string inputFilePath)
+void SimulationCtx::getEvents(string inputFilePath, int start_time)
 {
-    string line;
-    ifstream infile;
-    infile.open(inputFilePath);
-    int startTime = getStartSimTime(inputFilePath);
-
-    while (!infile.eof()) // To get you all the lines.
+    vector<vector<string>> event_parsed_lines = findAndParseLines(inputFilePath, "EVENT");
+    for (auto &&parsed_line : event_parsed_lines)
     {
-        getline(infile, line);
-        if (line != "\r" && line.length() > 0)
+        if (parsed_line.size() == 4) // ex: EVENT s1 T 200
         {
-            vector<string> parsedLine = parseLine(line);
-            if (parsedLine[0] == "EVENT")
-            {
-                Wire *wire = getWireByName(parsedLine[1]);
-                State state;
-                if (parsedLine[2] == "T")
-                {
-                    state = T;
-                }
-                else if (parsedLine[2] == "F")
-                {
-                    state = F;
-                }
-                else if (parsedLine[2] == "Z")
-                {
-                    state = Z;
-                }
-                else
-                {
-                    state = X;
-                }
-                // cout << "EVENT : " << parsedLine[1] << " " << parsedLine[2] << " " << parsedLine[3] << endl;
-                m_timeline->addEvent(wire, state, stoi(parsedLine[3]) - startTime);
-            }
-            else if (parsedLine[0] == "CLOCK")
-            {
-                cout << line << endl; // print clock line
+            Wire *wire = getWireByName(parsed_line[1]);
+            string state_str = parsed_line[2];
+            State state;
+            if (state_str == "T")
+                state = T;
+            else if (state_str == "F")
+                state = F;
+            else if (state_str == "Z")
+                state = Z;
+            else
+                state = X;
+            int time = stoi(parsed_line[3]) - start_time;
+            m_timeline->addEvent(wire, state, time);
+        }
+    }
+}
 
-                // 1st element of clock definition is the name of the wire, 2nd the time o first rise, 3rd the period
-                // and 4th the duty cycle (in percentage)
-                Wire *wire = getWireByName(parsedLine[1]);
-                int time = stoi(parsedLine[2]);
-                int timeUp = int(round(stoi(parsedLine[4]) * stoi(parsedLine[3]) / 100));
-                int timeDown = stoi(parsedLine[3]) - timeUp;
-                int maxSimTime = getMaxSimTime(inputFilePath);
+void SimulationCtx::getClock(string inputFilePath, int start_time, int end_time)
+{
+    vector<vector<string>> parsed_lines = findAndParseLines(inputFilePath, "CLOCK");
+    for (auto &&parsed_line : parsed_lines)
+    {
+        if (parsed_line.size() == 5)
+        {
+            printParsedLine(parsed_line);
 
-                m_timeline->addEvent(wire, F, 0); // initialize clock to false at the beggining of the simulation
-                while (time < maxSimTime)
-                {
-                    m_timeline->addEvent(wire, T, time - startTime);
-                    time += timeUp;
-                    m_timeline->addEvent(wire, F, time - startTime);
-                    time += timeDown;
-                }
+            // 1st element of clock definition is the name of the wire
+            Wire *wire = getWireByName(parsed_line[1]);
+
+            // 2nd is the time of first rise
+            int time = stoi(parsed_line[2]);
+
+            // 3rd is the period and 4th is the duty cycle (in percentage)
+            int timeUp = int(round(stoi(parsed_line[4]) * stoi(parsed_line[3]) / 100));
+            int timeDown = stoi(parsed_line[3]) - timeUp;
+
+            // initialize clock to false at the beggining of the simulation
+            m_timeline->addEvent(wire, F, 0);
+            while (time < end_time)
+            {
+                m_timeline->addEvent(wire, T, time - start_time);
+                time += timeUp;
+                m_timeline->addEvent(wire, F, time - start_time);
+                time += timeDown;
             }
         }
     }
-    infile.close();
 }

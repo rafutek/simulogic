@@ -1,10 +1,12 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Delete, BadRequestException, UploadedFiles, ForbiddenException } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  Controller, Post, UseInterceptors, Get, Param, Delete,
+  UploadedFiles, ForbiddenException
+} from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { CircuitsService } from './circuits.service';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { Circuit } from './circuit.entity';
 import * as fs from 'fs';
-import { validate } from 'class-validator';
 
 @Controller('circuits')
 export class CircuitsController {
@@ -34,7 +36,7 @@ export class CircuitsController {
         await this.circuitsService.create(createCircuitDto);
       }
     })
-    if(bad_extension){
+    if (bad_extension) {
       throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
     }
   }
