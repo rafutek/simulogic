@@ -1,8 +1,9 @@
 FROM simulogic-env as env
 
-# Build interface
 WORKDIR /app
 COPY . .
+
+# Build interface
 RUN yarn build interface
 
 # Deploy interface

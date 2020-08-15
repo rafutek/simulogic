@@ -1,9 +1,9 @@
 FROM simulogic-env
 
-# # Build server
 WORKDIR /app
 COPY . .
 
+# Build server
 RUN yarn build server
 
 # Deploy server
