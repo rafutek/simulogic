@@ -10,7 +10,7 @@ import * as fs from 'fs';
 
 @Controller('circuits')
 export class CircuitsController {
-  constructor(private readonly circuitsService: CircuitsService) { }
+  constructor(private readonly circuits_service: CircuitsService) { }
 
 
   @Post()
@@ -33,7 +33,7 @@ export class CircuitsController {
         // if (errors.length > 0) {
         //   throw new BadRequestException('Validation failed');
         // }
-        await this.circuitsService.create(createCircuitDto);
+        await this.circuits_service.create(createCircuitDto);
       }
     })
     if (bad_extension) {
@@ -43,17 +43,17 @@ export class CircuitsController {
 
   @Get()
   findAll(): Promise<Circuit[]> {
-    return this.circuitsService.findAll();
+    return this.circuits_service.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Circuit> {
-    return this.circuitsService.findEntity(id);
+    return this.circuits_service.findEntity(id);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const circuit = await this.circuitsService.findOne(id);
+    const circuit = await this.circuits_service.findOne(id);
     if (circuit) {
       if (circuit.simulator_path != '' && fs.existsSync(circuit.simulator_path)) {
         fs.unlinkSync(circuit.simulator_path);
@@ -62,7 +62,7 @@ export class CircuitsController {
         fs.unlinkSync(circuit.path);
       }
     }
-    await this.circuitsService.remove(id);
+    await this.circuits_service.remove(id);
   }
 
   /**
@@ -70,7 +70,7 @@ export class CircuitsController {
    */
   @Get('search/:expr')
   searchCircuits(@Param('expr') expr: string) {
-    return this.circuitsService.searchNames('%' + expr + '%');
+    return this.circuits_service.searchNames('%' + expr + '%');
   }
 
   /**
@@ -79,6 +79,6 @@ export class CircuitsController {
    */
   @Get(':id/rename/:new_name')
   async rename(@Param() params: any) {
-    await this.circuitsService.rename(params.id, params.new_name);
+    await this.circuits_service.rename(params.id, params.new_name);
   }
 }

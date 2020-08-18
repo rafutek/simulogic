@@ -19,9 +19,9 @@ import { WaveDrom } from '@simulogic/core';
 @Controller('simulations')
 export class SimulationsController {
   constructor(
-    private readonly simulationsService: SimulationsService,
-    private readonly circuitsService: CircuitsService,
-    private readonly simulationExtractor: ExtractorsService
+    private readonly simulations_service: SimulationsService,
+    private readonly circuits_service: CircuitsService,
+    private readonly simulation_extractor: ExtractorsService
   ) { }
 
   @Post()
@@ -40,7 +40,7 @@ export class SimulationsController {
         const simulation = new CreateSimulationDto();
         simulation.name = file.originalname;
         simulation.path = file.path;
-        await this.simulationsService.create(simulation);
+        await this.simulations_service.create(simulation);
       }
     })
     if (bad_extension) {
@@ -50,16 +50,16 @@ export class SimulationsController {
 
   @Get()
   findAll(): Promise<Simulation[]> {
-    return this.simulationsService.findAll();
+    return this.simulations_service.findAll();
   }
 
   createAndSaveSimulator(circuit: Circuit) {
     const circuit_filename = circuit.path.split('/').pop();
     execSync(`cd simulator/common/scripts && ./create_simulator.sh user1 ${circuit_filename}`);
-    const simulatorPath = `simulator/home/user1/simulator/bin/${circuit_filename}`;
-    if (fs.existsSync(simulatorPath)) {
-      circuit.simulator_path = simulatorPath;
-      this.circuitsService.update(circuit); // save circuit simulator in database
+    const simulator_path = `simulator/home/user1/simulator/bin/${circuit_filename}`;
+    if (fs.existsSync(simulator_path)) {
+      circuit.simulator_path = simulator_path;
+      this.circuits_service.update(circuit); // save circuit simulator in database
     } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
 
@@ -67,21 +67,21 @@ export class SimulationsController {
     const circuit_filename = circuit.path.split('/').pop();
     const simulation_filename = simulation.path.split('/').pop();
     execSync(`cd simulator/common/scripts && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);
-    const resultPath = `simulator/home/user1/simulator/out/${simulation_filename}`;
-    if (fs.existsSync(resultPath)) {
-      simulation.result_path = resultPath;
-      this.simulationsService.update(simulation); // save result simulation in database
+    const result_path = `simulator/home/user1/simulator/out/${simulation_filename}`;
+    if (fs.existsSync(result_path)) {
+      simulation.result_path = result_path;
+      this.simulations_service.update(simulation); // save result simulation in database
     } else throw new InternalServerErrorException("Error in executing and saving simulation");
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.simulationsService.findEntity(id);
+    return this.simulations_service.findEntity(id);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
-    const simulation = await this.simulationsService.findOne(id);
+    const simulation = await this.simulations_service.findOne(id);
     if (simulation) {
       if (simulation.result_path != '' && fs.existsSync(simulation.result_path)) {
         fs.unlinkSync(simulation.result_path);
@@ -90,16 +90,16 @@ export class SimulationsController {
         fs.unlinkSync(simulation.path);
       }
     }
-    return this.simulationsService.remove(id);
+    return this.simulations_service.remove(id);
   }
 
   @Post('extract')
   async getSimulation(@Body() getSimulationDto: GetSimulationDto) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
-    const simulation = await this.simulationsService.findOne(getSimulationDto.id_simu);
+    const simulation = await this.simulations_service.findOne(getSimulationDto.id_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
-        wavedrom = input = this.simulationExtractor.getWaveDrom(getSimulationDto.id_simu,
+        wavedrom = input = this.simulation_extractor.getWaveDrom(getSimulationDto.id_simu,
           simulation.path);
         if (!wavedrom) {
           throw new InternalServerErrorException("could not get wavedrom");
@@ -109,7 +109,7 @@ export class SimulationsController {
 
       if (getSimulationDto.result) {
         // if (isEmpty(simulation.result_path)) { execute simulation each time
-        const circuit = await this.circuitsService.findOne(getSimulationDto.id_circuit);
+        const circuit = await this.circuits_service.findOne(getSimulationDto.id_circuit);
         if (circuit) {
           if (isEmpty(circuit.simulator_path)) {
             this.createAndSaveSimulator(circuit);
@@ -120,7 +120,7 @@ export class SimulationsController {
         // }
 
         if (fs.existsSync(simulation.result_path)) {
-          wavedrom = output = this.simulationExtractor.getWaveDromResult(
+          wavedrom = output = this.simulation_extractor.getWaveDromResult(
             getSimulationDto.id_simu, simulation.result_path);
           if (!wavedrom) {
             throw new InternalServerErrorException("could not get result wavedrom");
@@ -128,21 +128,21 @@ export class SimulationsController {
         } else throw new InternalServerErrorException(
           `result file of simulation ${getSimulationDto.id_simu} not found`);
 
-        wavedrom = this.simulationExtractor.getCombinedWaveDrom(getSimulationDto.id_simu,
+        wavedrom = this.simulation_extractor.getCombinedWaveDrom(getSimulationDto.id_simu,
           simulation.path, simulation.result_path);
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
-        wavedrom = this.simulationExtractor.selectWires(wavedrom, getSimulationDto.wires);
+        wavedrom = this.simulation_extractor.selectWires(wavedrom, getSimulationDto.wires);
       }
 
       if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
-        wavedrom = this.simulationExtractor.extractWaveDromInterval(wavedrom,
+        wavedrom = this.simulation_extractor.extractWaveDromInterval(wavedrom,
           getSimulationDto.interval);
       }
 
-      final_wavedrom = this.simulationExtractor.organizeIntoGroups(wavedrom, input, output);
-      this.simulationExtractor.setExtractionSent(final_wavedrom);
+      final_wavedrom = this.simulation_extractor.organizeIntoGroups(wavedrom, input, output);
+      this.simulation_extractor.setExtractionSent(final_wavedrom);
 
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
 
@@ -154,7 +154,7 @@ export class SimulationsController {
  */
   @Get('search/:expr')
   searchSimulations(@Param('expr') expr: string) {
-    return this.simulationsService.searchNames('%' + expr + '%');
+    return this.simulations_service.searchNames('%' + expr + '%');
   }
 
   /**
@@ -163,7 +163,7 @@ export class SimulationsController {
  */
   @Get(':id/rename/:new_name')
   async rename(@Param() params: any) {
-    await this.simulationsService.rename(params.id, params.new_name);
+    await this.simulations_service.rename(params.id, params.new_name);
   }
 
   /**
@@ -171,7 +171,7 @@ export class SimulationsController {
    */
   @Get('extract/wires')
   getWires() {
-    return this.simulationExtractor.getExtractionSentWires();
+    return this.simulation_extractor.getExtractionSentWires();
   }
 
   /**
@@ -180,8 +180,8 @@ export class SimulationsController {
  */
   @Get('extract/wires/:expr')
   getSpecialWires(@Param('expr') expr: string) {
-    const signal_groups = this.simulationExtractor.getExtractionSentWires();
-    return this.simulationExtractor.searchWires(signal_groups, expr);
+    const signal_groups = this.simulation_extractor.getExtractionSentWires();
+    return this.simulation_extractor.searchWires(signal_groups, expr);
   }
 
   /**
@@ -190,6 +190,6 @@ export class SimulationsController {
 */
   @Get('extract/interval')
   getInterval() {
-    return this.simulationExtractor.getSimulationInterval();
+    return this.simulation_extractor.getSimulationInterval();
   }
 }
