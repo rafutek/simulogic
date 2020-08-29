@@ -5,19 +5,24 @@ This university project is a web interface allowing the simulation and visualiza
 ## Dependencies
 
 - GNU/Linux
+
 The simulator needs this operating system to work.
 
 - Java and ANTLR lib
+
 The first simulator part needs a Java environment with ANTLR library.
 You must build the Java circuit creator to use the simulator, see README in *simulator/* for details.
 
 - make and C++ compiler
+
 The second simulator part needs make and g++.
 
 - Docker
+
 The MySQL database used to store circuit and simulation files informations is deployed with docker-compose.
 
 - Yarn 
+
 It uses a series of packages listed in *package.json*. I use yarn to manage them, but you can use npm if you want.
 Run `yarn` to install the packages.
 
