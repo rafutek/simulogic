@@ -17,7 +17,7 @@ To do a simulation:
 - go to *./home/username/simulator/bin/* where the executable is stored
 - run `./executable-name simulation-filename.simu` where simulation file is in *./home/username/simulator/data/*.
 
-**All the steps above are managed by create_simulator.sh and simulate_save.sh that you can find in `./common/scripts`**
+**All the steps above are managed by create_simulator.sh and simulate_save.sh that you can find in *./common/scripts***
 
 ### Dependencies
 - Library [ANTLR4](https://www.antlr.org/)
