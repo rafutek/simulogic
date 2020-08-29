@@ -1,42 +1,47 @@
 # Simulogic
 
-This project was generated and managed using [Nx](https://nx.dev).
-
-The finality is a web interface allowing the simulation and visualization of logic circuits.
+This university project is a web interface allowing the simulation and visualization of logic circuits.
 
 ## Dependencies
 
-This is a NodeJS projet, so it uses node packages listed in *package.json*. I use yarn as node package manager, but you can use npm if you want.
-Run `yarn` to install them, `yarn script-name` to run a script.
+- GNU/Linux
+The simulator needs this operating system to work.
 
-Install nx globally with `yarn global add @nrwl/cli`.
+- Java and ANTLR lib
+The first simulator part needs a Java environment with ANTLR library.
+You must build the Java circuit creator to use the simulator, see README in *simulator/* for details.
 
-You also need to [install docker-compose](https://docs.docker.com/compose/install/) if not already done.
+- make and C++ compiler
+The second simulator part needs make and g++.
 
-You must build the java circuit creator to use the simulator, see README in `./simulator` for details.
+- Docker
+The MySQL database used to store circuit and simulation files informations is deployed with docker-compose.
+
+- Yarn 
+It uses a series of packages listed in *package.json*. I use yarn to manage them, but you can use npm if you want.
+Run `yarn` to install the packages.
+
+The main packages are: Nx for the project management, Nest for the server app, and React for the interface app.
+
+Some scripts are also defined in *package.json*, run `yarn script-name [optional-arguments]` to execute one of them.
 
 ## Development
 
-Run `docker-compose up` to create a mysql docker container (used by the server).
+Run `docker-compose up` to deploy the database on port 3036.
 
-Run `nx serve server` to generate the server app on http://localhost:3333/.
+Run `yarn nx serve server` to deplou the server app on port 8080.
 
-Run `nx serve interface` to generate the interface app on http://localhost:4200/.
+Run `yarn nx serve interface` to deploy the interface app on port 4200. Visit http://localhost:4200/ in your browser.
 
-Run `nx run ui:storybook` to launch ui storybook on http://localhost:4400/.
+To see the several components of the interface, run `yarn nx run ui:storybook` to launch storybook on port 4400. Visit http://localhost:4400/ in your browser.
 
-The apps will automatically reload if you change any of the source files.
+Note: The apps will automatically reload if you change any of the source files.
 
-## Build
+## Production (not finished)
 
-Run `nx build app` to build a project (interface or server). The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+To deploy the project in a production environment, Dockerfiles are used to create environment, server and interface production images.
+They are used in *docker-compose.prod.yml* but Traefik service still needs to be configured.
 
-## Running unit tests
+## Running tests
 
-Run `nx test interface` to execute the unit tests of the interface app via [Jest](https://jestjs.io). You can also run `nx test server` and `nx test ui`.
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Understand your workspace
-
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+Run `yarn nx test server` to execute the unit tests of the server app via Jest.
