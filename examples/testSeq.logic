@@ -1,0 +1,13 @@
+LIB lib{
+
+	circuit(e0,e1,clk,ss,sr,tri1En,tri2En;out){
+		LOGIC
+		tri1 @TRI[e0,tri1En,intW1];
+		tri2 @TRI[e1,tri2En,intW1];
+		seq @SEQ[intW1,clk,out,ss,sr,nd,nd,true,false];
+	
+	}
+
+
+
+}

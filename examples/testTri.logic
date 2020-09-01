@@ -1,0 +1,38 @@
+LIB lib1{
+
+
+bloc1(a1,a2,a3,a4,a5,a6,t1E,t2E;s1){
+	LOGIC
+	
+	b2n1 bloc2(a1,a2;intW1);
+	b2n2 bloc2(a3,a4;intW2);
+	b2n3 bloc2(a5,a6;intW3);
+	
+	tri1 @TRI[intW1,t1E,intW4];
+	tri2 @TRI[intW2,t2E,intW4];
+	
+	orGate orGate(intW3,intW4;s1);
+}
+
+bloc2(e1,e2;out){
+	LOGIC
+	andGate andGate(e1,e2;intW1);
+	notGate notGate(intW1;out);
+}
+
+orGate(a,b;s){
+	LOGIC
+	s = a+b;
+}
+
+notGate(e;out){
+	LOGIC 
+	out = !e;
+	}
+
+andGate(a,b;s){
+	LOGIC
+	s = a*b;
+	}
+}
+

@@ -1,0 +1,13 @@
+LIB lib1{
+
+    bloc1(a1,a2;s1){
+	LOGIC
+        orGate orGate(a1,a2;s1);	
+    }
+
+    orGate(a,b;s){
+	LOGIC
+	s = a+b;
+    }
+
+}
