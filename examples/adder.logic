@@ -1,10 +1,4 @@
 LIB lib{
-
-	latchedAdder(x,y,cin,clk,ss,sr;s,cout){
-		LOGIC
-		adder fullAdder(cin,x,y;s,cout);
-		seq @SEQ[clk,cin,ss,sr,nd,nd,true,true];
-	}
 	
 	eightBitAdder(x0,x1,x2,x3,x4,x5,x6,x7,y0,y1,y2,y3,y4,y5,y6,y7;s0,s1,s2,s3,s4,s5,s6,s7,s8){
 		LOGIC

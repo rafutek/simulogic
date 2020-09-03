@@ -74,7 +74,6 @@ void SimulationCtx::displayWatchedWires()
         {
             // Reccupere le vecteur d'event
             vector<const Event *> eventsOutputs(m_wireList->at(i)->getEventList());
-            // cout << "Output " << m_wireList->at(i)->getName() << endl;
             string output_name = m_wireList->at(i)->getName();
             //Affiche les events 1 à 1
             for (int i(0); i < (int)eventsOutputs.size(); i++)
