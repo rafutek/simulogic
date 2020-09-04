@@ -64,11 +64,14 @@ export class ExtractorsService {
     private extract(file_content: string) {
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
-        const events = file_content.match(/EVENT (.*)/g);
+        let events = file_content.match(/EVENT (.*)/g);
+        const clocks = file_content.match(/CLOCK (.*)/g);
+        events = events.concat(this.clocksToEvents(clocks, Number(start), Number(end)));
+
         if (!events) {
             const no_events: WaveDrom = {
                 signal: [],
-                foot: {tick: ""}
+                foot: { tick: "" }
             }
             return no_events;
         }
@@ -77,8 +80,47 @@ export class ExtractorsService {
         return wavedrom;
     }
 
+    private clocksToEvents(clocks: string[], start: number, end: number): string[] {
+        let clocks_events: string[] = [];
+        if (clocks?.length > 0) {
+            clocks.forEach(clock => {
+                clocks_events = clocks_events.concat(this.clockToEvents(clock, start, end));
+            })
+        }
+        return clocks_events;
+    }
+
+    private clockToEvents(clock: string, start: number, end: number): string[] {
+        const clock_events: string[] = [];
+        const parsed_clock = clock.replace('CLOCK ', '').split(' ');
+        if (parsed_clock?.length == 4) {
+            const name = parsed_clock[0];
+            const first_up_time = parseInt(parsed_clock[1]);
+            const period = parseInt(parsed_clock[2]);
+            const up_duration = parseInt(parsed_clock[3]) / 100 * period;
+
+            let up_time = first_up_time;
+            let down_time: number;
+            let stop = false;
+            if (first_up_time >= start && period > 0 && up_duration > 0) {
+                do {
+                    if (up_time <= end) {
+                        clock_events.push(`EVENT ${name} T ${up_time}`);
+                        down_time = up_time + up_duration;
+                        if (down_time <= end) {
+                            clock_events.push(`EVENT ${name} F ${down_time}`);
+                            up_time += period;
+                        } else stop = true;
+                    } else stop = true;
+                } while (!stop);
+            }
+        }
+        console.log(clock_events)
+        return clock_events;
+    }
+
     private extractTimeline(events: string[]): Timestep[] {
-        const timeline: Timestep[] = [];
+        let timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
             const wire: Wire = {
@@ -102,7 +144,20 @@ export class ExtractorsService {
                 timeline.push(new_timestep);
             }
         })
+
+        timeline = timeline.sort(this.compare_timesteps);
+
         return timeline;
+    }
+
+    private compare_timesteps(t1: Timestep, t2: Timestep) {
+        if (t1.time < t2.time) {
+            return -1;
+        }
+        if (t1.time > t2.time) {
+            return 1;
+        }
+        return 0;
     }
 
     private createWaveDrom(start: string, end: string, timeline: Timestep[]) {

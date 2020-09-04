@@ -6,10 +6,9 @@ import MemoryIcon from '@material-ui/icons/Memory';
 import InputIcon from '@material-ui/icons/Input';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 import BuildIcon from '@material-ui/icons/Build';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
 import { Entity, entity, SignalGroup, Configuration } from '@simulogic/core';
-import { List } from '@material-ui/core';
+import { List, Box } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
 import { WiresList } from '../wiresList/WiresList';
@@ -155,7 +154,7 @@ export const TabMenu = (props: TabMenuProps) => {
     }
 
     return (
-        <div className={classes.root}>
+        <Box boxShadow={5} className={classes.root}>
             <Tabs
                 orientation="vertical"
                 value={selected_tab_id}
@@ -190,6 +189,6 @@ export const TabMenu = (props: TabMenuProps) => {
                     />
                 </TabPanel>
             </div>
-        </div>
+        </Box>
     );
 }

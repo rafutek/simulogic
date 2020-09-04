@@ -5,7 +5,6 @@ import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';
 import { Player } from '../player/Player';
 import { isNullOrUndefined } from 'util';
-import { config } from 'process';
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -16,7 +15,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     item: {
         textAlign: "center",
-        margin: "auto"
+        margin: "auto",
+        overflow: "hidden"
     }
 }));
 
