@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Accordion, AccordionSummary, AccordionDetails, Divider } from '@material-ui/core';
-import { Entity, entity, SignalGroup } from '@simulogic/core';
-import axios from 'axios';
+import { SignalGroup } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { WireItem, WireItemProps } from '../wireItem/WireItem';
+import { WireItem } from '../wireItem/WireItem';
 
 
 const useStyles = makeStyles((theme: Theme) => ({

@@ -39,8 +39,14 @@ export const TabMenuAndWorkbench = () => {
     useEffect(() => {
         if (signal_groups) {
             update_visible_wires ? changeVisibleWires() : setUpdateVisibleWires(true);
-        }
+        } else setVisibleWires(null);
     }, [signal_groups]);
+
+    useEffect(() => {
+        if (!selected_simulation) {
+            setSignalGroups(null);
+        }
+    }, [selected_simulation])
 
     const onSearchWires = (result: SignalGroup[]) => {
         setUpdateVisibleWires(false);

@@ -115,7 +115,6 @@ export class ExtractorsService {
                 } while (!stop);
             }
         }
-        console.log(clock_events)
         return clock_events;
     }
 
