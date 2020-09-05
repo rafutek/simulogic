@@ -12,9 +12,9 @@ export const theme = createMuiTheme({
     },
     overrides: {
         MuiTab: {
-            "root": {
+            textColorInherit: {
                 "&$selected": {
-                    "backgroundColor": grey[600]
+                    "opacity": "" // managed in TabMenu
                 }
             }
         },

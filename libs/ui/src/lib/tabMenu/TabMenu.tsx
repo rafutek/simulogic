@@ -40,6 +40,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     panel: {
         padding: 10
+    },
+    selected: {
+        opacity: 1,
+        backgroundColor: theme.palette.secondary.main
     }
 }));
 
@@ -59,7 +63,7 @@ export interface TabMenuProps {
 export const TabMenu = (props: TabMenuProps) => {
     const classes = useStyles();
     const [selected_tab_id, setSelectedTabId] = useState(0);
-    const [hide_panel, setHidePanel] = useState(true);
+    const [hidden_panel, setHiddenPanel] = useState(true);
     const [circuits, setCircuits] = useState<Entity[]>();
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
@@ -87,11 +91,11 @@ export const TabMenu = (props: TabMenuProps) => {
     }
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-        if (hide_panel) {
-            setHidePanel(false);
+        if (hidden_panel) {
+            setHiddenPanel(false);
         }
         else if (newValue == selected_tab_id) {
-            setHidePanel(true);
+            setHiddenPanel(true);
         }
         setSelectedTabId(newValue);
     };
@@ -153,36 +157,45 @@ export const TabMenu = (props: TabMenuProps) => {
         } else return null;
     }
 
+    const dynamicClassName = (tab_id: number, selected_tab_id: number, hidden_panel: boolean) => {
+        let className = `${classes.tab} `;
+        if (!hidden_panel && tab_id == selected_tab_id) {
+            className += `${classes.selected}`;
+        }
+        return className;
+    }
+
     return (
         <Box boxShadow={5} className={classes.root}>
             <Tabs
+                indicatorColor={"primary"}
                 orientation="vertical"
                 value={selected_tab_id}
                 onChange={handleChange}
                 className={classes.tabs}
             >
-                <Tab icon={<MemoryIcon />} className={classes.tab} />
-                <Tab icon={<InputIcon />} className={classes.tab} />
-                <Tab icon={<SettingsInputComponentIcon />} className={classes.tab} />
-                <Tab icon={<BuildIcon />} className={classes.tab} />
+                <Tab icon={<MemoryIcon />} className={dynamicClassName(0, selected_tab_id, hidden_panel)} />
+                <Tab icon={<InputIcon />} className={dynamicClassName(1, selected_tab_id, hidden_panel)} />
+                <Tab icon={<SettingsInputComponentIcon />} className={dynamicClassName(2, selected_tab_id, hidden_panel)} />
+                <Tab icon={<BuildIcon />} className={dynamicClassName(3, selected_tab_id, hidden_panel)} />
             </Tabs>
             <div className={classes.panels}>
-                <TabPanel value={selected_tab_id} index={0} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={0} hide={hidden_panel} >
                     <EntityUploader entity="circuit" onUpload={() => setRefreshCircuits(true)} />
                     <SearchField {...searchCircuitsProps} />
                     <EntitiesList entities={circuits} what={"circuit"} />
                 </TabPanel>
-                <TabPanel value={selected_tab_id} index={1} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={1} hide={hidden_panel} >
                     <EntityUploader entity="simulation" onUpload={() => setRefreshSimulations(true)} />
                     <SearchField {...searchSimulationsProps} />
                     <EntitiesList entities={simulations} what={"simulation"} />
                 </TabPanel>
-                <TabPanel value={selected_tab_id} index={2} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={2} hide={hidden_panel} >
                     <SearchField {...searchWiresProps} />
                     <WiresList signal_groups={props.signal_groups} visible_wires={props.visible_wires}
                         setVisibleWires={props.setVisibleWires} />
                 </TabPanel>
-                <TabPanel value={selected_tab_id} index={3} hide={hide_panel} >
+                <TabPanel value={selected_tab_id} index={3} hide={hidden_panel} >
                     <SimulationConfig configuration={props.configuration}
                         setConfiguration={props.setConfiguration}
                         selected_simulation={props.selected_simulation}
