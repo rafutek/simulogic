@@ -15,7 +15,12 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         title: {
             flexGrow: 1,
+            color: theme.palette.primary.main,
+            font: "small-caps bold 24px fantasy"
         },
+        color: {
+            backgroundColor: "#c3cfe8"
+        }
     }),
 );
 
@@ -24,7 +29,7 @@ export const AppBar = () => {
 
     return (
         <div className={classes.root}>
-            <BaseBar position="static" color="primary">
+            <BaseBar position="static" className={classes.color} >
                 <Toolbar variant="dense">
                     <Typography variant="h5" className={classes.title}>
                         Simulogic
