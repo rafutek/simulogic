@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, Contains } from 'class-validator';
 
-export class CreateCircuitDto {
+export class CircuitDTO {
 
   @IsNotEmpty()
   @IsString()

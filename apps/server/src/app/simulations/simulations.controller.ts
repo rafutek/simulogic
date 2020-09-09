@@ -1,19 +1,20 @@
 import {
-  Controller, Post, Get, Delete, Param, UseInterceptors, UploadedFile,
-  BadRequestException, InternalServerErrorException, Body, UploadedFiles, ForbiddenException
+  Controller, Post, Get, Delete, Param, UseInterceptors,
+  BadRequestException, InternalServerErrorException, Body,
+  UploadedFiles, ForbiddenException
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationsService } from './simulations.service';
-import { CreateSimulationDto } from './dto/create-simulation.dto';
+import { SimulationDTO } from './simulation.dto';
+import { SimulationGetterDTO } from './simulation-getter.dto';
 import { Simulation } from './simulation.entity';
 import * as fs from 'fs';
-import { validate, isEmpty, isNotEmpty } from 'class-validator';
+import { isEmpty, isNotEmpty } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
 import { execSync } from 'child_process';
 import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorsService } from '../extractors/extractors.service';
 import "multer";
-import { GetSimulationDto } from './dto/get-simulation.dto';
 import { WaveDrom } from '@simulogic/core';
 
 @Controller('simulations')
@@ -37,7 +38,7 @@ export class SimulationsController {
         fs.unlinkSync(file.path);
         bad_extension = true;
       } else {
-        const simulation = new CreateSimulationDto();
+        const simulation = new SimulationDTO();
         simulation.name = file.originalname;
         simulation.path = file.path;
         await this.simulations_service.create(simulation);
@@ -94,7 +95,7 @@ export class SimulationsController {
   }
 
   @Post('extract')
-  async getSimulation(@Body() getSimulationDto: GetSimulationDto) {
+  async getSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
     const simulation = await this.simulations_service.findOne(getSimulationDto.id_simu);
     if (simulation) {
@@ -109,7 +110,7 @@ export class SimulationsController {
 
       if (getSimulationDto.result) {
         // if (isEmpty(simulation.result_path)) { execute simulation each time
-        const circuit = await this.circuits_service.findOne(getSimulationDto.id_circuit);
+        const circuit = await this.circuits_service.getOne(getSimulationDto.id_circuit);
         if (circuit) {
           if (isEmpty(circuit.simulator_path)) {
             this.createAndSaveSimulator(circuit);

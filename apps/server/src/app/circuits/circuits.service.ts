@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
-import { CreateCircuitDto } from './dto/create-circuit.dto';
+import { CircuitDTO } from './circuit.dto';
 import { Circuit } from './circuit.entity';
 
 @Injectable()
@@ -11,12 +11,19 @@ export class CircuitsService {
     private readonly circuits_repository: Repository<Circuit>,
   ) { }
 
-  async create(create_circuit_dto: CreateCircuitDto) {
-    const circuit = new Circuit();
-    circuit.name = create_circuit_dto.name
-    circuit.path = create_circuit_dto.path;
-    circuit.simulator_path = '';
-    await this.circuits_repository.save(circuit);
+  /**
+   * Creates a circuit in the database 
+   * filling the filename and filepath fields
+   * @param create_circuit_dto valid circuit variable
+   */
+  async insertOne(create_circuit_dto: CircuitDTO) {
+    const new_circuit = this.circuits_repository.create(create_circuit_dto);
+    // const circuit = new Circuit();
+    // circuit.name = create_circuit_dto.name
+    // circuit.path = create_circuit_dto.path;
+    // circuit.simulator_path = '';
+    await this.circuits_repository.save(new_circuit);
+    return new_circuit;
   }
 
   async update(circuit: Circuit) {
@@ -29,7 +36,7 @@ export class CircuitsService {
     });
   }
 
-  findOne(id: string | number): Promise<Circuit> {
+  getOne(id: string | number): Promise<Circuit> {
     return this.circuits_repository.findOne(id);
   }
 

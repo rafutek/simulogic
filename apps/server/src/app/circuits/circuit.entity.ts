@@ -13,4 +13,10 @@ export class Circuit {
 
   @Column()
   simulator_path: string;
+
+  constructor(name?: string, path?: string, simulator_path?: string) {
+    this.name = name || '';
+    this.path = path || '';
+    this.simulator_path = simulator_path || '';
+  }
 }

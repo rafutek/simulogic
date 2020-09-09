@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, Contains } from 'class-validator';
 
-export class CreateSimulationDto {
+export class SimulationDTO {
 
   @IsNotEmpty()
   @IsString()

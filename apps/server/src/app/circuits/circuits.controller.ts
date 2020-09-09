@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CircuitsService } from './circuits.service';
-import { CreateCircuitDto } from './dto/create-circuit.dto';
+import { CircuitDTO } from './circuit.dto';
 import { Circuit } from './circuit.entity';
 import * as fs from 'fs';
 
@@ -26,14 +26,14 @@ export class CircuitsController {
         fs.unlinkSync(file.path);
         bad_extension = true;
       } else {
-        const createCircuitDto = new CreateCircuitDto();
+        const createCircuitDto = new CircuitDTO();
         createCircuitDto.name = file.originalname;
         createCircuitDto.path = file.path;
         // const errors = await validate(createCircuitDto);
         // if (errors.length > 0) {
         //   throw new BadRequestException('Validation failed');
         // }
-        await this.circuits_service.create(createCircuitDto);
+        await this.circuits_service.insertOne(createCircuitDto);
       }
     })
     if (bad_extension) {
@@ -53,7 +53,7 @@ export class CircuitsController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const circuit = await this.circuits_service.findOne(id);
+    const circuit = await this.circuits_service.getOne(id);
     if (circuit) {
       if (circuit.simulator_path != '' && fs.existsSync(circuit.simulator_path)) {
         fs.unlinkSync(circuit.simulator_path);

@@ -1,10 +1,9 @@
 import { IsBoolean, IsString, Min, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
-import { IsGreaterThan } from '../../validation-decorators/IsGreaterThan';
-import { DependsOn, DependsOnIfTrue } from '../../validation-decorators/DependsOn';
+import {  DependsOnIfTrue } from '../validation-decorators/DependsOn';
 import { Interval } from '@simulogic/core';
-import { IntervalChecker } from '../../validation-decorators/IntervalChecker';
+import { IntervalChecker } from '../validation-decorators/IntervalChecker';
 
-export class GetSimulationDto {
+export class SimulationGetterDTO {
 
   @IsNotEmpty()
   @IsNumber()

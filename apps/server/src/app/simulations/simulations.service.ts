@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
-import { CreateSimulationDto } from './dto/create-simulation.dto';
+import { SimulationDTO } from './simulation.dto';
 import { Simulation } from './simulation.entity';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class SimulationsService {
     private readonly simulations_repository: Repository<Simulation>,
   ) { }
 
-  async create(create_simulation_dto: CreateSimulationDto) {
+  async create(create_simulation_dto: SimulationDTO) {
     const simulation = new Simulation();
     simulation.name = create_simulation_dto.name
     simulation.path = create_simulation_dto.path;
