@@ -60,7 +60,7 @@ export class SimulationsController {
     const simulator_path = `simulator/home/user1/simulator/bin/${circuit_filename}`;
     if (fs.existsSync(simulator_path)) {
       circuit.simulator_path = simulator_path;
-      this.circuits_service.update(circuit); // save circuit simulator in database
+      this.circuits_service.updateOne(circuit); // save circuit simulator in database
     } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
 

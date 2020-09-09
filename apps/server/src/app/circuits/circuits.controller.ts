@@ -43,12 +43,12 @@ export class CircuitsController {
 
   @Get()
   findAll(): Promise<Circuit[]> {
-    return this.circuits_service.findAll();
+    return this.circuits_service.getAllByEntity();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Circuit> {
-    return this.circuits_service.findEntity(id);
+    return this.circuits_service.getOneByEntity(id);
   }
 
   @Delete(':id')
@@ -62,7 +62,7 @@ export class CircuitsController {
         fs.unlinkSync(circuit.path);
       }
     }
-    await this.circuits_service.remove(id);
+    await this.circuits_service.deleteOne(id);
   }
 
   /**
@@ -70,15 +70,15 @@ export class CircuitsController {
    */
   @Get('search/:expr')
   searchCircuits(@Param('expr') expr: string) {
-    return this.circuits_service.searchNames('%' + expr + '%');
+    return this.circuits_service.findAndGetByEntity('%' + expr + '%');
   }
 
   /**
    * Renames a circuit if it exists. Throws an error otherwise.
-   * @param params Object containing the request id and new name.
+   * @param params Object containing the request id and new name
    */
   @Get(':id/rename/:new_name')
   async rename(@Param() params: any) {
-    await this.circuits_service.rename(params.id, params.new_name);
+    await this.circuits_service.renameOne(params.id, params.new_name);
   }
 }
