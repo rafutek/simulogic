@@ -7,38 +7,25 @@ import { CircuitsService } from './circuits.service';
 import { CircuitDTO } from './circuit.dto';
 import { Circuit } from './circuit.entity';
 import * as fs from 'fs';
+import { validate } from 'class-validator';
 
 @Controller('circuits')
 export class CircuitsController {
   constructor(private readonly circuits_service: CircuitsService) { }
 
-
   @Post()
-  @UseInterceptors(FilesInterceptor('file', 20, {
-    dest: 'simulator/home/user1/circuitCreator/data'
-  }))
+  @UseInterceptors(FilesInterceptor('file', 20, { dest: 'simulator/home/user1/circuitCreator/data' }))
   async uploadCircuitFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    const ext = ".logic";
-    const ext_regexp = RegExp(`${ext}$`);
-    let bad_extension = false;
     files.forEach(async file => {
-      if (!file.originalname.match(ext_regexp)) {
+      const circuitDTO = new CircuitDTO();
+      circuitDTO.name = file.originalname;
+      circuitDTO.path = file.path;
+      const errors = await validate(circuitDTO);
+      if (errors.length > 0) {
         fs.unlinkSync(file.path);
-        bad_extension = true;
-      } else {
-        const createCircuitDto = new CircuitDTO();
-        createCircuitDto.name = file.originalname;
-        createCircuitDto.path = file.path;
-        // const errors = await validate(createCircuitDto);
-        // if (errors.length > 0) {
-        //   throw new BadRequestException('Validation failed');
-        // }
-        await this.circuits_service.insertOne(createCircuitDto);
       }
+      else await this.circuits_service.insertOne(circuitDTO);
     })
-    if (bad_extension) {
-      throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
-    }
   }
 
   @Get()
@@ -61,8 +48,8 @@ export class CircuitsController {
       if (fs.existsSync(circuit.path)) {
         fs.unlinkSync(circuit.path);
       }
+      await this.circuits_service.deleteOne(id);
     }
-    await this.circuits_service.deleteOne(id);
   }
 
   /**
