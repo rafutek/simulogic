@@ -87,7 +87,7 @@ export class CircuitsService {
   }
 
   /**
-   * Renames a circuit with given new name, and returns it.
+   * Renames a circuit with given new name, and returns its entity.
    * @param id id of circuit to rename
    * @param new_name new name of the circuit
    */
@@ -97,6 +97,6 @@ export class CircuitsService {
       circuit.name = new_name;
       await this.circuits_repository.update(id, circuit);
     }
-    return this.circuits_repository.findOne(id);
+    return this.getOneByEntity(id);
   }
 }

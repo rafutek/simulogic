@@ -10,7 +10,7 @@ const circuit2 = new Circuit("circuit 2", "/path/test", "sim/path/test");
 
 const circuits: Circuit[] = [circuit1, circuit2];
 
-describe("CircuitService", () => {
+describe("CircuitsService", () => {
   let service: CircuitsService;
   let repo: Repository<Circuit>;
 
