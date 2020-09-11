@@ -102,7 +102,10 @@ export class CircuitsController {
    * @param params Object containing the request id and new name
    */
   @Get(':id/rename/:new_name')
-  async renameCircuit(@Param() params: any): Promise<Circuit> {
-    return await this.circuits_service.renameOne(params.id, params.new_name);
+  async renameCircuit(@Param('id') id: string, @Param('new_name') new_name: string): Promise<void> {
+    const renamed = await this.circuits_service.renameOne(id, new_name);
+    if (!renamed) {
+      throw new BadRequestException(`Could not rename circuit of id '${id}' with new name '${new_name}'`);
+    }
   }
 }

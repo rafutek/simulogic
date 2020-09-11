@@ -30,7 +30,7 @@ describe("CircuitsController", () => {
             getOneByEntity: jest.fn().mockResolvedValue(entity1),
             deleteOne: jest.fn().mockReturnValue(true),
             findAndGetByEntity: jest.fn().mockResolvedValue(entities),
-            renameOne: jest.fn().mockResolvedValue(entity1),
+            renameOne: jest.fn().mockResolvedValue(true),
           }
         }
       ]
@@ -199,17 +199,37 @@ describe("CircuitsController", () => {
   });
 
   describe('renameCircuit', () => {
-    it('should rename one circuit', async () => {
+    it('should not raise an error', async () => {
       // Given a spy on service function
       const service_spy = jest.spyOn(service, 'renameOne');
 
       // When renaming a circuit
-      const renamed_circuit = await controller.renameCircuit("an id");
-
-      // Then we should get mocked value,
+      let error: any;
+      try {
+        await controller.renameCircuit("an id", "new name");
+      } catch (err) {
+        error = err;
+      }
+      // Then it should not raise an error,
       // and spied function should be called once
-      expect(renamed_circuit).toEqual(entity1);
+      expect(error).toBeUndefined();
       expect(service_spy).toBeCalledTimes(1);
+    });
+
+    it('should raise an error', async () => {
+      // Given a renameOne function that fails
+      jest.spyOn(service, 'renameOne').mockResolvedValue(false);
+
+      // When renaming a circuit
+      let error: any;
+      try {
+        await controller.renameCircuit("an id", "new name");
+      } catch (err) {
+        error = err;
+      }
+      
+      // Then it should raise an error
+      expect(error).toBeDefined();
     });
   });
 
