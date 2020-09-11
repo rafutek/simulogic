@@ -200,14 +200,26 @@ describe("CircuitsService", () => {
       const repo_update_spy = jest.spyOn(repo, 'update');
 
       // When renaming the circuit
-      const renamed_circuit = await service.renameOne(circuit_to_rename.id, "new name");
+      const renamed = await service.renameOne(circuit_to_rename.id, "new naame");
 
-      // Then updated circuit should be the mocked one,
-      // and repo funtions should be called once with those parameters
-      expect(renamed_circuit).toEqual(circuit1);
+      // Then it should be successfully renamed,
+      // and findOne funtion should be called twice
+      // and update should be called once with those parameters
+      expect(renamed).toBeTruthy();
       expect(repo_find_spy).toBeCalledTimes(2);
       expect(repo_update_spy).toBeCalledTimes(1);
-      expect(repo_update_spy).toBeCalledWith(12, circuit1);
+      expect(repo_update_spy).toBeCalledWith(circuit_to_rename.id, circuit1);
+    });
+
+    it('should fail when circuit is not found', async () => {
+      // Given a findOne repo function that finds nothing
+      jest.spyOn(repo, 'findOne').mockResolvedValue(undefined);
+
+      // When renaming the circuit
+      const renamed = await service.renameOne("an id", "neww name");
+
+      // Then it should fail to rename
+      expect(renamed).toBeFalsy();
     });
   });
 

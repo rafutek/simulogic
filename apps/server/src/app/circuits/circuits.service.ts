@@ -86,16 +86,19 @@ export class CircuitsService {
   }
 
   /**
-   * Renames a circuit with given new name, and returns its entity.
+   * Renames a circuit with given new name.
+   * Returns true if it was renamed, false otherwise. 
    * @param id id of circuit to rename
    * @param new_name new name of the circuit
    */
-  async renameOne(id: string | number, new_name: string): Promise<Circuit> {
+  async renameOne(id: string | number, new_name: string): Promise<boolean> {
     const circuit = await this.circuits_repository.findOne(id);
     if (circuit) {
       circuit.name = new_name;
       await this.circuits_repository.update(id, circuit);
+      const renamed_circuit = await this.circuits_repository.findOne(id);
+      return renamed_circuit?.name == new_name;
     }
-    return this.getOneByEntity(id);
+    return false;
   }
 }
