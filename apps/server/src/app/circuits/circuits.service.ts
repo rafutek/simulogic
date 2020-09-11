@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { CircuitDTO } from './circuit.dto';
@@ -65,12 +65,10 @@ export class CircuitsService {
    * Tries to delete a circuit from database and returns success or error with a message.
    * @param id id of circuit to delete
    */
-  async deleteOne(id: string | number): Promise<{ deleted: boolean; message?: string }> {
-    try {
-      await this.circuits_repository.delete(id);
-      return { deleted: true };
-    } catch (err) {
-      return { deleted: false, message: err.message };
+  async deleteOne(id: string | number) {
+    const delete_result = await this.circuits_repository.delete(id);
+    if (delete_result.affected == 0) {
+      throw new BadRequestException(`Could not delete circuit with id '${id}'`);
     }
   }
 

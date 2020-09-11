@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CircuitsService } from "./circuits.service"
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, DeleteResult } from 'typeorm';
 import { Circuit } from './circuit.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CircuitDTO } from './circuit.dto';
@@ -141,28 +141,37 @@ describe("CircuitsService", () => {
   });
 
   describe('deleteOne', () => {
-    it('should return {deleted: true}', async () => {
-      // Given mocked delete repo function
-      // When deleting a circuit
-      const result_delete = await service.deleteOne('an id');
-      
-      // Then it should success
-      expect(result_delete).toEqual({ deleted: true });
+    it('should not throw an error', async () => {
+      // When deleting a valid circuit
+      let error: any;
+      try {
+        await service.deleteOne('an id');
+      } catch (err) {
+        error = err;
+      }
+
+      //Then it should not raise an error
+      expect(error).toBeUndefined();
     });
 
-    it('should return {deleted: false, message: err.message}', async () => {
+    it('should throw an error', async () => {
       // Given mocked delete repo function that fails
-      const repo_spy = jest.spyOn(repo, 'delete').mockRejectedValueOnce(new Error('Bad Delete Method.'));
+      const bad_result: DeleteResult = {
+        raw: "",
+        affected: 0
+      }
+      const repo_spy = jest.spyOn(repo, 'delete').mockResolvedValueOnce(bad_result);
 
       // When deleting a 'bad' circuit
-      const result_delete = await service.deleteOne('a bad id');
-
-      // Then this should be the result, 
-      // and the repo delete function should be called once with this parameterr
-      expect(result_delete).toEqual({
-        deleted: false,
-        message: 'Bad Delete Method.',
-      });
+      let error: any;
+      try {
+        await service.deleteOne('a bad id');
+      } catch (err) {
+        error = err;
+      }
+      // Then it should raise an error, 
+      // and the repo delete function should be called once with this parameter
+      expect(error).toBeDefined();
       expect(repo_spy).toBeCalledWith('a bad id');
       expect(repo_spy).toBeCalledTimes(1);
     });

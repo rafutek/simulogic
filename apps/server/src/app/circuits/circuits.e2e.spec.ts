@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import { Circuit } from './circuit.entity';
+import { Entity } from '@simulogic/core';
 
 const example_files_path = "./examples/";
 
@@ -74,6 +75,17 @@ describe('Circuits e2e tests', () => {
     });
 
     describe("GET /circuits", () => {
+
+        const uploadValidFiles = async () => {
+            await request(app.getHttpServer())
+                .post('/circuits')
+                .attach("file", example_files_path + "adder.logic")
+                .attach("file", example_files_path + "OR.logic");
+            await request(app.getHttpServer())
+                .post('/circuits')
+                .attach("file", example_files_path + "triSeq.logic");
+        }
+
         it("should return no circuits", async () => {
             // When getting circuits
             const response = await request(app.getHttpServer()).get('/circuits');
@@ -83,13 +95,9 @@ describe('Circuits e2e tests', () => {
             expect(response.ok).toBeTruthy();
         });
 
-        it("should return uploaded circuits", async () => {
+        it("should return all uploaded circuits", async () => {
             // Given uploaded circuits
-            await request(app.getHttpServer())
-                .post('/circuits')
-                .attach("file", example_files_path + "adder.logic")
-                .attach("file", example_files_path + "OR.logic")
-                .attach("file", example_files_path + "triSeq.logic");
+            await uploadValidFiles();
 
             // When getting circuits
             const response = await request(app.getHttpServer()).get('/circuits');
@@ -102,6 +110,37 @@ describe('Circuits e2e tests', () => {
             expect(response.ok).toBeTruthy();
         });
 
+        it("should get one circuit", async () => {
+            // Given an uploaded circuit file
+            await uploadValidFiles();
+            const circuit: Entity = await (await request(app.getHttpServer()).get('/circuits')).body[0];
+
+            // When getting the circuit
+            const response = await request(app.getHttpServer()).get(`/circuits/${circuit.id}`);
+
+            // Then response should contain the circuit and be ok
+            expect(response.body.name).toEqual("adder.logic");
+            expect(response.ok).toBeTruthy();
+        });
+    });
+
+    describe("DELETE /circuits", () => {
+        it("should fail", async () => {
+            // When deleting /circuits
+            const response = await request(app.getHttpServer()).delete('/circuits');
+
+            // Then request should fail
+            expect(response.ok).toBeFalsy();
+        });
+
+        it("should fail", async () => {
+            // When deleting an absent circuit
+            const response = await request(app.getHttpServer()).delete('/circuits/a bad id');
+
+            // Then request should fail and give a message
+            expect(response.ok).toBeFalsy();
+            expect(response.body.message).toBeDefined();
+        });
     });
 
 })
