@@ -143,15 +143,10 @@ describe("CircuitsService", () => {
   describe('deleteOne', () => {
     it('should not throw an error', async () => {
       // When deleting a valid circuit
-      let error: any;
-      try {
-        await service.deleteOne('an id');
-      } catch (err) {
-        error = err;
-      }
+      const deleted = await service.deleteOne('an id');
 
-      //Then it should not raise an error
-      expect(error).toBeUndefined();
+      //Then it should be deleted
+      expect(deleted).toBeTruthy();
     });
 
     it('should throw an error', async () => {
@@ -163,15 +158,11 @@ describe("CircuitsService", () => {
       const repo_spy = jest.spyOn(repo, 'delete').mockResolvedValueOnce(bad_result);
 
       // When deleting a 'bad' circuit
-      let error: any;
-      try {
-        await service.deleteOne('a bad id');
-      } catch (err) {
-        error = err;
-      }
+      const deleted = await service.deleteOne('a bad id');
+
       // Then it should raise an error, 
       // and the repo delete function should be called once with this parameter
-      expect(error).toBeDefined();
+      expect(deleted).toBeFalsy();
       expect(repo_spy).toBeCalledWith('a bad id');
       expect(repo_spy).toBeCalledTimes(1);
     });

@@ -28,7 +28,7 @@ describe("CircuitsController", () => {
             getAllByEntity: jest.fn().mockResolvedValue(entities),
             getOne: jest.fn().mockResolvedValue(circuit1),
             getOneByEntity: jest.fn().mockResolvedValue(entity1),
-            deleteOne: jest.fn(),
+            deleteOne: jest.fn().mockReturnValue(true),
             findAndGetByEntity: jest.fn().mockResolvedValue(entities),
             renameOne: jest.fn().mockResolvedValue(entity1),
           }
@@ -103,6 +103,23 @@ describe("CircuitsController", () => {
       expect(circuit_found).toEqual(entity1);
       expect(service_spy).toBeCalledTimes(1);
     });
+
+    it('should throw an error', async () => {
+      // Given service function that fails
+      jest.spyOn(service, 'getOneByEntity').mockResolvedValue(undefined);
+
+      // When getting a circuit
+      let error: any, circuit_found: any;
+      try {
+        circuit_found = await controller.getCircuit("an id");
+      } catch (err) {
+        error = err;
+      }
+
+      // Then it should raise an error and no circuit should be found
+      expect(error).toBeDefined();
+      expect(circuit_found).toBeUndefined();
+    });
   });
 
   describe('deleteCircuit', () => {
@@ -111,10 +128,26 @@ describe("CircuitsController", () => {
       const service_spy = jest.spyOn(service, 'deleteOne');
 
       // When deletting the circuit
-      const result = await controller.deleteCircuit("an id");
+      await controller.deleteCircuit("an id");
 
       // Then spied function should be called once
       expect(service_spy).toBeCalledTimes(1);
+    });
+
+    it('should throw an error', async () => {
+      // Given service function that fails
+      jest.spyOn(service, 'deleteOne').mockResolvedValue(false);
+
+      // When getting a circuit
+      let error: any, circuit_found: any;
+      try {
+        await controller.deleteCircuit("an id");
+      } catch (err) {
+        error = err;
+      }
+
+      // Then it should raise an error
+      expect(error).toBeDefined();
     });
   });
 
@@ -130,6 +163,38 @@ describe("CircuitsController", () => {
       // and spied function should be called once
       expect(circuits_found).toEqual(entities);
       expect(service_spy).toBeCalledTimes(1);
+    });
+
+    it('should throw an error when no circuits are uploaded', async () => {
+      // Given service function that returns no circuits
+      jest.spyOn(service, 'getAll').mockResolvedValue([]);
+
+      // When searching through the circuits
+      let error: any, circuits_found: any;
+      try {
+        circuits_found = await controller.searchCircuits("an expression");
+      } catch (err) {
+        error = err;
+      }
+
+      // Then it should raise an error
+      expect(error).toBeDefined();
+    });
+
+    it('should throw an error when no circuits were found', async () => {
+      // Given service function that returns no circuits
+      jest.spyOn(service, 'findAndGetByEntity').mockResolvedValue([]);
+
+      // When searching through the circuits
+      let error: any, circuits_found: any;
+      try {
+        circuits_found = await controller.searchCircuits("an expression");
+      } catch (err) {
+        error = err;
+      }
+
+      // Then it should raise an error
+      expect(error).toBeDefined();
     });
   });
 

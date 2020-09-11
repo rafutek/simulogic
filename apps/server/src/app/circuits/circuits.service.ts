@@ -62,14 +62,15 @@ export class CircuitsService {
   }
 
   /**
-   * Tries to delete a circuit from database and returns success or error with a message.
+   * Tries to delete a circuit from database and throws an error if it fails.
    * @param id id of circuit to delete
    */
-  async deleteOne(id: string | number) {
+  async deleteOne(id: string | number): Promise<boolean> {
     const delete_result = await this.circuits_repository.delete(id);
     if (delete_result.affected == 0) {
-      throw new BadRequestException(`Could not delete circuit with id '${id}'`);
+      return false;
     }
+    return true;
   }
 
   /**

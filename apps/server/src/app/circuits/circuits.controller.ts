@@ -1,6 +1,7 @@
 import {
   Controller, Post, UseInterceptors, Get, Param, Delete,
-  UploadedFiles
+  UploadedFiles,
+  BadRequestException
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CircuitsService } from './circuits.service';
@@ -30,7 +31,7 @@ export class CircuitsController {
       const errors = await validate(circuitDTO);
       if (errors.length > 0) {
         invalid_files.push(file);
-        if(fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
       }
       else await this.circuits_service.insertOne(circuitDTO);
     }
@@ -50,8 +51,12 @@ export class CircuitsController {
    * @param id id of the circuit
    */
   @Get(':id')
-  getCircuit(@Param('id') id: string): Promise<Circuit> {
-    return this.circuits_service.getOneByEntity(id);
+  async getCircuit(@Param('id') id: string): Promise<Circuit> {
+    const circuit = await this.circuits_service.getOneByEntity(id);
+    if (!circuit) {
+      throw new BadRequestException(`Circuit with id '${id}' not found`);
+    }
+    return circuit;
   }
 
   /**
@@ -59,7 +64,7 @@ export class CircuitsController {
    * @param id id of circuit to delete
    */
   @Delete(':id')
-  async deleteCircuit(@Param('id') id: string): Promise<{ deleted: boolean; message?: string; }> {
+  async deleteCircuit(@Param('id') id: string): Promise<void> {
     const circuit = await this.circuits_service.getOne(id);
     if (circuit) {
       if (circuit.simulator_path != '' && fs.existsSync(circuit.simulator_path)) {
@@ -69,7 +74,10 @@ export class CircuitsController {
         fs.unlinkSync(circuit.path);
       }
     }
-    return await this.circuits_service.deleteOne(id);
+    const deleted = await this.circuits_service.deleteOne(id);
+    if (!deleted) {
+      throw new BadRequestException(`Could not delete circuit with id '${id}'`);
+    }
   }
 
   /**
@@ -77,8 +85,16 @@ export class CircuitsController {
    * @param exp expression to search in circuit names
    */
   @Get('search/:exp')
-  searchCircuits(@Param('exp') exp: string): Promise<Circuit[]> {
-    return this.circuits_service.findAndGetByEntity('%' + exp + '%');
+  async searchCircuits(@Param('exp') exp: string): Promise<Circuit[]> {
+    const all_circuits = await this.circuits_service.getAll();
+    if (all_circuits?.length == 0) {
+      throw new BadRequestException(`There are no uploaded circuits to search for`);
+    }
+    const found_circuits = await this.circuits_service.findAndGetByEntity('%' + exp + '%');
+    if (found_circuits?.length == 0) {
+      throw new BadRequestException(`No circuits were found containing the expression '${exp}'`);
+    }
+    return found_circuits;
   }
 
   /**
