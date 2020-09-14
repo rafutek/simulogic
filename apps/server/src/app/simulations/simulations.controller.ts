@@ -41,7 +41,7 @@ export class SimulationsController {
         const simulation = new SimulationDTO();
         simulation.name = file.originalname;
         simulation.path = file.path;
-        await this.simulations_service.create(simulation);
+        await this.simulations_service.insertOne(simulation);
       }
     })
     if (bad_extension) {
@@ -51,7 +51,7 @@ export class SimulationsController {
 
   @Get()
   findAll(): Promise<Simulation[]> {
-    return this.simulations_service.findAll();
+    return this.simulations_service.getAllByEntity();
   }
 
   createAndSaveSimulator(circuit: Circuit) {
@@ -71,18 +71,18 @@ export class SimulationsController {
     const result_path = `simulator/home/user1/simulator/out/${simulation_filename}`;
     if (fs.existsSync(result_path)) {
       simulation.result_path = result_path;
-      this.simulations_service.update(simulation); // save result simulation in database
+      this.simulations_service.updateOne(simulation); // save result simulation in database
     } else throw new InternalServerErrorException("Error in executing and saving simulation");
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.simulations_service.findEntity(id);
+    return this.simulations_service.getOneByEntity(id);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
-    const simulation = await this.simulations_service.findOne(id);
+    const simulation = await this.simulations_service.getOne(id);
     if (simulation) {
       if (simulation.result_path != '' && fs.existsSync(simulation.result_path)) {
         fs.unlinkSync(simulation.result_path);
@@ -91,13 +91,13 @@ export class SimulationsController {
         fs.unlinkSync(simulation.path);
       }
     }
-    return this.simulations_service.remove(id);
+    await this.simulations_service.deleteOne(id);
   }
 
   @Post('extract')
   async getSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
-    const simulation = await this.simulations_service.findOne(getSimulationDto.id_simu);
+    const simulation = await this.simulations_service.getOne(getSimulationDto.id_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
         wavedrom = input = this.simulation_extractor.getWaveDrom(getSimulationDto.id_simu,
@@ -155,7 +155,7 @@ export class SimulationsController {
  */
   @Get('search/:expr')
   searchSimulations(@Param('expr') expr: string) {
-    return this.simulations_service.searchNames('%' + expr + '%');
+    return this.simulations_service.findAndGetByEntity('%' + expr + '%');
   }
 
   /**
@@ -164,7 +164,7 @@ export class SimulationsController {
  */
   @Get(':id/rename/:new_name')
   async rename(@Param() params: any) {
-    await this.simulations_service.rename(params.id, params.new_name);
+    await this.simulations_service.renameOne(params.id, params.new_name);
   }
 
   /**

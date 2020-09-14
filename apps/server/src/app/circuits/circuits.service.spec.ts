@@ -7,7 +7,6 @@ import { CircuitDTO } from './circuit.dto';
 
 const circuit1 = new Circuit("circuit 1", "/path/test", "sim/path/test");
 const circuit2 = new Circuit("circuit 2", "/path/test", "sim/path/test");
-
 const circuits: Circuit[] = [circuit1, circuit2];
 
 describe("CircuitsService", () => {
@@ -27,7 +26,7 @@ describe("CircuitsService", () => {
             create: jest.fn().mockReturnValue(circuit1),
             save: jest.fn(),
             update: jest.fn().mockResolvedValue(true),
-            delete: jest.fn().mockResolvedValue(true),
+            delete: jest.fn().mockResolvedValue({ affected: 1 }),
           }
         }
       ]
@@ -129,14 +128,14 @@ describe("CircuitsService", () => {
       };
       const repo_spy = jest.spyOn(repo, 'update');
 
-      // When inserting the circuit
+      // When updating the circuit
       const updated_circuit = await service.updateOne(circuit_to_update);
 
       // Then updated circuit should be the mocked one,
       // and update repository funtion should be called once with those parameters
       expect(updated_circuit).toEqual(circuit1);
       expect(repo_spy).toBeCalledTimes(1);
-      expect(repo_spy).toBeCalledWith({ id: 12 }, circuit_to_update);
+      expect(repo_spy).toBeCalledWith(12, circuit_to_update);
     });
   });
 

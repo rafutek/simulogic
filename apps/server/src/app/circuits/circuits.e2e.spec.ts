@@ -183,7 +183,7 @@ describe('Circuits e2e tests', () => {
     describe("GET /circuits/search/'exp'", () => {
         it("should fail when there are no files", async () => {
             // When searching through an empty database
-            const response = await request(app.getHttpServer()).get(`/circuits/search/tri`);
+            const response = await request(app.getHttpServer()).get("/circuits/search/tri");
 
             // Then request should fail and give a message
             expect(response.ok).toBeFalsy();
@@ -195,7 +195,7 @@ describe('Circuits e2e tests', () => {
             await uploadValidFiles();
 
             // When searching an absent expression
-            const response = await request(app.getHttpServer()).get(`/circuits/search/blablabla`);
+            const response = await request(app.getHttpServer()).get("/circuits/search/blablabla");
 
             // Then request should fail and give a message
             expect(response.ok).toBeFalsy();
@@ -207,7 +207,7 @@ describe('Circuits e2e tests', () => {
             await uploadValidFiles();
 
             // When searching a present expression
-            const response = await request(app.getHttpServer()).get(`/circuits/search/tri`);
+            const response = await request(app.getHttpServer()).get("/circuits/search/tri");
 
             // Then response should be ok 
             // and contain the file which name contains 'tri'

@@ -11,50 +11,91 @@ export class SimulationsService {
     private readonly simulations_repository: Repository<Simulation>,
   ) { }
 
-  async create(create_simulation_dto: SimulationDTO) {
-    const simulation = new Simulation();
-    simulation.name = create_simulation_dto.name
-    simulation.path = create_simulation_dto.path;
-    simulation.result_path = '';
-    await this.simulations_repository.save(simulation);
+  /**
+   * Returns all the simulations present in the database.
+   */
+  async getAll(): Promise<Simulation[]> {
+    return this.simulations_repository.find();
   }
 
-  async update(simulation: Simulation) {
-    await this.simulations_repository.save(simulation);
+  /**
+   * Returns all the simulations present in the database by id and name.
+   */
+  async getAllByEntity(): Promise<Simulation[]> {
+    return this.simulations_repository.find({ select: ["id", "name"] });
   }
 
-  async findAll(): Promise<Simulation[]> {
-    return this.simulations_repository.find({
-      select: ["id", "name"] // return only the simulations ids and filenames
-    });
-  }
-
-  findEntity(id: string | number): Promise<Simulation> {
-    return this.simulations_repository.findOne(id, {
-      select: ["id", "name"]
-    });
-  }
-
-  findOne(id: string | number): Promise<Simulation> {
+  /**
+   * Returns the simulation with given id present in the database.
+   * @param id id of the simulation
+   */
+  getOne(id: string | number): Promise<Simulation> {
     return this.simulations_repository.findOne(id);
   }
 
-  async remove(id: string | number): Promise<void> {
-    await this.simulations_repository.delete(id);
+  /**
+   * Returns the simulation with given id present in the database by id and name.
+   * @param id id of the simulation
+   */
+  getOneByEntity(id: string | number): Promise<Simulation> {
+    return this.simulations_repository.findOne(id, { select: ["id", "name"] });
   }
 
-  searchNames(search_expr: string): Promise<Simulation[]> {
+  /**
+ * Inserts a simulation in the database and returns it.
+ * @param new_simulation valid simulation variable
+ */
+  async insertOne(new_simulation: SimulationDTO) {
+    const new_simu_entity = this.simulations_repository.create(new_simulation);
+    await this.simulations_repository.save(new_simu_entity);
+    return new_simu_entity;
+  }
+
+  /**
+   * Updates a simulation present in the database and returns it.
+   * @param simulation database simulation to update
+   */
+  async updateOne(simulation: Simulation) {
+    const { id } = simulation;
+    await this.simulations_repository.update(id, simulation);
+    return this.getOne(id);
+  }
+
+  /**
+   * Deletes simulation in the database and returns false if it fails.
+   * @param id id of simulation to delete
+   */
+  async deleteOne(id: string | number): Promise<boolean> {
+    const delete_result = await this.simulations_repository.delete(id);
+    return delete_result?.affected == 1;
+  }
+
+  /**
+   * Searches simulation names containing the given expression
+   *  and returns these simulations by id and name.
+   *  @param search_expr expression to search in simulation names
+   */
+  findAndGetByEntity(search_expr: string): Promise<Simulation[]> {
     return this.simulations_repository.find({
       where: { name: Like(search_expr) },
       select: ["id", "name"]
     })
   }
 
-  async rename(id: string | number, new_name: string) {
+  /**
+   * Renames a simulation with given new name.
+   * Returns true if it was renamed, false otherwise. 
+   * @param id id of simulation to rename
+   * @param new_name new name of the simulation
+   */
+  async renameOne(id: string | number, new_name: string) {
     const simulation = await this.simulations_repository.findOne(id);
-    if(simulation){
+    if (simulation) {
       simulation.name = new_name;
-      await this.simulations_repository.save(simulation);
+      await this.simulations_repository.update(id, simulation);
+      const renamed_simu = await this.simulations_repository.findOne(id);
+      return renamed_simu?.name == new_name;
     }
+    return false;
   }
 }
