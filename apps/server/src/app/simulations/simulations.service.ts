@@ -45,7 +45,7 @@ export class SimulationsService {
  * Inserts a simulation in the database and returns it.
  * @param new_simulation valid simulation variable
  */
-  async insertOne(new_simulation: SimulationDTO) {
+  async insertOne(new_simulation: SimulationDTO): Promise<Simulation> {
     const new_simu_entity = this.simulations_repository.create(new_simulation);
     await this.simulations_repository.save(new_simu_entity);
     return new_simu_entity;
@@ -55,7 +55,7 @@ export class SimulationsService {
    * Updates a simulation present in the database and returns it.
    * @param simulation database simulation to update
    */
-  async updateOne(simulation: Simulation) {
+  async updateOne(simulation: Simulation): Promise<Simulation> {
     const { id } = simulation;
     await this.simulations_repository.update(id, simulation);
     return this.getOne(id);
@@ -88,7 +88,7 @@ export class SimulationsService {
    * @param id id of simulation to rename
    * @param new_name new name of the simulation
    */
-  async renameOne(id: string | number, new_name: string) {
+  async renameOne(id: string | number, new_name: string): Promise<boolean> {
     const simulation = await this.simulations_repository.findOne(id);
     if (simulation) {
       simulation.name = new_name;

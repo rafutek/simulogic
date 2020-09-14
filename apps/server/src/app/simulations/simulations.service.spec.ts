@@ -140,7 +140,7 @@ describe("CircuitsService", () => {
     });
 
     describe('deleteOne', () => {
-        it('should not throw an error', async () => {
+        it('should delete a simulation', async () => {
             // When deleting a valid simulation
             const deleted = await service.deleteOne('an id');
 
@@ -148,7 +148,7 @@ describe("CircuitsService", () => {
             expect(deleted).toBeTruthy();
         });
 
-        it('should throw an error', async () => {
+        it('should fail to delete a simulation', async () => {
             // Given mocked delete repo function that fails
             const bad_result: DeleteResult = {
               raw: "",
@@ -159,7 +159,7 @@ describe("CircuitsService", () => {
             // When deleting a 'bad' simulation
             const deleted = await service.deleteOne('a bad id');
       
-            // Then it should raise an error, 
+            // Then it should fail, 
             // and the repo delete function should be called once with this parameter
             expect(deleted).toBeFalsy();
             expect(repo_spy).toBeCalledWith('a bad id');
@@ -168,16 +168,16 @@ describe("CircuitsService", () => {
     });
 
     describe('findAndGetByEntity', () => {
-        it('should return found circuit', async () => {
-          // Given an array of circuits, and spy on repo find function
+        it('should return found simulation', async () => {
+          // Given an array of simulations, and spy on repo find function
           const repo_spy = jest.spyOn(repo, 'find');
     
-          // When searching the circuits
-          const found_circuits = await service.findAndGetByEntity("test expression");
+          // When searching the simulations
+          const found_simulations = await service.findAndGetByEntity("test expression");
     
-          // Then found circuits should be the result of find mocked function,
+          // Then found simulations should be the result of find mocked function,
           // and this repo funtion should be called once with those parameters
-          expect(found_circuits).toEqual(simulations);
+          expect(found_simulations).toEqual(simulations);
           expect(repo_spy).toBeCalledTimes(1);
           expect(repo_spy).toBeCalledWith({
             where: { name: Like("test expression") },
@@ -186,5 +186,39 @@ describe("CircuitsService", () => {
         });
       });
 
-
+      describe('renameOne', () => {
+        it('should rename one simulation', async () => {
+          // Given a simulation, and spies on repo functions
+          const simulation_to_rename: Simulation = {
+            id: 12,
+            name: "simulation name",
+            path: "path",
+            result_path: ""
+          };
+          const repo_find_spy = jest.spyOn(repo, 'findOne');
+          const repo_update_spy = jest.spyOn(repo, 'update');
+    
+          // When renaming the simulation
+          const renamed = await service.renameOne(simulation_to_rename.id, "new naame");
+    
+          // Then it should be successfully renamed,
+          // and findOne funtion should be called twice
+          // and update should be called once with those parameters
+          expect(renamed).toBeTruthy();
+          expect(repo_find_spy).toBeCalledTimes(2);
+          expect(repo_update_spy).toBeCalledTimes(1);
+          expect(repo_update_spy).toBeCalledWith(simulation_to_rename.id, simu1);
+        });
+    
+        it('should fail when simulation is not found', async () => {
+          // Given a findOne repo function that finds nothing
+          jest.spyOn(repo, 'findOne').mockResolvedValue(undefined);
+    
+          // When renaming the simulation
+          const renamed = await service.renameOne("an id", "neww name");
+    
+          // Then it should fail to rename
+          expect(renamed).toBeFalsy();
+        });
+      });
 });

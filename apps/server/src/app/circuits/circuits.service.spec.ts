@@ -140,7 +140,7 @@ describe("CircuitsService", () => {
   });
 
   describe('deleteOne', () => {
-    it('should not throw an error', async () => {
+    it('should delete a circuit', async () => {
       // When deleting a valid circuit
       const deleted = await service.deleteOne('an id');
 
@@ -148,7 +148,7 @@ describe("CircuitsService", () => {
       expect(deleted).toBeTruthy();
     });
 
-    it('should throw an error', async () => {
+    it('should fail to delete a circuit', async () => {
       // Given mocked delete repo function that fails
       const bad_result: DeleteResult = {
         raw: "",
@@ -159,7 +159,7 @@ describe("CircuitsService", () => {
       // When deleting a 'bad' circuit
       const deleted = await service.deleteOne('a bad id');
 
-      // Then it should raise an error, 
+      // Then it should fail, 
       // and the repo delete function should be called once with this parameter
       expect(deleted).toBeFalsy();
       expect(repo_spy).toBeCalledWith('a bad id');

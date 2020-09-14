@@ -9,7 +9,7 @@ import { SimulationDTO } from './simulation.dto';
 import { SimulationGetterDTO } from './simulation-getter.dto';
 import { Simulation } from './simulation.entity';
 import * as fs from 'fs';
-import { isEmpty, isNotEmpty } from 'class-validator';
+import { isEmpty, isNotEmpty, validate } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
 import { execSync } from 'child_process';
 import { Circuit } from '../circuits/circuit.entity';
@@ -25,34 +25,101 @@ export class SimulationsController {
     private readonly simulation_extractor: ExtractorsService
   ) { }
 
+  /**
+   * Uploads and saves simulation files in database. Returns invalid files not uploaded.
+   * @param files uploaded files
+   */
   @Post()
-  @UseInterceptors(FilesInterceptor('file', 20, {
-    dest: 'simulator/home/user1/simulator/data'
-  }))
-  async uploadSimulationFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    const ext = ".simu";
-    const ext_regexp = RegExp(`${ext}$`);
-    let bad_extension = false;
-    files.forEach(async file => {
-      if (!file.originalname.match(ext_regexp)) {
-        fs.unlinkSync(file.path);
-        bad_extension = true;
-      } else {
-        const simulation = new SimulationDTO();
-        simulation.name = file.originalname;
-        simulation.path = file.path;
-        await this.simulations_service.insertOne(simulation);
+  @UseInterceptors(FilesInterceptor('file', 20, { dest: 'simulator/home/user1/simulator/data' }))
+  async uploadSimulations(@UploadedFiles() files: Express.Multer.File[]): Promise<Express.Multer.File[]> {
+    const invalid_files: Express.Multer.File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const simulationDTO = new SimulationDTO();
+      simulationDTO.name = file.originalname;
+      simulationDTO.path = file.path;
+      const errors = await validate(simulationDTO);
+      if (errors.length > 0) {
+        invalid_files.push(file);
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
       }
-    })
-    if (bad_extension) {
-      throw new ForbiddenException(`Files without ${ext} extension were not uploaded`);
+      else await this.simulations_service.insertOne(simulationDTO);
+
+    }
+    return invalid_files;
+  }
+
+  /**
+   * Returns the simulations present in the database by id and name.
+   */
+  @Get()
+  getSimulations(): Promise<Simulation[]> {
+    return this.simulations_service.getAllByEntity();
+  }
+
+  /**
+   * Returns the simulation corresponding to given id.
+   * @param id id of the simulation
+   */
+  @Get(':id')
+  async getSimulation(@Param('id') id: string) {
+    const simulation = await this.simulations_service.getOneByEntity(id);
+    if (!simulation) {
+      throw new BadRequestException(`Simulation with id '${id}' not found`);
+    }
+    return simulation;
+  }
+
+  /**
+   * Deletes a simulation present in the database and its associated files.
+   * @param id id of the simulation to delete
+   */
+  @Delete(':id')
+  async deleteSimulation(@Param('id') id: string): Promise<void> {
+    const simulation = await this.simulations_service.getOne(id);
+    if (simulation) {
+      if (simulation.result_path != '' && fs.existsSync(simulation.result_path)) {
+        fs.unlinkSync(simulation.result_path);
+      }
+      if (fs.existsSync(simulation.path)) {
+        fs.unlinkSync(simulation.path);
+      }
+    }
+    const deleted = await this.simulations_service.deleteOne(id);
+    if (!deleted) {
+      throw new BadRequestException(`Could not delete simulation with id '${id}'`);
     }
   }
 
-  @Get()
-  findAll(): Promise<Simulation[]> {
-    return this.simulations_service.getAllByEntity();
+  /**
+   * Returns the simulations which name contains the expression.
+   * @param exp expression to search in simulation filenames
+   */
+  @Get('search/:exp')
+  async searchSimulations(@Param('exp') exp: string) {
+    const all_simulations = await this.simulations_service.getAll();
+    if (all_simulations?.length == 0) {
+      throw new BadRequestException(`There are no uploaded simulations to search for`);
+    }
+    const found_simulations = await this.simulations_service.findAndGetByEntity('%' + exp + '%');
+    if (found_simulations?.length == 0) {
+      throw new BadRequestException(`No simulations were found containing the expression '${exp}'`);
+    }
+    return found_simulations;
   }
+
+  /**
+  * Renames a simulation if it exists. Throws an error otherwise.
+  * @param params Object containing the request id and new name.
+  */
+  @Get(':id/rename/:new_name')
+  async renameSimulation(@Param('id') id: string, @Param('new_name') new_name: string): Promise<void> {
+    const renamed = await this.simulations_service.renameOne(id, new_name);
+    if (!renamed) {
+      throw new BadRequestException(`Could not rename simulation of id '${id}' with new name '${new_name}'`);
+    }
+  }
+
 
   createAndSaveSimulator(circuit: Circuit) {
     const circuit_filename = circuit.path.split('/').pop();
@@ -75,27 +142,8 @@ export class SimulationsController {
     } else throw new InternalServerErrorException("Error in executing and saving simulation");
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.simulations_service.getOneByEntity(id);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    const simulation = await this.simulations_service.getOne(id);
-    if (simulation) {
-      if (simulation.result_path != '' && fs.existsSync(simulation.result_path)) {
-        fs.unlinkSync(simulation.result_path);
-      }
-      if (fs.existsSync(simulation.path)) {
-        fs.unlinkSync(simulation.path);
-      }
-    }
-    await this.simulations_service.deleteOne(id);
-  }
-
   @Post('extract')
-  async getSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
+  async getExtractedSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
     const simulation = await this.simulations_service.getOne(getSimulationDto.id_simu);
     if (simulation) {
@@ -148,23 +196,6 @@ export class SimulationsController {
     } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
 
     return final_wavedrom;
-  }
-
-  /**
- * Returns the simulations which name contains the expression.
- */
-  @Get('search/:expr')
-  searchSimulations(@Param('expr') expr: string) {
-    return this.simulations_service.findAndGetByEntity('%' + expr + '%');
-  }
-
-  /**
- * Renames a simulation if it exists. Throws an error otherwise.
- * @param params Object containing the request id and new name.
- */
-  @Get(':id/rename/:new_name')
-  async rename(@Param() params: any) {
-    await this.simulations_service.renameOne(params.id, params.new_name);
   }
 
   /**

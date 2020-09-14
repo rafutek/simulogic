@@ -16,7 +16,7 @@ export class CircuitsController {
   constructor(private readonly circuits_service: CircuitsService) { }
 
   /**
-   * Uploads and saves files in database. Returns invalid files not uploaded.
+   * Uploads and saves circuit files in database. Returns invalid files not uploaded.
    * @param files uploaded files
    */
   @Post()
@@ -82,7 +82,7 @@ export class CircuitsController {
 
   /**
    * Returns the circuits which name contains the expression.
-   * @param exp expression to search in circuit names
+   * @param exp expression to search in circuit filenames
    */
   @Get('search/:exp')
   async searchCircuits(@Param('exp') exp: string): Promise<Circuit[]> {

@@ -227,7 +227,7 @@ describe("CircuitsController", () => {
       } catch (err) {
         error = err;
       }
-      
+
       // Then it should raise an error
       expect(error).toBeDefined();
     });
