@@ -4,56 +4,52 @@ import {
     Timestep, Signal, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
 import { isEmpty, isNotEmpty } from 'class-validator';
+import { MemoryService } from '../memory/memory.service';
+import { Injectable } from '@nestjs/common';
 
-export class ExtractorsService {
+@Injectable()
+export class ExtractorService {
+    constructor(
+        private memory_service: MemoryService
+    ) { }
 
-    extracted_simu: IdWaveDrom;
-    extracted_simu_result: IdWaveDrom;
-    extracted_combination: IdWaveDrom;
-    extraction_sent: WaveDromBase;
     reached_start: boolean;
     reached_end: boolean;
 
     getWaveDrom(id: number, file_path: string) {
-        if (!this.extracted_simu || this.extracted_simu.id != id) {
+        if (!this.memory_service.simulation || this.memory_service.simulation.id != id) {
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
-                this.extracted_simu = {
-                    id: id,
-                    wavedrom: wavedrom
-                };
+                this.memory_service.simulation = { id, wavedrom };
             }
             else return null;
         }
-        return this.extracted_simu.wavedrom;
+        return this.memory_service.simulation.wavedrom;
     }
 
     getWaveDromResult(id: number, file_path: string) {
-        if (!this.extracted_simu_result || this.extracted_simu_result.id != id) {
+        if (!this.memory_service.simulation_result || this.memory_service.simulation_result.id != id) {
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
-                this.extracted_simu_result = { 
-                    id: id,
-                    wavedrom: wavedrom
-                };
+                this.memory_service.simulation_result = { id, wavedrom };
             } else return null;
         }
-        return this.extracted_simu_result.wavedrom;
+        return this.memory_service.simulation_result.wavedrom;
     }
 
     getCombinedWaveDrom(id: number, simu_file_path: string, result_file_path: string) {
-        if (!this.extracted_combination || this.extracted_combination.id != id) {
+        if (!this.memory_service.full_simulation || this.memory_service.full_simulation.id != id) {
             const wavedrom = this.getWaveDrom(id, simu_file_path);
             const wavedrom_result = this.getWaveDromResult(id, result_file_path);
             const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
             if (combined_wavedrom) {
-                this.extracted_combination = {
+                this.memory_service.full_simulation = {
                     id: id,
                     wavedrom: combined_wavedrom
                 };
             }
         }
-        return this.extracted_combination.wavedrom;
+        return this.memory_service.full_simulation.wavedrom;
     }
 
     extractFile(file_path: string) {
@@ -546,13 +542,13 @@ export class ExtractorsService {
     }
 
     setExtractionSent(extraction: WaveDromBase) {
-        this.extraction_sent = extraction;
+        this.memory_service.simulation_sent = extraction;
     }
 
     getExtractionSentWires() {
-        if (this.extraction_sent && this.extraction_sent.signal.length > 0) {
+        if (this.memory_service.simulation_sent && this.memory_service.simulation_sent.signal.length > 0) {
             const signal_groups: SignalGroup[] = [];
-            this.getWires(this.extraction_sent.signal, signal_groups);
+            this.getWires(this.memory_service.simulation_sent.signal, signal_groups);
             return signal_groups;
         } else return null;
     }
@@ -627,11 +623,11 @@ export class ExtractorsService {
 
     getSimulationTimeArray() {
         let time_array: number[];
-        if (this.extracted_combination?.wavedrom) { // simu with result
-            time_array = this.tickToTimeAxis(this.extracted_combination.wavedrom.foot.tick);
+        if (this.memory_service.full_simulation?.wavedrom) { // simu with result
+            time_array = this.tickToTimeAxis(this.memory_service.full_simulation.wavedrom.foot.tick);
         }
-        else if (this.extracted_simu?.wavedrom) { // only simu
-            time_array = this.tickToTimeAxis(this.extracted_simu.wavedrom.foot.tick);
+        else if (this.memory_service.simulation?.wavedrom) { // only simu
+            time_array = this.tickToTimeAxis(this.memory_service.simulation.wavedrom.foot.tick);
         }
         // else, no simulation extracted
 

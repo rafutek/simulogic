@@ -1,7 +1,7 @@
 import {
   Controller, Post, Get, Delete, Param, UseInterceptors,
   BadRequestException, InternalServerErrorException, Body,
-  UploadedFiles, ForbiddenException
+  UploadedFiles
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationsService } from './simulations.service';
@@ -13,7 +13,7 @@ import { isEmpty, isNotEmpty, validate } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
 import { execSync } from 'child_process';
 import { Circuit } from '../circuits/circuit.entity';
-import { ExtractorsService } from '../extractors/extractors.service';
+import { ExtractorService } from '../extractor/extractor.service';
 import "multer";
 import { WaveDrom } from '@simulogic/core';
 
@@ -22,7 +22,7 @@ export class SimulationsController {
   constructor(
     private readonly simulations_service: SimulationsService,
     private readonly circuits_service: CircuitsService,
-    private readonly simulation_extractor: ExtractorsService
+    private readonly simulation_extractor: ExtractorService
   ) { }
 
   /**

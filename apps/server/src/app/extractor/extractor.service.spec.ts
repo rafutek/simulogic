@@ -1,11 +1,11 @@
-import { ExtractorsService } from './extractors.service'
+import { ExtractorService } from './extractor.service'
 import { WaveDrom, Wave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
 
 describe("SimulationExtractor", () => {
-  let extractor: ExtractorsService;
+  let extractor: ExtractorService;
 
   beforeEach(() => {
-    extractor = new ExtractorsService();
+    extractor = new ExtractorService(null);
   });
 
   describe("Interval WaveDrom Tests", () => {

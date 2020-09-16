@@ -4,7 +4,7 @@ import { Simulation } from './simulation.entity';
 import { SimulationsController } from './simulations.controller';
 import { CircuitsService } from '../circuits/circuits.service';
 import { Circuit } from '../circuits/circuit.entity';
-import { ExtractorsService } from '../extractors/extractors.service';
+import { ExtractorService } from '../extractor/extractor.service';
 
 const simulation1 = new Simulation("simulation 1", "/path/test", "sim/path/test");
 const simulation2 = new Simulation("simulation 2", "/path/test", "sim/path/test");
@@ -46,7 +46,7 @@ describe("CircuitsController", () => {
                     useValue: {}
                 },
                 {
-                    provide: ExtractorsService,
+                    provide: ExtractorService,
                     // Mock extractor service functions
                     useValue: {}
                 }

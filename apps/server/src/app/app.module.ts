@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SimulationsModule } from './simulations/simulations.module';
 import { CircuitsModule } from './circuits/circuits.module';
+import { ExtractorModule } from './extractor/extractor.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { CircuitsModule } from './circuits/circuits.module';
       synchronize: true,
     }),
     SimulationsModule,
-    CircuitsModule
+    CircuitsModule,
+    ExtractorModule
   ]
 })
 export class AppModule {}
