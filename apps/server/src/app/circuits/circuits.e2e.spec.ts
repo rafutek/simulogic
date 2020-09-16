@@ -55,7 +55,7 @@ describe('Circuits end-to-end tests', () => {
     const deleteCircuit = (circuit: Circuit) => {
         if(fs.existsSync(circuit.path)) fs.unlinkSync(circuit.path);
         if(fs.existsSync(circuit.simulator_path)) fs.unlinkSync(circuit.simulator_path);
-        return request(app.getHttpServer()).delete(`/circuits/${circuit.id}`);
+        return request(app.getHttpServer()).delete(`/circuits/${circuit.uuid}`);
     }
 
     /**
@@ -147,10 +147,10 @@ describe('Circuits end-to-end tests', () => {
 
     });
 
-    describe("GET /circuits/'id'", () => {
+    describe("GET /circuits/'uuid'", () => {
         it("should fail to get one circuit", async () => {
             // When getting an absent circuit
-            const response = await request(app.getHttpServer()).get(`/circuits/a bad id`);
+            const response = await request(app.getHttpServer()).get(`/circuits/a bad uuid`);
 
             // Then request should fail
             expect(response.ok).toBeFalsy();
@@ -162,7 +162,7 @@ describe('Circuits end-to-end tests', () => {
             const circuit = await getFirstFile();
 
             // When getting the circuit
-            const response = await request(app.getHttpServer()).get(`/circuits/${circuit.id}`);
+            const response = await request(app.getHttpServer()).get(`/circuits/${circuit.uuid}`);
 
             // Then response should contain the circuit and be ok
             expect(response.body.name).toEqual("adder.logic");
@@ -181,7 +181,7 @@ describe('Circuits end-to-end tests', () => {
 
         it("should fail", async () => {
             // When deleting an absent circuit
-            const response = await request(app.getHttpServer()).delete('/circuits/a bad id');
+            const response = await request(app.getHttpServer()).delete('/circuits/a bad uuid');
 
             // Then request should fail and give a message
             expect(response.ok).toBeFalsy();
@@ -194,12 +194,12 @@ describe('Circuits end-to-end tests', () => {
             const circuit = await getFirstFile();
 
             // When deleting the circuit
-            const response = await request(app.getHttpServer()).delete(`/circuits/${circuit.id}`);
+            const response = await request(app.getHttpServer()).delete(`/circuits/${circuit.uuid}`);
 
             // Then request should succeed
             expect(response.ok).toBeTruthy();
             const left_circuit = await getFirstFile();
-            expect(left_circuit.id).not.toEqual(circuit.id);
+            expect(left_circuit.uuid).not.toEqual(circuit.uuid);
         });
     });
 

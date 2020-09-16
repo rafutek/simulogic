@@ -4,11 +4,11 @@
 export type entity = "circuit" | "simulation";
 
 /**
- * Stores an id and a name.
+ * Stores a uuid and a name.
  * Used for circuit and simulation files.
  */
 export interface Entity {
-    id: number;
+    uuid: string;
     name: string;
 };
 
@@ -68,10 +68,10 @@ export interface WaveDromBase {
 }
 
 /**
- * Stores a WaveDrom with an id.
+ * Stores a WaveDrom with an uuid.
  */
 export interface IdWaveDrom {
-    id: number,
+    uuid: string,
     wavedrom: WaveDrom
 }
 
@@ -87,8 +87,8 @@ export interface Interval {
  * Stores simulation extraction details.
  */
 export interface ExtractionDetails {
-    id_simu: number;
-    id_circuit?: number;
+    uuid_simu: string;
+    uuid_circuit?: string;
     result?: boolean;
     wires?: string[],
     interval?: Interval

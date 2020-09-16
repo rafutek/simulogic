@@ -145,39 +145,38 @@ export class SimulationsController {
   @Post('extract')
   async getExtractedSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
-    const simulation = await this.simulations_service.getOne(getSimulationDto.id_simu);
+    const simulation = await this.simulations_service.getOne(getSimulationDto.uuid_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
-        wavedrom = input = this.simulation_extractor.getWaveDrom(getSimulationDto.id_simu,
-          simulation.path);
+        wavedrom = input = this.simulation_extractor.getWaveDrom(getSimulationDto.uuid_simu, simulation.path);
         if (!wavedrom) {
           throw new InternalServerErrorException("could not get wavedrom");
         }
       } else throw new InternalServerErrorException(
-        `simulation ${getSimulationDto.id_simu} file not found`);
+        `simulation ${getSimulationDto.uuid_simu} file not found`);
 
       if (getSimulationDto.result) {
         // if (isEmpty(simulation.result_path)) { execute simulation each time
-        const circuit = await this.circuits_service.getOne(getSimulationDto.id_circuit);
+        const circuit = await this.circuits_service.getOne(getSimulationDto.uuid_circuit);
         if (circuit) {
           if (isEmpty(circuit.simulator_path)) {
             this.createAndSaveSimulator(circuit);
           }
           this.executeAndSaveSimulation(circuit, simulation);
         } else throw new BadRequestException(
-          `circuit ${getSimulationDto.id_circuit} not found`);
+          `circuit ${getSimulationDto.uuid_circuit} not found`);
         // }
 
         if (fs.existsSync(simulation.result_path)) {
           wavedrom = output = this.simulation_extractor.getWaveDromResult(
-            getSimulationDto.id_simu, simulation.result_path);
+            getSimulationDto.uuid_simu, simulation.result_path);
           if (!wavedrom) {
             throw new InternalServerErrorException("could not get result wavedrom");
           }
         } else throw new InternalServerErrorException(
-          `result file of simulation ${getSimulationDto.id_simu} not found`);
+          `result file of simulation ${getSimulationDto.uuid_simu} not found`);
 
-        wavedrom = this.simulation_extractor.getCombinedWaveDrom(getSimulationDto.id_simu,
+        wavedrom = this.simulation_extractor.getCombinedWaveDrom(getSimulationDto.uuid_simu,
           simulation.path, simulation.result_path);
       }
 
@@ -193,7 +192,7 @@ export class SimulationsController {
       final_wavedrom = this.simulation_extractor.organizeIntoGroups(wavedrom, input, output);
       this.simulation_extractor.setExtractionSent(final_wavedrom);
 
-    } else throw new BadRequestException(`simulation ${getSimulationDto.id_simu} not found`);
+    } else throw new BadRequestException(`simulation ${getSimulationDto.uuid_simu} not found`);
 
     return final_wavedrom;
   }

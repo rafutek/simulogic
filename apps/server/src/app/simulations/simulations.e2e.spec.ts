@@ -55,7 +55,7 @@ describe('Simulations end-to-end tests', () => {
     const deleteSimulation = (simulation: Simulation) => {
         if(fs.existsSync(simulation.path)) fs.unlinkSync(simulation.path);
         if(fs.existsSync(simulation.result_path)) fs.unlinkSync(simulation.result_path);
-        return request(app.getHttpServer()).delete(`/simulations/${simulation.id}`);
+        return request(app.getHttpServer()).delete(`/simulations/${simulation.uuid}`);
     }
 
     /**
@@ -147,10 +147,10 @@ describe('Simulations end-to-end tests', () => {
 
     });
 
-    describe("GET /simulations/'id'", () => {
+    describe("GET /simulations/'uuid'", () => {
         it("should fail to get one simulation", async () => {
             // When getting an absent simulation
-            const response = await request(app.getHttpServer()).get(`/simulations/a bad id`);
+            const response = await request(app.getHttpServer()).get(`/simulations/a bad uuid`);
 
             // Then request should fail
             expect(response.ok).toBeFalsy();
@@ -162,7 +162,7 @@ describe('Simulations end-to-end tests', () => {
             const simulation = await getFirstFile();
 
             // When getting the simulation
-            const response = await request(app.getHttpServer()).get(`/simulations/${simulation.id}`);
+            const response = await request(app.getHttpServer()).get(`/simulations/${simulation.uuid}`);
 
             // Then response should contain the simulation and be ok
             expect(response.body.name).toEqual("adder.simu");
@@ -181,7 +181,7 @@ describe('Simulations end-to-end tests', () => {
 
         it("should fail", async () => {
             // When deleting an absent simulation
-            const response = await request(app.getHttpServer()).delete('/simulations/a bad id');
+            const response = await request(app.getHttpServer()).delete('/simulations/a bad uuid');
 
             // Then request should fail and give a message
             expect(response.ok).toBeFalsy();
@@ -194,12 +194,12 @@ describe('Simulations end-to-end tests', () => {
             const simulation = await getFirstFile();
 
             // When deleting the simulation
-            const response = await request(app.getHttpServer()).delete(`/simulations/${simulation.id}`);
+            const response = await request(app.getHttpServer()).delete(`/simulations/${simulation.uuid}`);
 
             // Then request should succeed
             expect(response.ok).toBeTruthy();
             const left_simulation = await getFirstFile();
-            expect(left_simulation.id).not.toEqual(simulation.id);
+            expect(left_simulation.uuid).not.toEqual(simulation.uuid);
         });
     });
 

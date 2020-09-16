@@ -14,35 +14,35 @@ export class ExtractorService {
     ) { }
 
 
-    getWaveDrom(id: number, file_path: string) {
-        if (!this.memory_service.simulation || this.memory_service.simulation.id != id) {
+    getWaveDrom(uuid: string, file_path: string) {
+        if (!this.memory_service.simulation || this.memory_service.simulation.uuid != uuid) {
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
-                this.memory_service.simulation = { id, wavedrom };
+                this.memory_service.simulation = { uuid, wavedrom };
             }
             else return null;
         }
         return this.memory_service.simulation.wavedrom;
     }
 
-    getWaveDromResult(id: number, file_path: string) {
-        if (!this.memory_service.simulation_result || this.memory_service.simulation_result.id != id) {
+    getWaveDromResult(uuid: string, file_path: string) {
+        if (!this.memory_service.simulation_result || this.memory_service.simulation_result.uuid != uuid) {
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
-                this.memory_service.simulation_result = { id, wavedrom };
+                this.memory_service.simulation_result = { uuid, wavedrom };
             } else return null;
         }
         return this.memory_service.simulation_result.wavedrom;
     }
 
-    getCombinedWaveDrom(id: number, simu_file_path: string, result_file_path: string) {
-        if (!this.memory_service.full_simulation || this.memory_service.full_simulation.id != id) {
-            const wavedrom = this.getWaveDrom(id, simu_file_path);
-            const wavedrom_result = this.getWaveDromResult(id, result_file_path);
+    getCombinedWaveDrom(uuid: string, simu_file_path: string, result_file_path: string) {
+        if (!this.memory_service.full_simulation || this.memory_service.full_simulation.uuid != uuid) {
+            const wavedrom = this.getWaveDrom(uuid, simu_file_path);
+            const wavedrom_result = this.getWaveDromResult(uuid, result_file_path);
             const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
             if (combined_wavedrom) {
                 this.memory_service.full_simulation = {
-                    id: id,
+                    uuid: uuid,
                     wavedrom: combined_wavedrom
                 };
             }

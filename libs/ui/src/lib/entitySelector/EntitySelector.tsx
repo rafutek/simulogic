@@ -32,7 +32,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
                 <Dialog open={openDialog} onClose={handleClose}>
                     <List>
                         {data.map((entity: Entity) =>
-                            <ListItem button onClick={() => handleClick(entity)} key={entity.id}>
+                            <ListItem button onClick={() => handleClick(entity)} key={entity.uuid}>
                                 {entity.name}
                             </ListItem>
                         )}
@@ -59,7 +59,7 @@ export const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
             <EntitiesDialog />
             {selectedEntity ?
-                <p>{selectedEntity.name} (id={selectedEntity.id})</p>
+                <p>{selectedEntity.name} (id={selectedEntity.uuid})</p>
                 : null
             }
         </div>

@@ -30,12 +30,6 @@ export const EntityItem = (props: EntityItemProps) => {
     const [edit, setEdit] = useState(false);
     let new_name: string;
 
-    const getKey = () => {
-        const key = `${props.what}_${props.entity.id}`;
-        console.log(key)
-        return key;
-    }
-
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setEdit(true);
     }
@@ -48,7 +42,7 @@ export const EntityItem = (props: EntityItemProps) => {
     }
 
     const rename = () => {
-        axios.get(`/${props.what}s/${props.entity.id}/rename/${new_name}`)
+        axios.get(`/${props.what}s/${props.entity.uuid}/rename/${new_name}`)
             .then(val => {
                 props.entity.name = new_name;
                 setEdit(false);
@@ -64,7 +58,7 @@ export const EntityItem = (props: EntityItemProps) => {
     }
 
     const handleDelete = (event: any) => {
-        axios.delete(`/${props.what}s/${props.entity.id}`)
+        axios.delete(`/${props.what}s/${props.entity.uuid}`)
             .then(val => {
                 props.onDelete ? props.onDelete() : null;
                 props.setSelectedEntity(null); // the selected entity has been deleted
@@ -90,7 +84,7 @@ export const EntityItem = (props: EntityItemProps) => {
     }
 
     const isSelected = (current_entity: Entity, selected_entity: Entity) => {
-        return selected_entity && current_entity && selected_entity.id == current_entity.id;
+        return selected_entity && current_entity && selected_entity.uuid == current_entity.uuid;
     }
 
     return (

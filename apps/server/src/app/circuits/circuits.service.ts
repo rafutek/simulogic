@@ -19,26 +19,26 @@ export class CircuitsService {
   }
 
   /**
-   * Returns all the circuits present in the database by id and name.
+   * Returns all the circuits present in the database by uuid and name.
    */
   getAllByEntity(): Promise<Circuit[]> {
-    return this.circuits_repository.find({ select: ["id", "name"] });
+    return this.circuits_repository.find({ select: ["uuid", "name"] });
   }
 
   /**
-   * Returns the circuit with given id present in the database.
-   * @param id id of the circuit
+   * Returns the circuit with given uuid present in the database.
+   * @param uuid uuid of the circuit
    */
-  getOne(id: string | number): Promise<Circuit> {
-    return this.circuits_repository.findOne(id);
+  getOne(uuid: string): Promise<Circuit> {
+    return this.circuits_repository.findOne(uuid);
   }
 
   /**
-   * Returns the circuit with given id present in the database by id and name.
-   * @param id id of the circuit
+   * Returns the circuit with given uuid present in the database by uuid and name.
+   * @param uuid uuid of the circuit
    */
-  getOneByEntity(id: string | number): Promise<Circuit> {
-    return this.circuits_repository.findOne(id, { select: ["id", "name"] });
+  getOneByEntity(uuid: string): Promise<Circuit> {
+    return this.circuits_repository.findOne(uuid, { select: ["uuid", "name"] });
   }
 
   /**
@@ -56,44 +56,44 @@ export class CircuitsService {
    * @param circuit database circuit to update
    */
   async updateOne(circuit: Circuit): Promise<Circuit> {
-    const { id } = circuit;
-    await this.circuits_repository.update(id, circuit);
-    return this.getOne(id);
+    const { uuid: uuid } = circuit;
+    await this.circuits_repository.update(uuid, circuit);
+    return this.getOne(uuid);
   }
 
   /**
    * Deletes circuit in the database and returns false if it fails.
-   * @param id id of circuit to delete
+   * @param uuid uuid of circuit to delete
    */
-  async deleteOne(id: string | number): Promise<boolean> {
-    const delete_result = await this.circuits_repository.delete(id);
+  async deleteOne(uuid: string): Promise<boolean> {
+    const delete_result = await this.circuits_repository.delete(uuid);
     return delete_result?.affected == 1;
   }
 
   /**
    * Searches circuit names containing the given expression
-   * and returns these circuits by id and name.
+   * and returns these circuits by uuid and name.
    * @param search_expr expression to search in circuit names
    */
   findAndGetByEntity(search_expr: string): Promise<Circuit[]> {
     return this.circuits_repository.find({
       where: { name: Like(search_expr) },
-      select: ["id", "name"]
+      select: ["uuid", "name"]
     })
   }
 
   /**
    * Renames a circuit with given new name.
    * Returns true if it was renamed, false otherwise. 
-   * @param id id of circuit to rename
+   * @param uuid uuid of circuit to rename
    * @param new_name new name of the circuit
    */
-  async renameOne(id: string | number, new_name: string): Promise<boolean> {
-    const circuit = await this.circuits_repository.findOne(id);
+  async renameOne(uuid: string, new_name: string): Promise<boolean> {
+    const circuit = await this.circuits_repository.findOne(uuid);
     if (circuit) {
       circuit.name = new_name;
-      await this.circuits_repository.update(id, circuit);
-      const renamed_circuit = await this.circuits_repository.findOne(id);
+      await this.circuits_repository.update(uuid, circuit);
+      const renamed_circuit = await this.circuits_repository.findOne(uuid);
       return renamed_circuit?.name == new_name;
     }
     return false;

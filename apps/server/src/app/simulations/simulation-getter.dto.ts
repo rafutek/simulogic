@@ -1,4 +1,4 @@
-import { IsBoolean, IsString, Min, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsString, Min, IsOptional, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 import {  DependsOnIfTrue } from '../validation-decorators/DependsOn';
 import { Interval } from '@simulogic/core';
 import { IntervalChecker } from '../validation-decorators/IntervalChecker';
@@ -6,17 +6,15 @@ import { IntervalChecker } from '../validation-decorators/IntervalChecker';
 export class SimulationGetterDTO {
 
   @IsNotEmpty()
-  @IsNumber()
-  @Min(0)
-  id_simu: number;
+  @IsUUID()
+  uuid_simu: string;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  id_circuit: number;
+  @IsUUID()
+  uuid_circuit: string;
 
   @IsOptional()
-  @DependsOnIfTrue("id_circuit", { message: "'id_circuit' is missing" })
+  @DependsOnIfTrue("uuid_circuit", { message: "'uuid_circuit' is missing" })
   @IsBoolean()
   result: boolean;
 

@@ -19,26 +19,26 @@ export class SimulationsService {
   }
 
   /**
-   * Returns all the simulations present in the database by id and name.
+   * Returns all the simulations present in the database by uuid and name.
    */
   async getAllByEntity(): Promise<Simulation[]> {
-    return this.simulations_repository.find({ select: ["id", "name"] });
+    return this.simulations_repository.find({ select: ["uuid", "name"] });
   }
 
   /**
-   * Returns the simulation with given id present in the database.
-   * @param id id of the simulation
+   * Returns the simulation with given uuid present in the database.
+   * @param uuid uuid of the simulation
    */
-  getOne(id: string | number): Promise<Simulation> {
-    return this.simulations_repository.findOne(id);
+  getOne(uuid: string): Promise<Simulation> {
+    return this.simulations_repository.findOne(uuid);
   }
 
   /**
-   * Returns the simulation with given id present in the database by id and name.
-   * @param id id of the simulation
+   * Returns the simulation with given uuid present in the database by uuid and name.
+   * @param uuid uuid of the simulation
    */
-  getOneByEntity(id: string | number): Promise<Simulation> {
-    return this.simulations_repository.findOne(id, { select: ["id", "name"] });
+  getOneByEntity(uuid: string): Promise<Simulation> {
+    return this.simulations_repository.findOne(uuid, { select: ["uuid", "name"] });
   }
 
   /**
@@ -56,44 +56,44 @@ export class SimulationsService {
    * @param simulation database simulation to update
    */
   async updateOne(simulation: Simulation): Promise<Simulation> {
-    const { id } = simulation;
-    await this.simulations_repository.update(id, simulation);
-    return this.getOne(id);
+    const { uuid: uuid } = simulation;
+    await this.simulations_repository.update(uuid, simulation);
+    return this.getOne(uuid);
   }
 
   /**
    * Deletes simulation in the database and returns false if it fails.
-   * @param id id of simulation to delete
+   * @param uuid uuid of simulation to delete
    */
-  async deleteOne(id: string | number): Promise<boolean> {
-    const delete_result = await this.simulations_repository.delete(id);
+  async deleteOne(uuid: string): Promise<boolean> {
+    const delete_result = await this.simulations_repository.delete(uuid);
     return delete_result?.affected == 1;
   }
 
   /**
    * Searches simulation names containing the given expression
-   *  and returns these simulations by id and name.
+   *  and returns these simulations by uuid and name.
    *  @param search_expr expression to search in simulation names
    */
   findAndGetByEntity(search_expr: string): Promise<Simulation[]> {
     return this.simulations_repository.find({
       where: { name: Like(search_expr) },
-      select: ["id", "name"]
+      select: ["uuid", "name"]
     })
   }
 
   /**
    * Renames a simulation with given new name.
    * Returns true if it was renamed, false otherwise. 
-   * @param id id of simulation to rename
+   * @param uuid uuid of simulation to rename
    * @param new_name new name of the simulation
    */
-  async renameOne(id: string | number, new_name: string): Promise<boolean> {
-    const simulation = await this.simulations_repository.findOne(id);
+  async renameOne(uuid: string, new_name: string): Promise<boolean> {
+    const simulation = await this.simulations_repository.findOne(uuid);
     if (simulation) {
       simulation.name = new_name;
-      await this.simulations_repository.update(id, simulation);
-      const renamed_simu = await this.simulations_repository.findOne(id);
+      await this.simulations_repository.update(uuid, simulation);
+      const renamed_simu = await this.simulations_repository.findOne(uuid);
       return renamed_simu?.name == new_name;
     }
     return false;

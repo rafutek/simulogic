@@ -64,7 +64,7 @@ export const Workbench = (props: WorkbenchProps) => {
     const handleSimulationChange = async () => {
         setSimulationChanged(true);
         setNewVisibleWires(true);
-        setExtractionDetails({ id_simu: props.simulation.id });
+        setExtractionDetails({ uuid_simu: props.simulation.uuid });
     }
 
     // Manage visible wires change
@@ -74,8 +74,8 @@ export const Workbench = (props: WorkbenchProps) => {
         }
         else if (props.visible_wires) {
             const new_extraction: ExtractionDetails = {
-                id_simu: props.simulation.id,
-                id_circuit: props.circuit?.id,
+                uuid_simu: props.simulation.uuid,
+                uuid_circuit: props.circuit?.uuid,
                 result: extraction_details.result,
                 interval: extraction_details.interval,
                 wires: props.visible_wires
@@ -88,8 +88,8 @@ export const Workbench = (props: WorkbenchProps) => {
     useEffect(() => {
         if (props.configuration && simulation_wavedrom) {
             const new_extraction: ExtractionDetails = {
-                id_simu: props.simulation.id,
-                id_circuit: props.circuit?.id,
+                uuid_simu: props.simulation.uuid,
+                uuid_circuit: props.circuit?.uuid,
                 result: extraction_details.result,
                 wires: extraction_details.wires,
                 interval: props.configuration.interval

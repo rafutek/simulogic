@@ -54,7 +54,7 @@ describe("CircuitsService", () => {
   });
 
   describe('getAllByEntity', () => {
-    it('should return all circuits by id and name', async () => {
+    it('should return all circuits by uuid and name', async () => {
       // Spy the findOne repo function
       const repo_spy = jest.spyOn(repo, 'find');
       // Call the function to test
@@ -63,7 +63,7 @@ describe("CircuitsService", () => {
       expect(circuits_found).toEqual(circuits);
       // Check repo find function has been called with select option
       expect(repo_spy).toBeCalledTimes(1);
-      expect(repo_spy).toBeCalledWith({ select: ["id", "name"] });
+      expect(repo_spy).toBeCalledWith({ select: ["uuid", "name"] });
     });
   });
 
@@ -72,26 +72,26 @@ describe("CircuitsService", () => {
       // Spy the findOne repo function
       const repo_spy = jest.spyOn(repo, 'findOne');
       // Call the function to test
-      const circuit = await service.getOne(2);
+      const circuit = await service.getOne("2");
       // Check result equals mocked value
       expect(circuit).toEqual(circuit1);
       // Check repo fondOne function has been called
       expect(repo_spy).toBeCalledTimes(1);
-      expect(repo_spy).toBeCalledWith(2);
+      expect(repo_spy).toBeCalledWith("2");
     });
   });
 
   describe('getOneByEntity', () => {
-    it('should return one circuit by id and name', async () => {
+    it('should return one circuit by uuid and name', async () => {
       // Spy the findOne repo function
       const repo_spy = jest.spyOn(repo, 'findOne');
       // Call the function to test
-      const circuit = await service.getOneByEntity(2);
+      const circuit = await service.getOneByEntity("2");
       // Check result equals mocked value
       expect(circuit).toEqual(circuit1);
       // Check repo fondOne function has been called with select option
       expect(repo_spy).toBeCalledTimes(1);
-      expect(repo_spy).toBeCalledWith(2, { select: ["id", "name"] });
+      expect(repo_spy).toBeCalledWith("2", { select: ["uuid", "name"] });
     });
   });
 
@@ -121,7 +121,7 @@ describe("CircuitsService", () => {
     it('should update one circuit', async () => {
       // Given a circuit, and spies on repo functions
       const circuit_to_update: Circuit = {
-        id: 12,
+        uuid: "12",
         name: "circuit name",
         path: "path",
         simulator_path: ""
@@ -142,7 +142,7 @@ describe("CircuitsService", () => {
   describe('deleteOne', () => {
     it('should delete a circuit', async () => {
       // When deleting a valid circuit
-      const deleted = await service.deleteOne('an id');
+      const deleted = await service.deleteOne('an uuid');
 
       //Then it should be deleted
       expect(deleted).toBeTruthy();
@@ -157,12 +157,12 @@ describe("CircuitsService", () => {
       const repo_spy = jest.spyOn(repo, 'delete').mockResolvedValueOnce(bad_result);
 
       // When deleting a 'bad' circuit
-      const deleted = await service.deleteOne('a bad id');
+      const deleted = await service.deleteOne('a bad uuid');
 
       // Then it should fail, 
       // and the repo delete function should be called once with this parameter
       expect(deleted).toBeFalsy();
-      expect(repo_spy).toBeCalledWith('a bad id');
+      expect(repo_spy).toBeCalledWith('a bad uuid');
       expect(repo_spy).toBeCalledTimes(1);
     });
   });
@@ -181,7 +181,7 @@ describe("CircuitsService", () => {
       expect(repo_spy).toBeCalledTimes(1);
       expect(repo_spy).toBeCalledWith({
         where: { name: Like("test expression") },
-        select: ["id", "name"]
+        select: ["uuid", "name"]
       });
     });
   });
@@ -190,7 +190,7 @@ describe("CircuitsService", () => {
     it('should rename one circuit', async () => {
       // Given a circuit, and spies on repo functions
       const circuit_to_rename: Circuit = {
-        id: 12,
+        uuid: "12",
         name: "circuit name",
         path: "path",
         simulator_path: ""
@@ -199,7 +199,7 @@ describe("CircuitsService", () => {
       const repo_update_spy = jest.spyOn(repo, 'update');
 
       // When renaming the circuit
-      const renamed = await service.renameOne(circuit_to_rename.id, "new naame");
+      const renamed = await service.renameOne(circuit_to_rename.uuid, "new naame");
 
       // Then it should be successfully renamed,
       // and findOne funtion should be called twice
@@ -207,7 +207,7 @@ describe("CircuitsService", () => {
       expect(renamed).toBeTruthy();
       expect(repo_find_spy).toBeCalledTimes(2);
       expect(repo_update_spy).toBeCalledTimes(1);
-      expect(repo_update_spy).toBeCalledWith(circuit_to_rename.id, circuit1);
+      expect(repo_update_spy).toBeCalledWith(circuit_to_rename.uuid, circuit1);
     });
 
     it('should fail when circuit is not found', async () => {
@@ -215,7 +215,7 @@ describe("CircuitsService", () => {
       jest.spyOn(repo, 'findOne').mockResolvedValue(undefined);
 
       // When renaming the circuit
-      const renamed = await service.renameOne("an id", "neww name");
+      const renamed = await service.renameOne("an uuid", "neww name");
 
       // Then it should fail to rename
       expect(renamed).toBeFalsy();

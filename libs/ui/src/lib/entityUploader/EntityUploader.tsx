@@ -23,8 +23,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export const EntityUploader = (props: EntityUploaderProps) => {
     const classes = useStyles();
 
-    // const [files, setFiles] = useState<FileList>();
-
     const Extension = Object.freeze({ "circuit": ".logic", "simulation": ".simu" })
     const extension = Extension[props.entity];
 

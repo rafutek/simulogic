@@ -150,7 +150,7 @@ export const TabMenu = (props: TabMenuProps) => {
                             item_props.selected_entity = props.selected_simulation;
                             item_props.setSelectedEntity = props.setSelectedSimulation;
                         }
-                        return <EntityItem key={`${what}_${entity.id}`} {...item_props} />
+                        return <EntityItem key={`${what}_${entity.uuid}`} {...item_props} />
                     })}
                 </List>
             )

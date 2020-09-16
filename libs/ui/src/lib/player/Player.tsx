@@ -42,8 +42,8 @@ export const Player = (props: PlayerProps) => {
 
     const getBaseExtraction = () => {
         const extraction: ExtractionDetails = {
-            id_simu: props.simulation.id,
-            id_circuit: props.circuit?.id,
+            uuid_simu: props.simulation.uuid,
+            uuid_circuit: props.circuit?.uuid,
             result: props.extraction_details?.result,
             interval: props.extraction_details?.interval,
             wires: props.extraction_details?.wires

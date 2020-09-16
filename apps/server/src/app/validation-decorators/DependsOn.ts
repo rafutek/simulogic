@@ -22,7 +22,7 @@ export const DependsOn = (property: string, validationOptions?: ValidationOption
 export const DependsOnIfTrue = (property: string, validationOptions?: ValidationOptions) => {
     return (object: Object, propertyName: string) => {
         registerDecorator({
-            name: "DependsOn",
+            name: "DependsOnIfTrue",
             target: object.constructor,
             propertyName: propertyName,
             constraints: [property],
