@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import {
-    IdWaveDrom, WaveDrom, Wave,
+    WaveDrom, Wave,
     Timestep, Signal, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
 import { isEmpty, isNotEmpty } from 'class-validator';
@@ -13,8 +13,6 @@ export class ExtractorService {
         private memory_service: MemoryService
     ) { }
 
-    reached_start: boolean;
-    reached_end: boolean;
 
     getWaveDrom(id: number, file_path: string) {
         if (!this.memory_service.simulation || this.memory_service.simulation.id != id) {
@@ -309,7 +307,7 @@ export class ExtractorService {
     }
 
     fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, interval: Interval) {
-        this.reached_end = this.reached_start = true;
+        this.memory_service.reached_start = this.memory_service.reached_start = true;
         const str_time_axis = wavedrom.foot.tick.split(' '); // full array
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick); // array reduced to numbers
         time_axis.forEach(t => {
@@ -321,10 +319,10 @@ export class ExtractorService {
                 })
             }
             else if (t < interval.start) {
-                this.reached_start = false;
+                this.memory_service.reached_start = false;
             }
             else if (t > interval.end) {
-                this.reached_end = false;
+                this.memory_service.reached_start = false;
             }
         })
         return interval_wavedrom;
@@ -412,10 +410,10 @@ export class ExtractorService {
     }
 
     manageIntervalLimits(interval_wavedrom: WaveDrom) {
-        if (this.reached_end) {
+        if (this.memory_service.reached_start) {
             interval_wavedrom.foot.tick += "+ ";
         } else interval_wavedrom.foot.tick += "x ";
-        if (this.reached_start) {
+        if (this.memory_service.reached_start) {
             interval_wavedrom.foot.tick = "- " + interval_wavedrom.foot.tick;
             interval_wavedrom.signal.forEach(signal => signal.wave = "x" + signal.wave);
         }

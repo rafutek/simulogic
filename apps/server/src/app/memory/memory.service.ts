@@ -58,8 +58,31 @@ export class MemoryService {
         this._simulation_sent = value;
     }
 
-    private reached_start: boolean;
-    private reached_end: boolean;
+    /**
+     * True if simulation interval starts from beginning.
+     */
+    private _reached_start: boolean;
+
+    public get reached_start(): boolean {
+        return this._reached_start;
+    }
+
+    public set reached_start(value: boolean) {
+        this._reached_start = value;
+    }
+
+    /**
+     * True if simulation interval goes to the end.
+     */
+    private _reached_end: boolean;
+
+    public get reached_end(): boolean {
+        return this._reached_end;
+    }
+
+    public set reached_end(value: boolean) {
+        this._reached_end = value;
+    }
 
 }
 
