@@ -1,5 +1,5 @@
 import { ExtractorsService } from './extractors.service'
-import { WaveDrom, Signal, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
+import { WaveDrom, Wave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
 
 describe("SimulationExtractor", () => {
   let extractor: ExtractorsService;
@@ -15,11 +15,11 @@ describe("SimulationExtractor", () => {
         tick: "- 0 100 200 350 670 + "
       }
     };
-    const s1: Signal = {
+    const s1: Wave = {
       name: "s1",
       wave: "x0.1..x"
     };
-    const s2: Signal = {
+    const s2: Wave = {
       name: "s2",
       wave: "x.1.01x"
     };
@@ -238,14 +238,14 @@ describe("SimulationExtractor", () => {
   describe("combineWavedroms", () => {
     it("should combine wavedroms", () => {
       // Given two wavedroms with different signals and time axis
-      const s1: Signal = { name: "s1", wave: "x01..2.1x" };
-      const s2: Signal = { name: "s2", wave: "x0...1..x" };
+      const s1: Wave = { name: "s1", wave: "x01..2.1x" };
+      const s2: Wave = { name: "s2", wave: "x0...1..x" };
       const wavedrom1: WaveDrom = {
         signal: [s1, s2],
         foot: { tick: "- 0 10 11 20 25 39 40 + " }
       };
 
-      const s3: Signal = { name: "s3", wave: "x0.1.0.2567.x" };
+      const s3: Wave = { name: "s3", wave: "x0.1.0.2567.x" };
       const wavedrom2: WaveDrom = {
         signal: [s3],
         foot: { tick: "- 30 40 100 111 120 123 200 205 206 207 230 + " }
@@ -269,20 +269,20 @@ describe("SimulationExtractor", () => {
   });
 
   describe("selectWires", () => {
-    it("should select wanted wires", () => {
+    it("should select wanted signals", () => {
       // Given a wavedrom with some signals
-      const s1: Signal = { name: "s1", wave: "x010..1x" };
-      const s2: Signal = { name: "s2", wave: "x10...0x" };
-      const s3: Signal = { name: "s3", wave: "x1.0.1.x" };
-      const s4: Signal = { name: "s4", wave: "x.1.0.1x" };
+      const s1: Wave = { name: "s1", wave: "x010..1x" };
+      const s2: Wave = { name: "s2", wave: "x10...0x" };
+      const s3: Wave = { name: "s3", wave: "x1.0.1.x" };
+      const s4: Wave = { name: "s4", wave: "x.1.0.1x" };
       const initial_wavedrom: WaveDrom = {
         signal: [s1, s2, s3, s4],
         foot: { tick: "- 12 28 45 76 79 81 90 + " }
       };
 
       // When selecting these signals
-      const wires = ["s1", "s3"];
-      const new_wavedrom = extractor.selectWires(initial_wavedrom, wires);
+      const signals = ["s1", "s3"];
+      const new_wavedrom = extractor.selectWires(initial_wavedrom, signals);
 
       // Then this should be the resulting wavedrom
       const expected_wavedrom: WaveDrom = {
@@ -294,7 +294,7 @@ describe("SimulationExtractor", () => {
   });
 
   describe("getWires", () => {
-    let s1: Signal, s2: Signal, s3: Signal, s4: Signal;
+    let s1: Wave, s2: Wave, s3: Wave, s4: Wave;
     let initial_wavedrom: WaveDromBase;
 
     beforeEach(() => {
@@ -312,7 +312,7 @@ describe("SimulationExtractor", () => {
       // Given a wavedrom without groups
       initial_wavedrom.signal.push(s1, s2, s3, s4);
 
-      // When getting the wires
+      // When getting the signals
       const result: SignalGroup[] = [];
       extractor.getWires(initial_wavedrom.signal, result);
 
@@ -332,7 +332,7 @@ describe("SimulationExtractor", () => {
       const group2 = ["output", s3, s4];
       initial_wavedrom.signal.push(group1, group2);
 
-      // When getting the wires
+      // When getting the signals
       const result: SignalGroup[] = [];
       extractor.getWires(initial_wavedrom.signal, result);
 

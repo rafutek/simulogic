@@ -4,7 +4,8 @@
 export type entity = "circuit" | "simulation";
 
 /**
- * Brief information about an entity.
+ * Stores an id and a name.
+ * Used for circuit and simulation files.
  */
 export interface Entity {
     id: number;
@@ -12,50 +13,51 @@ export interface Entity {
 };
 
 /**
- * Description of a logic event on a specific wire.
+ * Stores a signal name, state, and time.
  */
 export interface Event {
-    wire: string,
+    signal_name: string,
     state: string,
     time: number
 }
 
 /**
- * Wire state interface.
+ * Stores a signal name and state.
  */
-export interface Wire {
+export interface Signal {
     name: string,
     state: string
 }
 
 /**
- * Description of logic events on several wires.
+ * Stores signals and their state at a given time.
  */
 export interface Timestep {
     time: number,
-    wires: Wire[]
+    signals: Signal[]
 }
 
 /**
- * WaveDrom signal interface.
+ * Stores the name and the wave of a WaveDrom signal.
  */
-export interface Signal {
+export interface Wave {
     name: string,
     wave: string
 }
 
 /**
- * WaveDrom data variable interface.
+ * Stores signals states and abscissa representing a simulation.
+ * Variable used by WaveDrom to display a time diagram.
  */
 export interface WaveDrom {
-    signal: Signal[],
+    signal: Wave[],
     foot: {
         tick: string
     }
 }
 
 /**
- * Same as WaveDrom, but signal field can have any type.
+ * Same as WaveDrom, but signal field has type 'any'.
  * Used for grouped signals.
  */
 export interface WaveDromBase {
@@ -66,15 +68,15 @@ export interface WaveDromBase {
 }
 
 /**
- * Linker between a simulation and its resulting WaveDrom.
+ * Stores a WaveDrom with an id.
  */
-export interface ExtractedSimulation {
+export interface IdWaveDrom {
     id: number,
     wavedrom: WaveDrom
 }
 
 /**
- * Simple structure to store start and end values.
+ * Stores start and end values of an interval.
  */
 export interface Interval {
     start: number,
@@ -82,7 +84,7 @@ export interface Interval {
 }
 
 /**
- * Description of a simulation extraction.
+ * Stores simulation extraction details.
  */
 export interface ExtractionDetails {
     id_simu: number;
@@ -93,7 +95,7 @@ export interface ExtractionDetails {
 }
 
 /**
- * Structure to group signals under a common name.
+ * Stores signals into a group with a name.
  */
 export interface SignalGroup {
     name?: string,

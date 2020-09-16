@@ -1,15 +1,15 @@
 import * as fs from 'fs';
 import {
-    ExtractedSimulation, WaveDrom, Signal,
-    Timestep, Wire, WaveDromBase, SignalGroup, Interval
+    IdWaveDrom, WaveDrom, Wave,
+    Timestep, Signal, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
 import { isEmpty, isNotEmpty } from 'class-validator';
 
 export class ExtractorsService {
 
-    extracted_simu: ExtractedSimulation;
-    extracted_simu_result: ExtractedSimulation;
-    extracted_combination: ExtractedSimulation;
+    extracted_simu: IdWaveDrom;
+    extracted_simu_result: IdWaveDrom;
+    extracted_combination: IdWaveDrom;
     extraction_sent: WaveDromBase;
     reached_start: boolean;
     reached_end: boolean;
@@ -32,7 +32,7 @@ export class ExtractorsService {
         if (!this.extracted_simu_result || this.extracted_simu_result.id != id) {
             const wavedrom = this.extractFile(file_path);
             if (wavedrom) {
-                this.extracted_simu_result = {
+                this.extracted_simu_result = { 
                     id: id,
                     wavedrom: wavedrom
                 };
@@ -122,7 +122,7 @@ export class ExtractorsService {
         let timeline: Timestep[] = [];
         events.forEach((event) => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
-            const wire: Wire = {
+            const signal: Signal = {
                 name: parsed_event[0],
                 state: parsed_event[1],
             }
@@ -132,13 +132,13 @@ export class ExtractorsService {
             timeline.forEach(timestep => {
                 if (timestep.time == event_time) {
                     add_new_timestep = false;
-                    timestep.wires.push(wire);
+                    timestep.signals.push(signal);
                 }
             })
             if (add_new_timestep) {
                 const new_timestep: Timestep = {
                     time: event_time,
-                    wires: [wire]
+                    signals: [signal]
                 }
                 timeline.push(new_timestep);
             }
@@ -199,16 +199,16 @@ export class ExtractorsService {
 
     private initSignals(wavedrom: WaveDrom, time_axis: number[], timeline: Timestep[]) {
         timeline.forEach(timestep => {
-            timestep.wires.forEach(wire => {
+            timestep.signals.forEach(s_t => {
                 let add_new_signal = true;
-                wavedrom.signal.forEach(signal => {
-                    if (signal.name == wire.name) {
+                wavedrom.signal.forEach(s_w => {
+                    if (s_w.name == s_t.name) {
                         add_new_signal = false;
                     }
                 })
                 if (add_new_signal) {
-                    const new_signal: Signal = {
-                        name: wire.name,
+                    const new_signal: Wave = {
+                        name: s_t.name,
                         wave: ".".repeat(time_axis.length - 1)
                     };
                     wavedrom.signal.push(new_signal);
@@ -223,12 +223,12 @@ export class ExtractorsService {
         timeline.forEach((timestep) => {
             const t = time_axis.indexOf(timestep.time);
             if (t >= 0) {
-                timestep.wires.forEach(wire => {
-                    wavedrom.signal.forEach(signal => {
-                        if (signal.name == wire.name) {
+                timestep.signals.forEach(s_t => {
+                    wavedrom.signal.forEach(s_w => {
+                        if (s_w.name == s_t.name) {
                             const new_wave = this.replaceCharAt(t,
-                                this.stateToWave(wire.state), signal.wave);
-                            signal.wave = new_wave;
+                                this.stateToWave(s_t.state), s_w.wave);
+                            s_w.wave = new_wave;
                         }
                     })
                 })
@@ -303,7 +303,7 @@ export class ExtractorsService {
             }
         };
         wavedrom.signal.forEach(signal => {
-            const new_signal: Signal = {
+            const new_signal: Wave = {
                 name: signal.name,
                 wave: ""
             };
@@ -428,7 +428,7 @@ export class ExtractorsService {
 
     combineWaveDroms(...wavedroms: WaveDrom[]) {
         const time_axes: number[][] = [];
-        const signals: Signal[] = [];
+        const signals: Wave[] = [];
         wavedroms.forEach(wavedrom => {
             const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
             time_axes.push(time_axis);
@@ -454,7 +454,7 @@ export class ExtractorsService {
         return combined_time_axis;
     }
 
-    private initCombinedWaveDrom(signals: Signal[], time_axis: number[]): WaveDrom {
+    private initCombinedWaveDrom(signals: Wave[], time_axis: number[]): WaveDrom {
         const combined_wavedrom: WaveDrom = {
             signal: [],
             foot: {
@@ -463,7 +463,7 @@ export class ExtractorsService {
         };
         combined_wavedrom.foot.tick = this.timeAxisToTick(time_axis);
         signals.forEach(s => {
-            const signal: Signal = {
+            const signal: Wave = {
                 name: s.name,
                 wave: '.'.repeat(time_axis.length)
             };
@@ -527,22 +527,22 @@ export class ExtractorsService {
     }
 
     /**
-     * Returns a WaveDrom with the wanted wires. It does not
-     * remove their events times from the absissa and points from other wires waves.
-     * @param wavedrom WaveDrom to select the wires from.
-     * @param wires Array of wires names to select.
+     * Returns a WaveDrom with the wanted signals. It does not
+     * remove their events times from the absissa and points from other signals waves.
+     * @param wavedrom WaveDrom to select the signals from.
+     * @param signals Array of signals names to select.
      */
-    selectWires(wavedrom: WaveDrom, wires: string[]) {
-        const wavedrom_wires: WaveDrom = {
+    selectWires(wavedrom: WaveDrom, signals: string[]) {
+        const wavedrom_signals: WaveDrom = {
             signal: [],
             foot: wavedrom.foot
         };
         wavedrom.signal.forEach(s => {
-            if (wires.includes(s.name)) {
-                wavedrom_wires.signal.push(s);
+            if (signals.includes(s.name)) {
+                wavedrom_signals.signal.push(s);
             }
         })
-        return wavedrom_wires;
+        return wavedrom_signals;
     }
 
     setExtractionSent(extraction: WaveDromBase) {
@@ -601,7 +601,7 @@ export class ExtractorsService {
                         }
                         output[group_idx].signals.push(element.name);
                     }
-                    else { // element is an object so we get its wires
+                    else { // element is an object so we get its signals
                         if (!output[group_idx]) {
                             this.getWires(element, output, group_idx);
                         }

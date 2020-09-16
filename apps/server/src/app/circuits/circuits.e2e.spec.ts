@@ -4,14 +4,14 @@ import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import { Circuit } from './circuit.entity';
 import { Entity } from '@simulogic/core';
+import * as fs from 'fs';
 
 const example_files_path = "./examples/";
 
-// Note: A database must be deployed to run those tests
+// Note: The database must be deployed to run those tests
 
 
-
-describe('Circuits e2e tests', () => {
+describe('Circuits end-to-end tests', () => {
     let app: INestApplication;
 
     beforeAll(async () => {
@@ -23,19 +23,40 @@ describe('Circuits e2e tests', () => {
         await app.init();
     });
 
+    // Removes all circuits from database before and after each test.
+    beforeEach(async () => {
+        await deleteAllCircuits();
+    });
+    afterEach(async () => {
+        await deleteAllCircuits();
+    });
+
     afterAll(async () => {
         await app.close();
     });
 
-    // Remove all circuits from database before each test (delete request must work)
-    beforeEach(async () => {
+    /**
+     * Deletes all circuit files listed in database and their respective files.
+     * GET and DELETE requests must work.
+     */
+    const deleteAllCircuits = async () => {
         const uncleared = await request(app.getHttpServer()).get('/circuits');
+        const circuits_to_delete: Circuit[] = uncleared.body;
         await Promise.all(
-            uncleared.body.map(async (circuit: Circuit) => {
-                return request(app.getHttpServer()).delete(`/circuits/${circuit.id}`);
-            }),
+            circuits_to_delete.map(circ => deleteCircuit(circ))
         );
-    });
+    }
+
+    /**
+     * Deletes circuit database entry and relative existing files.
+     * DELETE request must work.
+     * @param circuit circuit to delete
+     */
+    const deleteCircuit = (circuit: Circuit) => {
+        if(fs.existsSync(circuit.path)) fs.unlinkSync(circuit.path);
+        if(fs.existsSync(circuit.simulator_path)) fs.unlinkSync(circuit.simulator_path);
+        return request(app.getHttpServer()).delete(`/circuits/${circuit.id}`);
+    }
 
     /**
      * Uploads some files.
@@ -56,6 +77,8 @@ describe('Circuits e2e tests', () => {
     const getFirstFile = async (): Promise<Entity> => {
         return await (await request(app.getHttpServer()).get('/circuits')).body[0];
     }
+
+
 
     describe("POST /circuits", () => {
         it("should succeed", async () => {
