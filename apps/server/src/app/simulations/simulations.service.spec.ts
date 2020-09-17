@@ -9,7 +9,7 @@ const simu1 = new Simulation("simu 1", "/path/test", "result/path/test");
 const simu2 = new Simulation("simu 2", "/path/test", "result/path/test");
 const simulations: Simulation[] = [simu1, simu2];
 
-describe("CircuitsService", () => {
+describe("SimulationsService", () => {
     let service: SimulationsService;
     let repo: Repository<Simulation>;
 
@@ -77,7 +77,7 @@ describe("CircuitsService", () => {
             expect(simulation).toEqual(simu1);
             // Check repo fondOne function has been called
             expect(repo_spy).toBeCalledTimes(1);
-            expect(repo_spy).toBeCalledWith(2);
+            expect(repo_spy).toBeCalledWith("2");
         });
     });
 
@@ -91,7 +91,7 @@ describe("CircuitsService", () => {
             expect(simulation).toEqual(simu1);
             // Check repo fondOne function has been called with select option
             expect(repo_spy).toBeCalledTimes(1);
-            expect(repo_spy).toBeCalledWith(2, { select: ["uuid", "name"] });
+            expect(repo_spy).toBeCalledWith("2", { select: ["uuid", "name"] });
         });
     });
 
@@ -135,7 +135,7 @@ describe("CircuitsService", () => {
             // and update repository funtion should be called once with those parameters
             expect(updated_simu).toEqual(simu1);
             expect(repo_spy).toBeCalledTimes(1);
-            expect(repo_spy).toBeCalledWith(12, simu_to_update);
+            expect(repo_spy).toBeCalledWith("12", simu_to_update);
         });
     });
 

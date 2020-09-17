@@ -135,7 +135,7 @@ describe("CircuitsService", () => {
       // and update repository funtion should be called once with those parameters
       expect(updated_circuit).toEqual(circuit1);
       expect(repo_spy).toBeCalledTimes(1);
-      expect(repo_spy).toBeCalledWith(12, circuit_to_update);
+      expect(repo_spy).toBeCalledWith("12", circuit_to_update);
     });
   });
 

@@ -13,78 +13,86 @@ export class ExtractorService {
         private memory_service: MemoryService
     ) { }
 
-
-    getWaveDrom(uuid: string, file_path: string) {
-        if (!this.memory_service.simulation || this.memory_service.simulation.uuid != uuid) {
+    /**
+     * Returns the WaveDrom corresponding to a simulation file.
+     * Saves it for later calls, so that extraction is not needed each time.
+     * @param uuid uuid of the simulation to get
+     * @param file_path path to the simulation file
+     */
+    getWaveDrom(uuid: string, file_path: string): WaveDrom {
+        if (isEmpty(this.memory_service.simulation) || this.memory_service.simulation.uuid != uuid) {
             const wavedrom = this.extractFile(file_path);
-            if (wavedrom) {
-                this.memory_service.simulation = { uuid, wavedrom };
-            }
-            else return null;
+            this.memory_service.simulation = { uuid: uuid, wavedrom: wavedrom };
         }
         return this.memory_service.simulation.wavedrom;
     }
 
-    getWaveDromResult(uuid: string, file_path: string) {
-        if (!this.memory_service.simulation_result || this.memory_service.simulation_result.uuid != uuid) {
-            const wavedrom = this.extractFile(file_path);
-            if (wavedrom) {
-                this.memory_service.simulation_result = { uuid, wavedrom };
-            } else return null;
+    /**
+     * Returns the WaveDrom corresponding to a simulation result file.
+     * Saves it for later calls, so that extraction is not needed each time.
+     * @param uuid uuid of the simulation result to get
+     * @param file_path path to the simulation result file
+     */
+    getWaveDromResult(uuid: string, file_path: string): WaveDrom {
+        if (isEmpty(this.memory_service.simulation_result) || this.memory_service.simulation_result.uuid != uuid) {
+            const result_wavedrom = this.extractFile(file_path);
+            this.memory_service.simulation_result = { uuid: uuid, wavedrom: result_wavedrom };
         }
         return this.memory_service.simulation_result.wavedrom;
     }
 
-    getCombinedWaveDrom(uuid: string, simu_file_path: string, result_file_path: string) {
-        if (!this.memory_service.full_simulation || this.memory_service.full_simulation.uuid != uuid) {
-            const wavedrom = this.getWaveDrom(uuid, simu_file_path);
-            const wavedrom_result = this.getWaveDromResult(uuid, result_file_path);
-            const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
-            if (combined_wavedrom) {
-                this.memory_service.full_simulation = {
-                    uuid: uuid,
-                    wavedrom: combined_wavedrom
-                };
-            }
-        }
-        return this.memory_service.full_simulation.wavedrom;
-    }
-
-    extractFile(file_path: string) {
-        const content = fs.readFileSync(file_path, 'utf8');
-        return this.extract(content);
-    }
-
-    private extract(file_content: string) {
+    /**
+     * Extracts a simulation file into a WaveDrom variable.
+     * @param file_path path to the simulation file
+     */
+    extractFile(file_path: string): WaveDrom {
+        const file_content = fs.readFileSync(file_path, 'utf8');
         const start = file_content.match(/START_TIME (.*)/)[1];
         const end = file_content.match(/END_TIME (.*)/)[1];
-        let events = file_content.match(/EVENT (.*)/g);
+        const interval = this.stringToInterval(start, end);
+        const events = file_content.match(/EVENT (.*)/g);
         const clocks = file_content.match(/CLOCK (.*)/g);
-        events = events.concat(this.clocksToEvents(clocks, Number(start), Number(end)));
-
-        if (!events) {
-            const no_events: WaveDrom = {
-                signal: [],
-                foot: { tick: "" }
-            }
-            return no_events;
+        const clocks_events = this.clocksToEvents(clocks, interval);
+        const all_events = events.concat(clocks_events);
+        if (isEmpty(all_events) || all_events.length == 0) {
+            throw new Error("No events were found in the simulation file");
         }
-        const timeline = this.extractTimeline(events);
-        const wavedrom = this.createWaveDrom(start, end, timeline);
+        const timeline = this.extractTimeline(all_events);
+        const wavedrom = this.createWaveDrom(interval, timeline);
         return wavedrom;
     }
 
-    private clocksToEvents(clocks: string[], start: number, end: number): string[] {
+    /**
+     * Returns an interval containing start and end values.
+     * Throws an error if those variables are not valid.
+     * @param start string containing the interval start time
+     * @param end string containing the interval end time
+     */
+    private stringToInterval(start: string, end: string) {
+        const interval: Interval = {
+            start: Number(start),
+            end: Number(end)
+        };
+        if (isNaN(interval.start) || isNaN(interval.end)) {
+            throw new Error("Interval values must be numbers");
+        }
+        if (interval.start >= interval.end) {
+            throw new Error("Interval end value must be greater than start value");
+        }
+        return interval;
+    }
+
+    private clocksToEvents(clocks: string[], interval: Interval): string[] {
         let clocks_events: string[] = [];
         if (clocks?.length > 0) {
             clocks.forEach(clock => {
-                clocks_events = clocks_events.concat(this.clockToEvents(clock, start, end));
+                clocks_events = clocks_events.concat(this.clockToEvents(clock, interval));
             })
         }
         return clocks_events;
     }
 
-    private clockToEvents(clock: string, start: number, end: number): string[] {
+    private clockToEvents(clock: string, interval: Interval): string[] {
         const clock_events: string[] = [];
         const parsed_clock = clock.replace('CLOCK ', '').split(' ');
         if (parsed_clock?.length == 4) {
@@ -96,12 +104,12 @@ export class ExtractorService {
             let up_time = first_up_time;
             let down_time: number;
             let stop = false;
-            if (first_up_time >= start && period > 0 && up_duration > 0) {
+            if (first_up_time >= interval.start && period > 0 && up_duration > 0) {
                 do {
-                    if (up_time <= end) {
+                    if (up_time <= interval.end) {
                         clock_events.push(`EVENT ${name} T ${up_time}`);
                         down_time = up_time + up_duration;
-                        if (down_time <= end) {
+                        if (down_time <= interval.end) {
                             clock_events.push(`EVENT ${name} F ${down_time}`);
                             up_time += period;
                         } else stop = true;
@@ -153,15 +161,15 @@ export class ExtractorService {
         return 0;
     }
 
-    private createWaveDrom(start: string, end: string, timeline: Timestep[]) {
-        let wavedrom = this.initWaveDrom(parseInt(start), parseInt(end), timeline);
+    private createWaveDrom(interval: Interval, timeline: Timestep[]) {
+        let wavedrom = this.initWaveDrom(interval, timeline);
         wavedrom = this.fillWaveDrom(wavedrom, timeline);
         wavedrom = this.finalizeWaveDrom(wavedrom);
         return wavedrom;
     }
 
-    private initWaveDrom(start: number, end: number, timeline: Timestep[]) {
-        const time_axis = this.createTimeAxis(start, end, timeline);
+    private initWaveDrom(interval: Interval, timeline: Timestep[]) {
+        const time_axis = this.createTimeAxis(interval, timeline);
         let wavedrom: WaveDrom = {
             signal: [],
             foot: {
@@ -173,21 +181,21 @@ export class ExtractorService {
         return wavedrom;
     }
 
-    private createTimeAxis(start: number, end: number, timeline: Timestep[]) {
+    private createTimeAxis(interval: Interval, timeline: Timestep[]) {
         const time_axis: number[] = [];
         timeline.forEach(timestep => {
             time_axis.push(timestep.time);
         })
         let i = 0;
         while (i < time_axis.length) {
-            if (time_axis[i] <= start || time_axis[i] >= end) {
+            if (time_axis[i] <= interval.start || time_axis[i] >= interval.end) {
                 time_axis.splice(i, 1);
             } else {
                 i++;
             }
         }
-        time_axis.unshift(start);
-        time_axis.push(end);
+        time_axis.unshift(interval.start);
+        time_axis.push(interval.end);
         return time_axis;
     }
 
@@ -273,6 +281,16 @@ export class ExtractorService {
             }
         })
         return wavedrom;
+    }
+
+    getCombinedWaveDrom(uuid: string, simu_file_path: string, result_file_path: string) {
+        if (isEmpty(this.memory_service.full_simulation) || this.memory_service.full_simulation.uuid != uuid) {
+            const wavedrom = this.getWaveDrom(uuid, simu_file_path);
+            const wavedrom_result = this.getWaveDromResult(uuid, result_file_path);
+            const combined_wavedrom = this.combineWaveDroms(wavedrom, wavedrom_result);
+            this.memory_service.full_simulation = { uuid: uuid, wavedrom: combined_wavedrom };
+        }
+        return this.memory_service.full_simulation.wavedrom;
     }
 
     extractWaveDromInterval(wavedrom: WaveDrom, interval: Interval) {

@@ -1,5 +1,6 @@
-import { IdWaveDrom, WaveDromBase } from '@simulogic/core';
+import { UUIDWaveDrom, WaveDromBase } from '@simulogic/core';
 import { Injectable } from '@nestjs/common';
+import { isEmpty, isUUID } from 'class-validator';
 
 @Injectable()
 export class MemoryService {
@@ -8,13 +9,19 @@ export class MemoryService {
      * Contains the WaveDrom extracted from a simulation file,
      * and the file id.
      */
-    private _simulation: IdWaveDrom;
+    private _simulation: UUIDWaveDrom;
 
-    public get simulation(): IdWaveDrom {
+    public get simulation(): UUIDWaveDrom {
         return this._simulation;
     }
 
-    public set simulation(value: IdWaveDrom) {
+    /**
+     * Sets the simulation variable after some validations.
+     * If value is not valid, it throws an error.
+     * @param value simulation to save containing a uuid and a WaveDrom
+     */
+    public set simulation(value: UUIDWaveDrom) {
+        this.validateUUIDWaveDrom(value);
         this._simulation = value;
     }
 
@@ -22,26 +29,28 @@ export class MemoryService {
      * Contains the WaveDrom extracted from a simulation result file,
      * and the simulation file id.
      */
-    private _simulation_result: IdWaveDrom;
+    private _simulation_result: UUIDWaveDrom;
 
-    public get simulation_result(): IdWaveDrom {
+    public get simulation_result(): UUIDWaveDrom {
         return this._simulation_result;
     }
 
-    public set simulation_result(value: IdWaveDrom) {
+    public set simulation_result(value: UUIDWaveDrom) {
+        this.validateUUIDWaveDrom(value);
         this._simulation_result = value;
     }
 
     /**
      * Contains the combination of input and output simulation WaveDrom.
      */
-    private _full_simulation: IdWaveDrom;
+    private _full_simulation: UUIDWaveDrom;
 
-    public get full_simulation(): IdWaveDrom {
+    public get full_simulation(): UUIDWaveDrom {
         return this._full_simulation;
     }
 
-    public set full_simulation(value: IdWaveDrom) {
+    public set full_simulation(value: UUIDWaveDrom) {
+        this.validateUUIDWaveDrom(value);
         this._full_simulation = value;
     }
 
@@ -59,7 +68,7 @@ export class MemoryService {
     }
 
     /**
-     * True if simulation interval starts from beginning.
+     * True if interval starts from the beginning of the simulation.
      */
     private _reached_start: boolean;
 
@@ -72,7 +81,7 @@ export class MemoryService {
     }
 
     /**
-     * True if simulation interval goes to the end.
+     * True if interval goes to the end of the simulation.
      */
     private _reached_end: boolean;
 
@@ -84,7 +93,22 @@ export class MemoryService {
         this._reached_end = value;
     }
 
-}
 
-const test = new MemoryService();
-test.simulation = test.simulation;
+    private validateUUIDWaveDrom(value: UUIDWaveDrom) {
+        if (isEmpty(value)) {
+            throw new Error("Cannot set empty simulation");
+        }
+        if (!isUUID(value.uuid)) {
+            throw new Error("Cannot set bad simulation uuid");
+        }
+        if (isEmpty(value.wavedrom)) {
+            throw new Error("Cannot set simulation with empty wavedrom");
+        }
+        if (isEmpty(value.wavedrom?.foot?.tick)) {
+            throw new Error("Cannot set simulation without wavedrom abscissa");
+        }
+        if (isEmpty(value.wavedrom?.signal)) {
+            throw new Error("Cannot set simulation without wavedrom signals");
+        }
+    }
+}

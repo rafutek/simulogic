@@ -5,8 +5,14 @@ import { AppModule } from '../app.module';
 import { Circuit } from './circuit.entity';
 import { Entity } from '@simulogic/core';
 import * as fs from 'fs';
-
-const example_files_path = "./examples/";
+import {
+    example_files_path,
+    circuit_filenames,
+    simu_filenames,
+    uploadFilesTo,
+    clearTableAndFiles,
+    getFirstFile
+} from '@simulogic/test';
 
 // Note: The database must be deployed to run those tests
 
@@ -25,59 +31,15 @@ describe('Circuits end-to-end tests', () => {
 
     // Removes all circuits from database before and after each test.
     beforeEach(async () => {
-        await deleteAllCircuits();
+        await clearTableAndFiles(app, "circuit");
     });
     afterEach(async () => {
-        await deleteAllCircuits();
+        await clearTableAndFiles(app, "circuit");
     });
 
     afterAll(async () => {
         await app.close();
     });
-
-    /**
-     * Deletes all circuit files listed in database and their respective files.
-     * GET and DELETE requests must work.
-     */
-    const deleteAllCircuits = async () => {
-        const uncleared = await request(app.getHttpServer()).get('/circuits');
-        const circuits_to_delete: Circuit[] = uncleared.body;
-        await Promise.all(
-            circuits_to_delete.map(circ => deleteCircuit(circ))
-        );
-    }
-
-    /**
-     * Deletes circuit database entry and relative existing files.
-     * DELETE request must work.
-     * @param circuit circuit to delete
-     */
-    const deleteCircuit = (circuit: Circuit) => {
-        if(fs.existsSync(circuit.path)) fs.unlinkSync(circuit.path);
-        if(fs.existsSync(circuit.simulator_path)) fs.unlinkSync(circuit.simulator_path);
-        return request(app.getHttpServer()).delete(`/circuits/${circuit.uuid}`);
-    }
-
-    /**
-     * Uploads some files.
-     */
-    const uploadValidFiles = async () => {
-        await request(app.getHttpServer())
-            .post('/circuits')
-            .attach("file", example_files_path + "adder.logic")
-            .attach("file", example_files_path + "OR.logic");
-        await request(app.getHttpServer())
-            .post('/circuits')
-            .attach("file", example_files_path + "triSeq.logic");
-    }
-
-    /**
-     * Gets and returns first circuit file.
-     */
-    const getFirstFile = async (): Promise<Entity> => {
-        return await (await request(app.getHttpServer()).get('/circuits')).body[0];
-    }
-
 
 
     describe("POST /circuits", () => {
@@ -85,7 +47,7 @@ describe('Circuits end-to-end tests', () => {
             // When posting a valid circuit file
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + "OR.logic")
+                .attach("file", example_files_path + circuit_filenames[0])
 
             // Then response should be empty and ok
             expect(response.body).toEqual([]);
@@ -96,11 +58,11 @@ describe('Circuits end-to-end tests', () => {
             // When posting an invalid circuit file
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + "OR.simu")
+                .attach("file", example_files_path + simu_filenames[0])
 
             // Then response should contain the invalid file and still be ok
             expect(response.body.length).toEqual(1);
-            expect(response.body[0].originalname).toEqual("OR.simu");
+            expect(response.body[0].originalname).toEqual(simu_filenames[0]);
             expect(response.ok).toBeTruthy();
         });
 
@@ -108,13 +70,13 @@ describe('Circuits end-to-end tests', () => {
             // When posting valid and invalid circuit files
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + "adder.logic")
-                .attach("file", example_files_path + "OR.logic")
-                .attach("file", example_files_path + "OR.simu");
+                .attach("file", example_files_path + circuit_filenames[0])
+                .attach("file", example_files_path + circuit_filenames[1])
+                .attach("file", example_files_path + simu_filenames[0]);
 
             // Then response should contain only the invalid file and be ok
             expect(response.body.length).toEqual(1);
-            expect(response.body[0].originalname).toEqual("OR.simu");
+            expect(response.body[0].originalname).toEqual(simu_filenames[0]);
             expect(response.ok).toBeTruthy();
         });
     });
@@ -132,16 +94,18 @@ describe('Circuits end-to-end tests', () => {
 
         it("should return all uploaded circuits", async () => {
             // Given uploaded circuits
-            await uploadValidFiles();
+            await uploadFilesTo(app, circuit_filenames, "circuit");
 
             // When getting circuits
             const response = await request(app.getHttpServer()).get('/circuits');
+            const uploaded_circuits: Circuit[] = response.body;
 
             // Then response should contain the uploaded circuits and be ok
-            expect(response.body.length).toEqual(3);
-            expect(response.body[0].name).toEqual("adder.logic");
-            expect(response.body[1].name).toEqual("OR.logic");
-            expect(response.body[2].name).toEqual("triSeq.logic");
+            expect(uploaded_circuits.length).toEqual(circuit_filenames.length);
+            uploaded_circuits.forEach(uploaded_circuit => {
+                const present = circuit_filenames.includes(uploaded_circuit.name);
+                expect(present).toBeTruthy();
+            })
             expect(response.ok).toBeTruthy();
         });
 
@@ -158,14 +122,14 @@ describe('Circuits end-to-end tests', () => {
 
         it("should get one circuit", async () => {
             // Given an uploaded circuit file
-            await uploadValidFiles();
-            const circuit = await getFirstFile();
+            await uploadFilesTo(app, circuit_filenames, "circuit");
+            const circuit = await getFirstFile(app, "circuit");
 
             // When getting the circuit
             const response = await request(app.getHttpServer()).get(`/circuits/${circuit.uuid}`);
 
             // Then response should contain the circuit and be ok
-            expect(response.body.name).toEqual("adder.logic");
+            expect(response.body).toEqual(circuit);
             expect(response.ok).toBeTruthy();
         });
     });
@@ -190,15 +154,15 @@ describe('Circuits end-to-end tests', () => {
 
         it("should delete one circuit", async () => {
             // Given an uploaded circuit file
-            await uploadValidFiles();
-            const circuit = await getFirstFile();
+            await uploadFilesTo(app, circuit_filenames, "circuit");
+            const circuit = await getFirstFile(app, "circuit");
 
             // When deleting the circuit
             const response = await request(app.getHttpServer()).delete(`/circuits/${circuit.uuid}`);
 
             // Then request should succeed
             expect(response.ok).toBeTruthy();
-            const left_circuit = await getFirstFile();
+            const left_circuit = await getFirstFile(app, "circuit");
             expect(left_circuit.uuid).not.toEqual(circuit.uuid);
         });
     });
@@ -206,7 +170,7 @@ describe('Circuits end-to-end tests', () => {
     describe("GET /circuits/search/'exp'", () => {
         it("should fail when there are no files", async () => {
             // When searching through an empty database
-            const response = await request(app.getHttpServer()).get("/circuits/search/tri");
+            const response = await request(app.getHttpServer()).get("/circuits/search/blabla");
 
             // Then request should fail and give a message
             expect(response.ok).toBeFalsy();
@@ -215,7 +179,7 @@ describe('Circuits end-to-end tests', () => {
 
         it("should fail when no filename contains expression", async () => {
             // Given an uploaded circuit file
-            await uploadValidFiles();
+            await uploadFilesTo(app, circuit_filenames, "circuit");
 
             // When searching an absent expression
             const response = await request(app.getHttpServer()).get("/circuits/search/blablabla");
@@ -226,17 +190,19 @@ describe('Circuits end-to-end tests', () => {
         });
 
         it("should return found circuit", async () => {
-            // Given an uploaded circuit file
-            await uploadValidFiles();
+            // Given some uploaded circuit files
+            // and an expression present in a filename
+            await uploadFilesTo(app, circuit_filenames, "circuit");
+            const expression = circuit_filenames[0].slice(1, 5);
 
-            // When searching a present expression
-            const response = await request(app.getHttpServer()).get("/circuits/search/tri");
+            // When searching the expression
+            const response = await request(app.getHttpServer()).get(`/circuits/search/${expression}`);
 
             // Then response should be ok 
-            // and contain the file which name contains 'tri'
+            // and contain the file which name contains expression
             expect(response.ok).toBeTruthy();
             expect(response.body.length).toEqual(1);
-            expect(response.body[0].name).toEqual("triSeq.logic");
+            expect(response.body[0].name).toEqual(circuit_filenames[0]);
         });
     });
 

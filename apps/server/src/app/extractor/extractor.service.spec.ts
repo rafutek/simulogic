@@ -1,11 +1,21 @@
 import { ExtractorService } from './extractor.service'
 import { WaveDrom, Wave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
+import { Test, TestingModule } from '@nestjs/testing';
+import { MemoryService } from '../memory/memory.service';
 
 describe("SimulationExtractor", () => {
   let extractor: ExtractorService;
 
-  beforeEach(() => {
-    extractor = new ExtractorService(null);
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [ExtractorService, MemoryService]
+    }).compile();
+
+    extractor = module.get<ExtractorService>(ExtractorService);
+  });
+
+  it('should be defined', () => {
+    expect(extractor).toBeDefined();
   });
 
   describe("Interval WaveDrom Tests", () => {

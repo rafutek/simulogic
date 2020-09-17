@@ -70,7 +70,7 @@ export interface WaveDromBase {
 /**
  * Stores a WaveDrom with an uuid.
  */
-export interface IdWaveDrom {
+export interface UUIDWaveDrom {
     uuid: string,
     wavedrom: WaveDrom
 }
