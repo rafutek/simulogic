@@ -93,7 +93,11 @@ export class MemoryService {
         this._reached_end = value;
     }
 
-
+    /**
+     * Checks that value is a valid UUIDWaveDrom.
+     * Throws an error otherwise.
+     * @param value UUIDWaveDrom to validate
+     */
     private validateUUIDWaveDrom(value: UUIDWaveDrom) {
         if (isEmpty(value)) {
             throw new Error("Cannot set empty simulation");

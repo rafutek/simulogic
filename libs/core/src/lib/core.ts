@@ -38,6 +38,19 @@ export interface Timestep {
 }
 
 /**
+ * Stores variables relative to a clock.
+ */
+export interface Clock {
+    name: string,
+    first_up_time: number,
+    period: number,
+    /**
+     * Percentage of the period where signal is up.
+     */
+    up_percent: number
+}
+
+/**
  * Stores the name and the wave of a WaveDrom signal.
  */
 export interface Wave {
