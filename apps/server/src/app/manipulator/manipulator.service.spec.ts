@@ -1,21 +1,21 @@
-import { ExtractorService } from './extractor.service'
+import { ManipulatorService } from './manipulator.service'
 import { WaveDrom, Wave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MemoryService } from '../memory/memory.service';
 
-describe("SimulationExtractor", () => {
-  let extractor: ExtractorService;
+describe("ManipulatorService", () => {
+  let manipulator: ManipulatorService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ExtractorService, MemoryService]
+      providers: [ManipulatorService, MemoryService]
     }).compile();
 
-    extractor = module.get<ExtractorService>(ExtractorService);
+    manipulator = module.get<ManipulatorService>(ManipulatorService);
   });
 
   it('should be defined', () => {
-    expect(extractor).toBeDefined();
+    expect(manipulator).toBeDefined();
   });
 
   describe("Interval WaveDrom Tests", () => {
@@ -40,7 +40,7 @@ describe("SimulationExtractor", () => {
       it("should initialize the interval wavedrom", () => {
         // Given a wavedrom with two signals
         // When initilizing the interval wavedrom
-        const interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        const interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
 
         // Then the initialized interval wavedrom must be
         const expected_wavedrom: WaveDrom = {
@@ -54,7 +54,7 @@ describe("SimulationExtractor", () => {
     describe("fillIntervalWaveDrom", () => {
       let interval_wavedrom: WaveDrom;
       beforeEach(() => {
-        interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
       });
 
       it("should contain included events", () => {
@@ -62,7 +62,7 @@ describe("SimulationExtractor", () => {
         // and an initialized interval wavedrom
         // When filling the interval wavedrom
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // Then the interval wavedrom must be
         const expected_wavedrom: WaveDrom = {
@@ -78,7 +78,7 @@ describe("SimulationExtractor", () => {
         // When filling the interval wavedrom
         // with events occuring at these exact same time
         const interval: Interval = { start: 100, end: 200 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // Then the interval wavedrom must be
         const expected_wavedrom: WaveDrom = {
@@ -94,7 +94,7 @@ describe("SimulationExtractor", () => {
         // When filling the interval wavedrom
         // with events occuring at these exact same time
         const interval: Interval = { start: 100, end: 10000 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // Then the interval wavedrom must contain all events
         // except those before 100
@@ -109,13 +109,13 @@ describe("SimulationExtractor", () => {
     describe("prependStartTime", () => {
       it("should prepend interval start value at tick and point at each wave", () => {
         // Given a filled wavedrom with the start interval value not included
-        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = extractor.prependStartTime(interval_wavedrom, wavedrom, interval.start);
+        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, wavedrom, interval.start);
 
         // Then the start interval value (90 here) must be added at the beginning of tick
         // and all the waves must start with a point
@@ -132,13 +132,13 @@ describe("SimulationExtractor", () => {
 
       it("should not prepend interval start value at tick and point at each wave", () => {
         // Given a filled wavedrom with the start interval value included
-        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 100, end: 250 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = extractor.prependStartTime(interval_wavedrom, wavedrom, interval.start);
+        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, wavedrom, interval.start);
 
         // Then the start interval value (100 here) must already be at the beginning of tick
         // and the waves must start with their value at this time
@@ -155,14 +155,14 @@ describe("SimulationExtractor", () => {
     describe("replaceStartPointsWithValues", () => {
       it("should replace the points with precedent values", () => {
         // Given a filled interval wavedrom with one wave starting with a point
-        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 100, end: 250 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
         expect(interval_wavedrom.signal[0].wave[0]).toEqual('.');
         expect(interval_wavedrom.signal[1].wave[0]).toEqual('1');
 
         // When replacing the wave starting point
-        interval_wavedrom = extractor.replaceStartPointsWithValues(interval_wavedrom,
+        interval_wavedrom = manipulator.replaceStartPointsWithValues(interval_wavedrom,
           wavedrom, interval.start);
 
         // Then the point must be replaced by the precedent meaningfull values
@@ -177,7 +177,7 @@ describe("SimulationExtractor", () => {
           const wave = "x01....x", t = 5;
 
           // When getting the precedent meaningfull value
-          const precedent_value = extractor.getPrecedentValue(t, wave);
+          const precedent_value = manipulator.getPrecedentValue(t, wave);
 
           // Then the precedent value should have this value
           const expected_precedent_value = '1';
@@ -189,7 +189,7 @@ describe("SimulationExtractor", () => {
           const wave = ".......x", t = 5;
 
           // When getting the precedent meaningfull value
-          const precedent_value = extractor.getPrecedentValue(t, wave);
+          const precedent_value = manipulator.getPrecedentValue(t, wave);
 
           // Then the precedent value should be undefined
           const expected_precedent_value = undefined;
@@ -201,13 +201,13 @@ describe("SimulationExtractor", () => {
     describe("appendEndTime", () => {
       it("should append interval end value at tick and point at each wave", () => {
         // Given a filled wavedrom with the end interval value not included
-        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = extractor.appendEndTime(interval_wavedrom, wavedrom, interval.end);
+        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, wavedrom, interval.end);
 
         // Then the start interval value (90 here) must be added at the beginning of tick
         // and all the waves must start with a point
@@ -224,13 +224,13 @@ describe("SimulationExtractor", () => {
 
       it("should not append interval end value at tick and point at each wave", () => {
         // Given a filled wavedrom with the start interval value included
-        let interval_wavedrom = extractor.initIntervalWaveDrom(wavedrom);
+        let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 200 };
-        interval_wavedrom = extractor.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = extractor.appendEndTime(interval_wavedrom, wavedrom, interval.end);
+        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, wavedrom, interval.end);
 
         // Then the start interval value (100 here) must already be at the beginning of tick
         // and the waves must start with their value at this time
@@ -262,7 +262,7 @@ describe("SimulationExtractor", () => {
       };
 
       // When combining the thwo wavedroms
-      const combined_wavedrom = extractor.combineWaveDroms(wavedrom1, wavedrom2);
+      const combined_wavedrom = manipulator.combineWaveDroms(wavedrom1, wavedrom2);
 
       // Then we should have this resulting wavedrom
       s1.wave = "x01..2..1.........x";
@@ -292,7 +292,7 @@ describe("SimulationExtractor", () => {
 
       // When selecting these signals
       const signals = ["s1", "s3"];
-      const new_wavedrom = extractor.selectWires(initial_wavedrom, signals);
+      const new_wavedrom = manipulator.selectWires(initial_wavedrom, signals);
 
       // Then this should be the resulting wavedrom
       const expected_wavedrom: WaveDrom = {
@@ -324,7 +324,7 @@ describe("SimulationExtractor", () => {
 
       // When getting the signals
       const result: SignalGroup[] = [];
-      extractor.getWires(initial_wavedrom.signal, result);
+      manipulator.getWires(initial_wavedrom.signal, result);
 
       // Then we should have
       const group: SignalGroup = {
@@ -344,7 +344,7 @@ describe("SimulationExtractor", () => {
 
       // When getting the signals
       const result: SignalGroup[] = [];
-      extractor.getWires(initial_wavedrom.signal, result);
+      manipulator.getWires(initial_wavedrom.signal, result);
 
       // Then we should have on group with a name and another without
       const input_group: SignalGroup = {

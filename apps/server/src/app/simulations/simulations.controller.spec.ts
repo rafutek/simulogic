@@ -5,14 +5,11 @@ import { SimulationsController } from './simulations.controller';
 import { CircuitsService } from '../circuits/circuits.service';
 import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorService } from '../extractor/extractor.service';
+import { ManipulatorService } from '../manipulator/manipulator.service';
 
 const simulation1 = new Simulation("simulation 1", "/path/test", "sim/path/test");
 const simulation2 = new Simulation("simulation 2", "/path/test", "sim/path/test");
 const simulations: Simulation[] = [simulation1, simulation2];
-
-const circuit1 = new Circuit("circuit 1", "/path/test", "sim/path/test");
-const circuit2 = new Circuit("circuit 2", "/path/test", "sim/path/test");
-const circuits: Circuit[] = [circuit1, circuit2];
 
 const entity1 = { id: 13, name: "simulation test" };
 const entity2 = { id: 17, name: "another simulation" };
@@ -48,6 +45,11 @@ describe("CircuitsController", () => {
                 {
                     provide: ExtractorService,
                     // Mock extractor service functions
+                    useValue: {}
+                },
+                {
+                    provide: ManipulatorService,
+                    // Mock manipulator service functions
                     useValue: {}
                 }
             ]

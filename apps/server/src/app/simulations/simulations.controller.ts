@@ -16,13 +16,15 @@ import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorService } from '../extractor/extractor.service';
 import "multer";
 import { WaveDrom } from '@simulogic/core';
+import { ManipulatorService } from '../manipulator/manipulator.service';
 
 @Controller('simulations')
 export class SimulationsController {
   constructor(
     private readonly simulations_service: SimulationsService,
     private readonly circuits_service: CircuitsService,
-    private readonly simulation_extractor: ExtractorService
+    private readonly simulation_extractor: ExtractorService,
+    private manipulator_service: ManipulatorService,
   ) { }
 
   /**
@@ -181,16 +183,16 @@ export class SimulationsController {
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
-        wavedrom = this.simulation_extractor.selectWires(wavedrom, getSimulationDto.wires);
+        wavedrom = this.manipulator_service.selectWires(wavedrom, getSimulationDto.wires);
       }
 
       if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
-        wavedrom = this.simulation_extractor.extractWaveDromInterval(wavedrom,
+        wavedrom = this.manipulator_service.extractWaveDromInterval(wavedrom,
           getSimulationDto.interval);
       }
 
-      final_wavedrom = this.simulation_extractor.organizeIntoGroups(wavedrom, input, output);
-      this.simulation_extractor.setExtractionSent(final_wavedrom);
+      final_wavedrom = this.manipulator_service.organizeIntoGroups(wavedrom, input, output);
+      this.manipulator_service.setExtractionSent(final_wavedrom);
 
     } else throw new BadRequestException(`simulation ${getSimulationDto.uuid_simu} not found`);
 
@@ -202,7 +204,7 @@ export class SimulationsController {
    */
   @Get('extract/wires')
   getWires() {
-    return this.simulation_extractor.getExtractionSentWires();
+    return this.manipulator_service.getExtractionSentWires();
   }
 
   /**
@@ -211,8 +213,8 @@ export class SimulationsController {
  */
   @Get('extract/wires/:expr')
   getSpecialWires(@Param('expr') expr: string) {
-    const signal_groups = this.simulation_extractor.getExtractionSentWires();
-    return this.simulation_extractor.searchWires(signal_groups, expr);
+    const signal_groups = this.manipulator_service.getExtractionSentWires();
+    return this.manipulator_service.searchWires(signal_groups, expr);
   }
 
   /**
@@ -221,6 +223,6 @@ export class SimulationsController {
 */
   @Get('extract/interval')
   getInterval() {
-    return this.simulation_extractor.getSimulationInterval();
+    return this.manipulator_service.getSimulationInterval();
   }
 }
