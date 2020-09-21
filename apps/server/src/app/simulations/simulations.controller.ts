@@ -24,7 +24,7 @@ export class SimulationsController {
     private readonly simulations_service: SimulationsService,
     private readonly circuits_service: CircuitsService,
     private readonly simulation_extractor: ExtractorService,
-    private manipulator_service: ManipulatorService,
+    private readonly manipulator_service: ManipulatorService,
   ) { }
 
   /**

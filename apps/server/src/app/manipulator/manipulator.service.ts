@@ -108,7 +108,8 @@ export class ManipulatorService {
     }
 
     fillIntervalWaveDrom(interval_wavedrom: WaveDrom, wavedrom: WaveDrom, interval: Interval) {
-        this.memory_service.reached_start = this.memory_service.reached_start = true;
+        this.memory_service.reached_start = true;
+        this.memory_service.reached_end = true;
         const str_time_axis = wavedrom.foot.tick.split(' '); // full array
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick); // array reduced to numbers
         time_axis.forEach(t => {
@@ -123,9 +124,10 @@ export class ManipulatorService {
                 this.memory_service.reached_start = false;
             }
             else if (t > interval.end) {
-                this.memory_service.reached_start = false;
+                this.memory_service.reached_end = false;
             }
         })
+
         return interval_wavedrom;
     }
 
@@ -211,7 +213,7 @@ export class ManipulatorService {
     }
 
     manageIntervalLimits(interval_wavedrom: WaveDrom) {
-        if (this.memory_service.reached_start) {
+        if (this.memory_service.reached_end) {
             interval_wavedrom.foot.tick += "+ ";
         } else interval_wavedrom.foot.tick += "x ";
         if (this.memory_service.reached_start) {
