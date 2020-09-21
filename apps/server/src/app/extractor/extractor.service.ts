@@ -59,7 +59,7 @@ export class ExtractorService {
         const all_events = events ? events.concat(clocks_events) : clocks_events;
 
         const timeline = this.eventsToTimeline(all_events);
-        const wavedrom = this.createWaveDrom(interval, timeline);
+        const wavedrom = this.timelineToWaveDrom(interval, timeline);
         return wavedrom;
     }
 
@@ -283,45 +283,61 @@ export class ExtractorService {
         return 0;
     }
 
-    private createWaveDrom(interval: Interval, timeline: Timestep[]) {
+    /**
+     * Converts an array of timesteps to a WaveDrom variable.
+     * @param interval simulation interval
+     * @param timeline array of simulation timesteps
+     */
+    private timelineToWaveDrom(interval: Interval, timeline: Timestep[]): WaveDrom {
         let wavedrom = this.initWaveDrom(interval, timeline);
-        wavedrom = this.fillWaveDrom(wavedrom, timeline);
-        wavedrom = this.finalizeWaveDrom(wavedrom);
+        this.fillWaveDrom(wavedrom, timeline);
+        this.finalizeWaveDrom(wavedrom);
         return wavedrom;
     }
 
+    /**
+     * Returns a WaveDrom variable initialized from a timeline and an interval.
+     * It contains the time axis relative to the interval and the initialized signals.
+     * @param interval simulation interval
+     * @param timeline array of simulation timesteps
+     */
     private initWaveDrom(interval: Interval, timeline: Timestep[]) {
-        const time_axis = this.createTimeAxis(interval, timeline);
         let wavedrom: WaveDrom = {
             signal: [],
-            foot: {
-                tick: ""
-            }
+            foot: { tick: "" }
         };
+        const time_axis = this.createTimeAxis(interval, timeline);
         wavedrom.foot.tick = time_axis.join(" ");
-        wavedrom = this.initSignals(wavedrom, time_axis, timeline);
+        this.initSignals(wavedrom, timeline, time_axis.length - 1);
         return wavedrom;
     }
 
-    private createTimeAxis(interval: Interval, timeline: Timestep[]) {
+    /**
+     * Returns an array containing the time of each timestep
+     * included in the simulation interval, and the interval boundaries.
+     * @param interval simulation interval
+     * @param timeline array of simulation timesteps
+     */
+    private createTimeAxis(interval: Interval, timeline: Timestep[]): number[] {
         const time_axis: number[] = [];
         timeline.forEach(timestep => {
-            time_axis.push(timestep.time);
-        })
-        let i = 0;
-        while (i < time_axis.length) {
-            if (time_axis[i] <= interval.start || time_axis[i] >= interval.end) {
-                time_axis.splice(i, 1);
-            } else {
-                i++;
+            if (timestep.time > interval.start && timestep.time < interval.end) {
+                time_axis.push(timestep.time);
             }
-        }
+        })
         time_axis.unshift(interval.start);
         time_axis.push(interval.end);
         return time_axis;
     }
 
-    private initSignals(wavedrom: WaveDrom, time_axis: number[], timeline: Timestep[]) {
+    /**
+     * Returns the WaveDrom variable with signals initialized.
+     * They contain their name and a wave filled with points.
+     * @param wavedrom WaveDrom variable to modify
+     * @param timeline array of simulation timesteps
+     * @param num_events number of events (points)
+     */
+    private initSignals(wavedrom: WaveDrom, timeline: Timestep[], num_events: number): WaveDrom {
         timeline.forEach(timestep => {
             timestep.signals.forEach(s_t => {
                 let add_new_signal = true;
@@ -333,7 +349,7 @@ export class ExtractorService {
                 if (add_new_signal) {
                     const new_signal: Wave = {
                         name: s_t.name,
-                        wave: ".".repeat(time_axis.length - 1)
+                        wave: ".".repeat(num_events)
                     };
                     wavedrom.signal.push(new_signal);
                 }
@@ -342,6 +358,12 @@ export class ExtractorService {
         return wavedrom;
     }
 
+    /**
+     * Replaces points of signal waves with event values present in timeline,
+     * and returns resulting WaveDrom variable.
+     * @param wavedrom WaveDrom variable initialized
+     * @param timeline array of simulation timesteps
+     */
     private fillWaveDrom(wavedrom: WaveDrom, timeline: Timestep[]) {
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick);
         timeline.forEach((timestep) => {
@@ -350,9 +372,8 @@ export class ExtractorService {
                 timestep.signals.forEach(s_t => {
                     wavedrom.signal.forEach(s_w => {
                         if (s_w.name == s_t.name) {
-                            const new_wave = this.replaceCharAt(t,
-                                this.stateToWave(s_t.state), s_w.wave);
-                            s_w.wave = new_wave;
+                            const wave_char = this.stateToWaveChar(s_t.state);
+                            s_w.wave = this.replaceCharAt(s_w.wave, t, wave_char);
                         }
                     })
                 })
@@ -361,22 +382,49 @@ export class ExtractorService {
         return wavedrom;
     }
 
+    /**
+     * Converts a string like "- 0 10 100 + " to an array like [0, 10, 100].
+     * @param tick string containing the simulation events times
+     */
     private tickToTimeAxis(tick: string): number[] {
         const str_time_axis = tick.split(' ').filter(t => t && !isNaN(Number(t)));
-        return str_time_axis.map(str_time => parseInt(str_time));
+        return str_time_axis.map(str_time => Number(str_time));
     }
 
+    /**
+     * Converts an array like [0, 10, 100] to a string like "- 0 10 100 + ".
+     * @param time_axis array containing the simulation events times
+     */
     private timeAxisToTick(time_axis: number[]): string {
         let tick = time_axis.join(' ');
         tick = `- ${tick} + `;
         return tick;
     }
 
-    private replaceCharAt(idx: number, char: string, str: string) {
+    /**
+     * Replaces a string character. Throws an error if it fails.
+     * @param str string to modify
+     * @param idx index of the character to replace
+     * @param char new character value
+     */
+    private replaceCharAt(str: string, idx: number, char: string) {
+        if (isEmpty(str)) {
+            throw new Error(`Cannot replace a character of an empty string '${str}'`);
+        }
+        if (idx > str.length) {
+            throw new Error(`Index value '${idx}' cannot be greater than string length '${str.length}'`);
+        }
+        if (char.length != 1) {
+            throw new Error(`New character value '${char}' cannot have a length different than 1`);
+        }
         return str.substring(0, idx) + char + str.substring(idx + 1);
     }
 
-    private stateToWave(value: string) {
+    /**
+     * Converts a simulation file state to a WaveDrom wave state.
+     * @param value character representing the state
+     */
+    private stateToWaveChar(value: string) {
         switch (value) {
             case 'T':
                 return '1';
@@ -387,6 +435,13 @@ export class ExtractorService {
         }
     }
 
+    /**
+     * Returns the WaveDrom variable with '-' and '+ signs around abscissa,
+     * and 'x' around each signal wave. 
+     * '-' and '+' signs represents the simulation beginning and ending,
+     * while 'x' represents an unknown state.
+     * @param wavedrom WaveDrom variable to modify
+     */
     private finalizeWaveDrom(wavedrom: WaveDrom) {
         if (!wavedrom.foot.tick.startsWith('-')) {
             wavedrom.foot.tick = "- " + wavedrom.foot.tick;
@@ -621,7 +676,7 @@ export class ExtractorService {
                     // and put them in the combined wavedrom
                     values.forEach((value, j) => {
                         const signal = combined_wavedrom.signal[num_previous_signals + j];
-                        signal.wave = this.replaceCharAt(i, value, signal.wave);
+                        signal.wave = this.replaceCharAt(signal.wave, i, value);
                     });
                 }
                 num_previous_signals += wavedrom.signal.length;
