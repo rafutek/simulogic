@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import {
-    WaveDrom, Wave,
-    Timestep, Signal, WaveDromBase, SignalGroup, Interval, Clock
+    WaveDrom, SignalWave,
+    Timestep, SignalState, Interval, Clock
 } from '@simulogic/core'
-import { isEmpty, isInt, isNegative, isNotEmpty } from 'class-validator';
+import { isEmpty, isInt, isNegative } from 'class-validator';
 import { MemoryService } from '../memory/memory.service';
 import { Injectable } from '@nestjs/common';
 import { ManipulatorService } from '../manipulator/manipulator.service';
@@ -197,7 +197,7 @@ export class ExtractorService {
         let timeline: Timestep[] = [];
         events.forEach(event => {
             const parsed_event = event.replace('EVENT ', '').split(' ');
-            const signal: Signal = {
+            const signal: SignalState = {
                 name: parsed_event[0],
                 state: parsed_event[1],
             }
@@ -246,7 +246,7 @@ export class ExtractorService {
      * Throws an error if value is not a valid signal.
      * @param value signal to validate
      */
-    private validateSignal(value: Signal) {
+    private validateSignal(value: SignalState) {
         if (isEmpty(value)) {
             throw new Error(`Signal '${value}' cannot be empty`);
         }
@@ -349,7 +349,7 @@ export class ExtractorService {
                     }
                 })
                 if (add_new_signal) {
-                    const new_signal: Wave = {
+                    const new_signal: SignalWave = {
                         name: s_t.name,
                         wave: ".".repeat(num_events)
                     };
@@ -374,7 +374,7 @@ export class ExtractorService {
                 timestep.signals.forEach(s_t => {
                     wavedrom.signal.forEach(s_w => {
                         if (s_w.name == s_t.name) {
-                            const wave_char = this.stateToWaveChar(s_t.state);
+                            const wave_char = this.fileStateToWaveState(s_t.state);
                             s_w.wave = this.manipulator_service.replaceCharAt(s_w.wave, t, wave_char);
                         }
                     })
@@ -388,7 +388,7 @@ export class ExtractorService {
      * Converts a simulation file state to a WaveDrom wave state.
      * @param value character representing the state
      */
-    private stateToWaveChar(value: string) {
+    private fileStateToWaveState(value: string) {
         switch (value) {
             case 'T':
                 return '1';

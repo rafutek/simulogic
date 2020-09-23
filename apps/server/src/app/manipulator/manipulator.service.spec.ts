@@ -1,5 +1,5 @@
 import { ManipulatorService } from './manipulator.service'
-import { WaveDrom, Wave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
+import { WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MemoryService } from '../memory/memory.service';
 
@@ -25,11 +25,11 @@ describe("ManipulatorService", () => {
         tick: "- 0 100 200 350 670 + "
       }
     };
-    const s1: Wave = {
+    const s1: SignalWave = {
       name: "s1",
       wave: "x0.1..x"
     };
-    const s2: Wave = {
+    const s2: SignalWave = {
       name: "s2",
       wave: "x.1.01x"
     };
@@ -52,17 +52,13 @@ describe("ManipulatorService", () => {
     });
 
     describe("fillIntervalWaveDrom", () => {
-      let interval_wavedrom: WaveDrom;
-      beforeEach(() => {
-        interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
-      });
 
       it("should contain included events", () => {
         // Given a wavedrom with two signals
         // and an initialized interval wavedrom
         // When filling the interval wavedrom
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        const interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // Then the interval wavedrom must be
         const expected_wavedrom: WaveDrom = {
@@ -78,7 +74,7 @@ describe("ManipulatorService", () => {
         // When filling the interval wavedrom
         // with events occuring at these exact same time
         const interval: Interval = { start: 100, end: 200 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        const interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // Then the interval wavedrom must be
         const expected_wavedrom: WaveDrom = {
@@ -94,7 +90,7 @@ describe("ManipulatorService", () => {
         // When filling the interval wavedrom
         // with events occuring at these exact same time
         const interval: Interval = { start: 100, end: 10000 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        const interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // Then the interval wavedrom must contain all events
         // except those before 100
@@ -111,11 +107,11 @@ describe("ManipulatorService", () => {
         // Given a filled wavedrom with the start interval value not included
         let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, wavedrom, interval.start);
+        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, interval.start);
 
         // Then the start interval value (90 here) must be added at the beginning of tick
         // and all the waves must start with a point
@@ -134,11 +130,11 @@ describe("ManipulatorService", () => {
         // Given a filled wavedrom with the start interval value included
         let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 100, end: 250 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, wavedrom, interval.start);
+        interval_wavedrom = manipulator.prependStartTime(interval_wavedrom, interval.start);
 
         // Then the start interval value (100 here) must already be at the beginning of tick
         // and the waves must start with their value at this time
@@ -157,7 +153,7 @@ describe("ManipulatorService", () => {
         // Given a filled interval wavedrom with one wave starting with a point
         let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 100, end: 250 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
         expect(interval_wavedrom.signal[0].wave[0]).toEqual('.');
         expect(interval_wavedrom.signal[1].wave[0]).toEqual('1');
 
@@ -203,11 +199,11 @@ describe("ManipulatorService", () => {
         // Given a filled wavedrom with the end interval value not included
         let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 250 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, wavedrom, interval.end);
+        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, interval.end);
 
         // Then the start interval value (90 here) must be added at the beginning of tick
         // and all the waves must start with a point
@@ -226,11 +222,11 @@ describe("ManipulatorService", () => {
         // Given a filled wavedrom with the start interval value included
         let interval_wavedrom = manipulator.initIntervalWaveDrom(wavedrom);
         const interval: Interval = { start: 90, end: 200 };
-        interval_wavedrom = manipulator.fillIntervalWaveDrom(interval_wavedrom, wavedrom, interval);
+        interval_wavedrom = manipulator.initAndFillIntervalWaveDrom(wavedrom, interval);
 
         // When managind the interval start
         const waves_length = interval_wavedrom.signal[0].wave.length;
-        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, wavedrom, interval.end);
+        interval_wavedrom = manipulator.appendEndTime(interval_wavedrom, interval.end);
 
         // Then the start interval value (100 here) must already be at the beginning of tick
         // and the waves must start with their value at this time
@@ -248,14 +244,14 @@ describe("ManipulatorService", () => {
   describe("combineWavedroms", () => {
     it("should combine wavedroms", () => {
       // Given two wavedroms with different signals and time axis
-      const s1: Wave = { name: "s1", wave: "x01..2.1x" };
-      const s2: Wave = { name: "s2", wave: "x0...1..x" };
+      const s1: SignalWave = { name: "s1", wave: "x01..2.1x" };
+      const s2: SignalWave = { name: "s2", wave: "x0...1..x" };
       const wavedrom1: WaveDrom = {
         signal: [s1, s2],
         foot: { tick: "- 0 10 11 20 25 39 40 + " }
       };
 
-      const s3: Wave = { name: "s3", wave: "x0.1.0.2567.x" };
+      const s3: SignalWave = { name: "s3", wave: "x0.1.0.2567.x" };
       const wavedrom2: WaveDrom = {
         signal: [s3],
         foot: { tick: "- 30 40 100 111 120 123 200 205 206 207 230 + " }
@@ -281,10 +277,10 @@ describe("ManipulatorService", () => {
   describe("selectWires", () => {
     it("should select wanted signals", () => {
       // Given a wavedrom with some signals
-      const s1: Wave = { name: "s1", wave: "x010..1x" };
-      const s2: Wave = { name: "s2", wave: "x10...0x" };
-      const s3: Wave = { name: "s3", wave: "x1.0.1.x" };
-      const s4: Wave = { name: "s4", wave: "x.1.0.1x" };
+      const s1: SignalWave = { name: "s1", wave: "x010..1x" };
+      const s2: SignalWave = { name: "s2", wave: "x10...0x" };
+      const s3: SignalWave = { name: "s3", wave: "x1.0.1.x" };
+      const s4: SignalWave = { name: "s4", wave: "x.1.0.1x" };
       const initial_wavedrom: WaveDrom = {
         signal: [s1, s2, s3, s4],
         foot: { tick: "- 12 28 45 76 79 81 90 + " }
@@ -292,7 +288,7 @@ describe("ManipulatorService", () => {
 
       // When selecting these signals
       const signals = ["s1", "s3"];
-      const new_wavedrom = manipulator.selectWires(initial_wavedrom, signals);
+      const new_wavedrom = manipulator.selectSignals(initial_wavedrom, signals);
 
       // Then this should be the resulting wavedrom
       const expected_wavedrom: WaveDrom = {
@@ -304,7 +300,7 @@ describe("ManipulatorService", () => {
   });
 
   describe("getWires", () => {
-    let s1: Wave, s2: Wave, s3: Wave, s4: Wave;
+    let s1: SignalWave, s2: SignalWave, s3: SignalWave, s4: SignalWave;
     let initial_wavedrom: WaveDromBase;
 
     beforeEach(() => {
@@ -324,7 +320,7 @@ describe("ManipulatorService", () => {
 
       // When getting the signals
       const result: SignalGroup[] = [];
-      manipulator.getWires(initial_wavedrom.signal, result);
+      manipulator.getGroupedSignals(initial_wavedrom.signal, result);
 
       // Then we should have
       const group: SignalGroup = {
@@ -344,7 +340,7 @@ describe("ManipulatorService", () => {
 
       // When getting the signals
       const result: SignalGroup[] = [];
-      manipulator.getWires(initial_wavedrom.signal, result);
+      manipulator.getGroupedSignals(initial_wavedrom.signal, result);
 
       // Then we should have on group with a name and another without
       const input_group: SignalGroup = {

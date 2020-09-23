@@ -24,7 +24,7 @@ export interface Event {
 /**
  * Stores a signal name and state.
  */
-export interface Signal {
+export interface SignalState {
     name: string,
     state: string
 }
@@ -34,7 +34,7 @@ export interface Signal {
  */
 export interface Timestep {
     time: number,
-    signals: Signal[]
+    signals: SignalState[]
 }
 
 /**
@@ -53,7 +53,7 @@ export interface Clock {
 /**
  * Stores the name and the wave of a WaveDrom signal.
  */
-export interface Wave {
+export interface SignalWave {
     name: string,
     wave: string
 }
@@ -63,7 +63,7 @@ export interface Wave {
  * Variable used by WaveDrom to display a time diagram.
  */
 export interface WaveDrom {
-    signal: Wave[],
+    signal: SignalWave[],
     foot: {
         tick: string
     }
@@ -108,7 +108,7 @@ export interface ExtractionDetails {
 }
 
 /**
- * Stores signals into a group with a name.
+ * Stores signals names into a group with a name.
  */
 export interface SignalGroup {
     name?: string,

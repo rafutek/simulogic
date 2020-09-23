@@ -183,20 +183,18 @@ export class SimulationsController {
       }
 
       if (getSimulationDto.wires && getSimulationDto.wires.length > 0) {
-        wavedrom = this.manipulator_service.selectWires(wavedrom, getSimulationDto.wires);
+        wavedrom = this.manipulator_service.selectSignals(wavedrom, getSimulationDto.wires);
       }
 
       if (isNotEmpty(getSimulationDto.interval?.start) || isNotEmpty(getSimulationDto.interval?.end)) {
-        wavedrom = this.manipulator_service.extractWaveDromInterval(wavedrom,
-          getSimulationDto.interval);
+        wavedrom = this.manipulator_service.cutWaveDrom(wavedrom, getSimulationDto.interval);
       }
 
-      final_wavedrom = this.manipulator_service.organizeIntoGroups(wavedrom, input, output);
-      this.manipulator_service.setExtractionSent(final_wavedrom);
+      final_wavedrom = this.manipulator_service.groupInputOutput(wavedrom, input, output);
 
     } else throw new BadRequestException(`simulation ${getSimulationDto.uuid_simu} not found`);
 
-    return final_wavedrom;
+    return this.manipulator_service.setFinalWaveDrom(final_wavedrom);
   }
 
   /**
@@ -204,7 +202,7 @@ export class SimulationsController {
    */
   @Get('extract/wires')
   getWires() {
-    return this.manipulator_service.getExtractionSentWires();
+    return this.manipulator_service.getFinalWaveDromSignals();
   }
 
   /**
@@ -213,8 +211,8 @@ export class SimulationsController {
  */
   @Get('extract/wires/:expr')
   getSpecialWires(@Param('expr') expr: string) {
-    const signal_groups = this.manipulator_service.getExtractionSentWires();
-    return this.manipulator_service.searchWires(signal_groups, expr);
+    const signal_groups = this.manipulator_service.getFinalWaveDromSignals();
+    return this.manipulator_service.searchSignals(signal_groups, expr);
   }
 
   /**
@@ -222,7 +220,7 @@ export class SimulationsController {
 * so its beginning and end time.
 */
   @Get('extract/interval')
-  getInterval() {
-    return this.manipulator_service.getSimulationInterval();
+  getSimulationLimits() {
+    return this.manipulator_service.getLastSimulationLimits();
   }
 }
