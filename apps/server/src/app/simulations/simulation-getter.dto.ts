@@ -1,4 +1,4 @@
-import { IsBoolean, IsString, Min, IsOptional, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsBoolean, IsString, IsOptional, IsNotEmpty, IsUUID } from 'class-validator';
 import {  DependsOnIfTrue } from '../validation-decorators/DependsOn';
 import { Interval } from '@simulogic/core';
 import { IntervalChecker } from '../validation-decorators/IntervalChecker';

@@ -143,6 +143,12 @@ export class ManipulatorService {
         else return false;
     }
 
+    /**
+     * Returns a portion of the given WaveDrom variable 
+     * containing the events included in the given interval.
+     * @param wavedrom WaveDrom variable to get an interval from
+     * @param interval time interval to get
+     */
     cutWaveDrom(wavedrom: WaveDrom, interval: Interval) {
         const interval_wavedrom = this.initAndFillIntervalWaveDrom(wavedrom, interval);
         if (isNotEmpty(interval.start)) {
