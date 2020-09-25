@@ -51,19 +51,17 @@ export class SimulatorController {
         if (isEmpty(simulation.path)) {
             throw new Error(`Simulation path '${simulation.path}' cannot be empty`);
         }
-        if (isEmpty(this.memory_service.simulation) || this.memory_service.simulation.uuid != uuid_simu) {
-            const wavedrom = await this.extractor_service.extractFile(simulation.path);
-            this.memory_service.simulation = { uuid: uuid_simu, wavedrom: wavedrom };
-        }
+        this.memory_service.simulation = await this.extractIfNotSaved(simulation, this.memory_service.simulation);
         return this.memory_service.simulation.wavedrom;
     }
 
 
-    async extractIfNotSaved(simu_to_get: Simulation, simu_memo: UUIDWaveDrom) {
+    async extractIfNotSaved(simu_to_get: Simulation, simu_memo: UUIDWaveDrom): Promise<UUIDWaveDrom> {
         if (isEmpty(simu_memo) || simu_memo.uuid != simu_to_get.uuid) {
             const wavedrom = await this.extractor_service.extractFile(simu_to_get.path);
-            simu_memo = { uuid: simu_to_get.uuid, wavedrom: wavedrom };
+            return { uuid: simu_to_get.uuid, wavedrom: wavedrom };
         }
+        return simu_memo;
     }
 
 

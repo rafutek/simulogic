@@ -100,19 +100,19 @@ export class MemoryService {
      */
     private validateUUIDWaveDrom(value: UUIDWaveDrom) {
         if (isEmpty(value)) {
-            throw new Error("Cannot set empty simulation");
+            throw new Error(`Value '${value}' cannot be empty`);
         }
         if (!isUUID(value.uuid)) {
-            throw new Error("Cannot set bad simulation uuid");
+            throw new Error(`Value UUID '${value.uuid}' must be a UUID`);
         }
         if (isEmpty(value.wavedrom)) {
-            throw new Error("Cannot set simulation with empty wavedrom");
+            throw new Error(`Value WaveDrom '${value.wavedrom}' cannot be empty`);
         }
         if (isEmpty(value.wavedrom?.foot?.tick)) {
-            throw new Error("Cannot set simulation without wavedrom abscissa");
+            throw new Error(`Value WaveDrom abscissa '${value.wavedrom?.foot?.tick}' cannot be empty`);
         }
         if (isEmpty(value.wavedrom?.signal)) {
-            throw new Error("Cannot set simulation without wavedrom signals");
+            throw new Error(`Value WaveDrom signals array '${value.wavedrom?.signal}' cannot be empty`);
         }
     }
 }

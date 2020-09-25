@@ -3,8 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import { Simulation } from './simulation.entity';
-import { Entity } from '@simulogic/core';
-import * as fs from 'fs';
 import {
     example_files_path,
     circuit_filenames,
