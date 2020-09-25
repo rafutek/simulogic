@@ -15,7 +15,7 @@ const entity1 = { id: 13, name: "simulation test" };
 const entity2 = { id: 17, name: "another simulation" };
 const entities = [entity1, entity2];
 
-describe("CircuitsController", () => {
+describe("SimulationsController", () => {
     let controller: SimulationsController;
     let service: SimulationsService;
 

@@ -6,7 +6,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationsService } from './simulations.service';
 import { SimulationDTO } from './simulation.dto';
-import { SimulationGetterDTO } from './simulation-getter.dto';
+import { SimulatorDTO } from '../simulator/simulator.dto';
 import { Simulation } from './simulation.entity';
 import * as fs from 'fs';
 import { isEmpty, isNotEmpty, validate } from 'class-validator';
@@ -145,12 +145,12 @@ export class SimulationsController {
   }
 
   @Post('extract')
-  async getExtractedSimulation(@Body() getSimulationDto: SimulationGetterDTO) {
+  async getExtractedSimulation(@Body() getSimulationDto: SimulatorDTO) {
     let wavedrom: WaveDrom, input: WaveDrom, output: WaveDrom, final_wavedrom: any;
     const simulation = await this.simulations_service.getOne(getSimulationDto.uuid_simu);
     if (simulation) {
       if (fs.existsSync(simulation.path)) {
-        wavedrom = input = this.simulation_extractor.getWaveDrom(getSimulationDto.uuid_simu, simulation.path);
+        wavedrom = input = await this.simulation_extractor.getWaveDrom(getSimulationDto.uuid_simu, simulation.path);
         if (!wavedrom) {
           throw new InternalServerErrorException("could not get wavedrom");
         }
@@ -170,7 +170,7 @@ export class SimulationsController {
         // }
 
         if (fs.existsSync(simulation.result_path)) {
-          wavedrom = output = this.simulation_extractor.getWaveDromResult(
+          wavedrom = output = await this.simulation_extractor.getWaveDromResult(
             getSimulationDto.uuid_simu, simulation.result_path);
           if (!wavedrom) {
             throw new InternalServerErrorException("could not get result wavedrom");
@@ -178,7 +178,7 @@ export class SimulationsController {
         } else throw new InternalServerErrorException(
           `result file of simulation ${getSimulationDto.uuid_simu} not found`);
 
-        wavedrom = this.simulation_extractor.getCombinedWaveDrom(getSimulationDto.uuid_simu,
+        wavedrom = await this.simulation_extractor.getCombinedWaveDrom(getSimulationDto.uuid_simu,
           simulation.path, simulation.result_path);
       }
 

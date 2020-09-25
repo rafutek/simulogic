@@ -3,7 +3,7 @@ import {  DependsOnIfTrue } from '../validation-decorators/DependsOn';
 import { Interval } from '@simulogic/core';
 import { IntervalChecker } from '../validation-decorators/IntervalChecker';
 
-export class SimulationGetterDTO {
+export class SimulatorDTO {
 
   @IsNotEmpty()
   @IsUUID()
@@ -11,18 +11,18 @@ export class SimulationGetterDTO {
 
   @IsOptional()
   @IsUUID()
-  uuid_circuit: string;
+  uuid_circuit?: string;
 
   @IsOptional()
   @DependsOnIfTrue("uuid_circuit", { message: "'uuid_circuit' is missing" })
   @IsBoolean()
-  result: boolean;
+  result?: boolean;
 
   @IsOptional()
   @IntervalChecker({ message: "'interval' object is not correct" })
-  interval: Interval;
+  interval?: Interval;
 
   @IsOptional()
   @IsString({ each: true })
-  wires: string[];
+  wires?: string[];
 }
