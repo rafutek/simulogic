@@ -32,18 +32,22 @@ export class SimulatorController {
         wavedrom = file_wavedrom;
 
         if (simulatorDTO.result) {
-
+            // execute simulation
+            // extract variable
+            const rslt_file_wavedrom = await this.getSimuFileWaveDrom(simulatorDTO.uuid_simu, true);
+            // combine
         }
         return wavedrom;
     }
 
     /**
-     * Returns the WaveDrom variable of the simulation, or the simulation result,
-     * if no error was thrown before. Calls extractor if this variable was not saved in memory.
+     * Returns the WaveDrom variable of the simulation file, or the simulation result file,
+     * if no error was thrown before. Extracts it from the file if not saved, and saves it.
      * @param uuid_simu UUID of the simulation to get
      * @param result boolean to get simulation result or not
      */
     private async getSimuFileWaveDrom(uuid_simu: string, result?: boolean): Promise<WaveDrom> {
+        let wavedrom: WaveDrom;
         if (!isUUID(uuid_simu)) {
             throw new Error(`Simulation UUID '${uuid_simu}' must be a UUID`);
         }
@@ -51,14 +55,32 @@ export class SimulatorController {
         if (isEmpty(simulation.path)) {
             throw new Error(`Simulation path '${simulation.path}' cannot be empty`);
         }
-        this.memory_service.simulation = await this.extractIfNotSaved(simulation, this.memory_service.simulation);
-        return this.memory_service.simulation.wavedrom;
+        if (result) {
+            if (isEmpty(simulation.result_path)) {
+                throw new Error(`Simulation result path '${simulation.result_path}' cannot be empty`);
+            }
+            this.memory_service.simulation_result =
+                await this.extractIfNotSaved(simulation, this.memory_service.simulation_result, result);
+            return this.memory_service.simulation_result.wavedrom;
+        }
+        else {
+            this.memory_service.simulation =
+                await this.extractIfNotSaved(simulation, this.memory_service.simulation);
+            return this.memory_service.simulation.wavedrom;
+        }
     }
 
-
-    async extractIfNotSaved(simu_to_get: Simulation, simu_memo: UUIDWaveDrom): Promise<UUIDWaveDrom> {
+    /**
+     * Checks if simulation is already saved so extraction is not necessary.
+     * If not, reads the associated file and returns the created variable.
+     * @param simu_to_get variable containing simulation uuid and path
+     * @param simu_memo memory variable to check
+     * @param result boolean to extract simulation input or output file
+     */
+    async extractIfNotSaved(simu_to_get: Simulation, simu_memo: UUIDWaveDrom, result?: boolean): Promise<UUIDWaveDrom> {
         if (isEmpty(simu_memo) || simu_memo.uuid != simu_to_get.uuid) {
-            const wavedrom = await this.extractor_service.extractFile(simu_to_get.path);
+            const filepath = result ? simu_to_get.result_path : simu_to_get.path;
+            const wavedrom = await this.extractor_service.extractFile(filepath);
             return { uuid: simu_to_get.uuid, wavedrom: wavedrom };
         }
         return simu_memo;

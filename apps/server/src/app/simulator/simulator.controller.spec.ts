@@ -4,22 +4,16 @@ import { MemoryService } from '../memory/memory.service';
 import { SimulatorDTO } from './simulator.dto';
 import { ExtractorService } from '../extractor/extractor.service';
 import { SimulationsService } from '../simulations/simulations.service';
-import { Simulation } from '../simulations/simulation.entity';
-import { Entity, UUIDWaveDrom, WaveDrom } from '@simulogic/core';
+import {  UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 
-const simulation1 = new Simulation("simulation 1", "/path/test", "sim/path/test");
-const simulation2 = new Simulation("simulation 2", "/path/test", "sim/path/test");
-const simulations: Simulation[] = [simulation1, simulation2];
+const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
-const entity1: Entity = { uuid: "bad uuid", name: "simulation test" };
-const entity2: Entity = { uuid: "bad uuid", name: "another simulation" };
-const entities = [entity1, entity2];
+const simulation1 = {uuid: uuid_test, path: "some/path/to/file"};
 
 const expected_wavedrom: WaveDrom = {
     signal: [{ name: "s1", wave: "x010x" }],
     foot: { tick: "- 0 10 100 +" }
 }
-const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 const expected_uuidwavedrom: UUIDWaveDrom = {
     uuid: uuid_test,
     wavedrom: expected_wavedrom
@@ -37,14 +31,7 @@ describe("SimulatorController", () => {
                     provide: SimulationsService,
                     // Mock simulation service functions
                     useValue: {
-                        insertOne: jest.fn(),
-                        getAll: jest.fn().mockResolvedValue(simulations),
-                        getAllByEntity: jest.fn().mockResolvedValue(entities),
-                        getOne: jest.fn().mockResolvedValue(simulation1),
-                        getOneByEntity: jest.fn().mockResolvedValue(entity1),
-                        deleteOne: jest.fn().mockReturnValue(true),
-                        findAndGetByEntity: jest.fn().mockResolvedValue(entities),
-                        renameOne: jest.fn().mockResolvedValue(true),
+                        getOne: jest.fn().mockResolvedValue(simulation1)
                     }
                 },
                 MemoryService,
@@ -143,6 +130,8 @@ describe("SimulatorController", () => {
             expect(wavedrom).toEqual(expected_wavedrom);
             expect(memory.simulation).toEqual(expected_uuidwavedrom)
         });
+
+        
 
     })
 });
