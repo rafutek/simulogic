@@ -12,14 +12,13 @@ public class LogicToCpp {
 		CircuitData circuitData;
 		FileWriter circuitCpp; // File to write Cpp circuit description
 		FileWriter circuith;
-		String commonHeadersPath = "../../../../common/simulator/src/"; // Path from user src simulator to the common
-																		// headers
+		String common_headers_path; // Path from user src simulator to the common
 
 		private String includesCpp() {
 			String global = String.format("#include <iostream>%n#include <fstream>%n");
-			String local = String.format(include("Circuit.h", commonHeadersPath + "Gate.h",
-					commonHeadersPath + "Bloc.h", commonHeadersPath + "Wire.h", commonHeadersPath + "Sequential.h",
-					commonHeadersPath + "Timeline.h"));
+			String local = String.format(include("Circuit.h", common_headers_path + "Gate.h",
+					common_headers_path + "Bloc.h", common_headers_path + "Wire.h", common_headers_path + "Sequential.h",
+					common_headers_path + "Timeline.h"));
 			String namespace = String.format("using namespace std;%n%n");
 			return global + local + namespace;
 		}
@@ -35,9 +34,9 @@ public class LogicToCpp {
 		private String includesHeader() {
 			String ifndef = String.format("#ifndef SIMULATION_CIRCUIT_H%n#define SIMULATION_CIRCUIT_H%n%n");
 			String global = String.format("#include <iostream>%n#include <string>%n#include <vector>%n");
-			String local = String.format(include(commonHeadersPath + "Wire.h", commonHeadersPath + "EqNode.h",
-					commonHeadersPath + "Gate.h", commonHeadersPath + "Timeline.h", commonHeadersPath + "Bloc.h",
-					commonHeadersPath + "LogicElement.h", commonHeadersPath + "TriState.h"));
+			String local = String.format(include(common_headers_path + "Wire.h", common_headers_path + "EqNode.h",
+					common_headers_path + "Gate.h", common_headers_path + "Timeline.h", common_headers_path + "Bloc.h",
+					common_headers_path + "LogicElement.h", common_headers_path + "TriState.h"));
 			return ifndef + global + local;
 		}
 
@@ -735,19 +734,20 @@ public class LogicToCpp {
 			return (isGate);
 		}
 
-		public logicVisitor(String user) {
+		public logicVisitor(String common_headers_path, String output_path) {
 			super();
+                        this.common_headers_path = common_headers_path;
 			circuitData = new CircuitData();
 			// Create .h file
 			try {
-				circuith = new FileWriter("../../../home/" + user + "/simulator/src/Circuit.h");
+				circuith = new FileWriter(output_path + "/Circuit.h");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 			// Create .cpp file
 			try {
-				circuitCpp = new FileWriter("../../../home/" + user + "/simulator/src/Circuit.cpp");
+				circuitCpp = new FileWriter(output_path + "/Circuit.cpp");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -756,18 +756,20 @@ public class LogicToCpp {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String user = null;
-		String inputFile = null;
-		if (args.length == 2) {
-			user = args[0];
-			inputFile = args[1];
+		String common_headers_path = null;
+		String output_path = null;
+		String circuit_path = null;
+		if (args.length == 3) {
+			common_headers_path = args[0];
+			output_path = args[1];
+			circuit_path = args[2];
 		} else {
-			throw new Exception("The program needs two parameters: user and circuit file");
+			throw new Exception("The program needs three parameters: common headers path, output path, and circuit file path");
 		}
 
 		InputStream is = System.in;
-		if (inputFile != null) {
-			is = new FileInputStream(inputFile);
+		if (circuit_path != null) {
+			is = new FileInputStream(circuit_path);
 		}
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		logicLexer lexer = new logicLexer(input);
@@ -775,7 +777,7 @@ public class LogicToCpp {
 		logicParser parser = new logicParser(tokens);
 		ParseTree tree = parser.circuit();
 
-		logicVisitor loader = new logicVisitor(user);
+		logicVisitor loader = new logicVisitor(common_headers_path, output_path);
 
 		loader.visit(tree);
 
