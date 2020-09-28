@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SimulationsModule } from './simulations/simulations.module';
 import { CircuitsModule } from './circuits/circuits.module';
+import { SimulatorModule } from './simulator/simulator.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CircuitsModule } from './circuits/circuits.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    SimulatorModule,
     SimulationsModule,
     CircuitsModule
   ]

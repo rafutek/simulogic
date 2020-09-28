@@ -102,7 +102,7 @@ export const Workbench = (props: WorkbenchProps) => {
     // when the extraction details change
     useEffect(() => {
         if (extraction_details) {
-            axios.post(`/simulations/extract`, extraction_details)
+            axios.post(`/simulator`, extraction_details)
                 .then(response => {
                     setSimulationWaveDrom(response.data);
                     if (simulation_changed) {
