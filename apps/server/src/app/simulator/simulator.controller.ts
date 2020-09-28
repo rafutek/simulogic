@@ -6,11 +6,15 @@ import { SimulationsService } from '../simulations/simulations.service';
 import { ExtractorService } from '../extractor/extractor.service';
 import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { Simulation } from '../simulations/simulation.entity';
+import { Circuit } from '../circuits/circuit.entity';
+import { CircuitsService } from '../circuits/circuits.service';
+import { execSync } from 'child_process';
 
 @Controller("simulator")
 export class SimulatorController {
     constructor(
         private readonly simulations_service: SimulationsService,
+        private readonly circuits_service: CircuitsService,
         private readonly memory_service: MemoryService,
         private readonly extractor_service: ExtractorService,
     ) { }
@@ -32,10 +36,14 @@ export class SimulatorController {
         wavedrom = file_wavedrom;
 
         if (simulatorDTO.result) {
+            // get circuit
+            const circuit = await this.getCircuit(simulatorDTO.uuid_circuit);
             // execute simulation
+
             // extract variable
             const rslt_file_wavedrom = await this.getSimuFileWaveDrom(simulatorDTO.uuid_simu, true);
             // combine
+
         }
         return wavedrom;
     }
@@ -86,6 +94,24 @@ export class SimulatorController {
         return simu_memo;
     }
 
+    private async getCircuit(uuid_circuit: string): Promise<Circuit> {
+        if (!isUUID(uuid_circuit)) {
+            throw new Error(`Circuit UUID '${uuid_circuit}' must be a UUID`);
+        }
+        const circuit = await this.circuits_service.getOne(uuid_circuit);
+        if (isEmpty(circuit)) {
+            throw new Error(`Could not find circuit with UUID '${uuid_circuit}' in circuits table`);
+        }
+        return circuit;
+    }
 
+    private createSimulator(circuit: Circuit) {
+        if (isEmpty(circuit.path)) {
+            throw new Error(`Circuit path '${circuit.path}' cannot be empty`);
+        }
+        execSync(`
+        ls
+        `, { cwd: "simulator/common/circuitCreator/bin" })
+    }
 
 }

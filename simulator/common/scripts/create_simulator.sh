@@ -13,5 +13,10 @@ common_headers_path="../../../../common/simulator/src/"
 java LogicToCpp "$common_headers_path" "$output_path" "$circuit_filepath"
 
 # make simulator
+# the Makefile must be in output path
 cd "$output_path" || exit 1
-make PROGRAM="$circuit_filename"
+make \
+    LIB="../../../../common/simulator/lib/simulib.a" \
+    HEADERS_PATH="$common_headers_path" \
+    PROGRAM="../bin/$circuit_filename" \
+

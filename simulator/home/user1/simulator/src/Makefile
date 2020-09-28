@@ -1,3 +1,6 @@
+# Some variables must be set in command line:
+# HEADERS_PATH, PROGRAM, and LIB
+
 CXX = g++
 RM = rm -f
 WARN = -Wall
@@ -5,23 +8,18 @@ DEBUG = -g
 FLAGS = #$(WARN) $(DEBUG)
 CFLAGS = -c #$(FLAGS)
 
-COMMONPATH = ../../../../common/simulator
-LIBPATH = $(COMMONPATH)/lib
-SRCPATH = $(COMMONPATH)/src
-BINPATH = ../bin
-
-# PROGRAM must be set in command line!
+headers := $(wildcard $(HEADERS_PATH)/*.h)
 
 all: compile clean
 
 compile: Circuit.o
-	$(CXX) -o $(BINPATH)/$(PROGRAM) $(FLAGS) $^ $(LIBPATH)/simulib.a 
+	$(CXX) -o $(PROGRAM) $(FLAGS) $^ $(LIB)
 
-Circuit.o: Circuit.cpp Circuit.h $(SRCPATH)/Gate.h $(SRCPATH)/Bloc.h $(SRCPATH)/Wire.h $(SRCPATH)/Sequential.h $(SRCPATH)/Timeline.h
+Circuit.o: Circuit.cpp Circuit.h $(headers)
 	$(CXX) -o $@ $(CFLAGS) $<
 
 clean:
 	$(RM) *.o
 
 deepclean: clean
-	$(RM) $(BINPATH)/$(PROGRAM)
+	$(RM) $(PROGRAM)
