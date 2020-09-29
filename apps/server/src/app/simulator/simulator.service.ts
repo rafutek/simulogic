@@ -9,6 +9,13 @@ import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { Simulation } from '../simulations/simulation.entity';
 import { Circuit } from '../circuits/circuit.entity';
 import { execSync } from 'child_process';
+import * as fs from 'fs';
+
+const lib = "../../../../common/simulator/lib/simulib.a";
+const headers_path = "../../../../common/simulator/src/";
+const src_path = "simulator/home/user1/simulator/src/";
+const bin_path = "simulator/home/user1/simulator/bin/";
+const rslt_path = "simulator/home/user1/simulator/out/";
 
 @Injectable()
 export class SimulatorService {
@@ -31,20 +38,16 @@ export class SimulatorService {
         if (isEmpty(simulatorDTO)) {
             throw new Error(`SimulatorDTO '${simulatorDTO}' cannot be empty`);
         }
-        const file_wavedrom = await this.getSimuFileWaveDrom(simulatorDTO.uuid_simu);
+        const simulation = await this.simulations_service.getOne(simulatorDTO.uuid_simu);
+        const file_wavedrom = await this.getSimuFileWaveDrom(simulation);
         wavedrom = file_wavedrom;
 
         if (simulatorDTO.result) {
-            // get circuit
             const circuit = await this.getCircuit(simulatorDTO.uuid_circuit);
-
-            // execute simulation
-            this.createSimulatorSrcFiles(circuit);
-
-            // extract variable
-            // const rslt_file_wavedrom = await this.getSimuFileWaveDrom(simulatorDTO.uuid_simu, true);
-
+            simulation.result_path = this.simulate(circuit, simulation);
+            const rslt_file_wavedrom = await this.getSimuFileWaveDrom(simulation, true);
             // combine
+            wavedrom = rslt_file_wavedrom;
 
         }
         return wavedrom;
@@ -56,12 +59,7 @@ export class SimulatorService {
      * @param uuid_simu UUID of the simulation to get
      * @param result boolean to get simulation result or not
      */
-    private async getSimuFileWaveDrom(uuid_simu: string, result?: boolean): Promise<WaveDrom> {
-        let wavedrom: WaveDrom;
-        if (!isUUID(uuid_simu)) {
-            throw new Error(`Simulation UUID '${uuid_simu}' must be a UUID`);
-        }
-        const simulation = await this.simulations_service.getOne(uuid_simu);
+    private async getSimuFileWaveDrom(simulation: Simulation, result?: boolean): Promise<WaveDrom> {
         if (isEmpty(simulation.path)) {
             throw new Error(`Simulation path '${simulation.path}' cannot be empty`);
         }
@@ -96,6 +94,11 @@ export class SimulatorService {
         return simu_memo;
     }
 
+    /**
+     * Returns the wanted circuit from the database.
+     * Throws an error if it fails.
+     * @param uuid_circuit UUID of the circuit to get
+     */
     private async getCircuit(uuid_circuit: string): Promise<Circuit> {
         if (!isUUID(uuid_circuit)) {
             throw new Error(`Circuit UUID '${uuid_circuit}' must be a UUID`);
@@ -107,14 +110,17 @@ export class SimulatorService {
         return circuit;
     }
 
-    private createSimulatorSrcFiles(circuit: Circuit) {
+    /**
+     * Calls Java binary to create the simulator C++ source files.
+     * @param circuit circuit entity from database
+     */
+    private createSimulatorSrcFiles(circuit: Circuit): void {
         if (isEmpty(circuit.path)) {
             throw new Error(`Circuit path '${circuit.path}' cannot be empty`);
         }
 
         const circuit_filepath = circuit.path.replace("simulator", "../../../");
-        const output_path = "../../../home/user1/simulator/src/";
-        const headers_path = "../../../../common/simulator/src/";
+        const output_path = src_path.replace("simulator", "../../../");
         let output: string;
         try {
             output = execSync(`
@@ -124,9 +130,94 @@ export class SimulatorService {
                 encoding: "utf8"
             });
         } catch (error) {
-            throw new Error(`Failed to create circuit '${circuit.uuid}' simulator`);
+            throw new Error(`Failed to create circuit '${circuit.uuid}' simulator source files`);
         }
         console.log(output);
     }
-    
+
+    /**
+     * Creates simulator source files, and calls C++ compiler to create simulator executable.
+     * Returns simulator full path if no error was thrown before.
+     * @param circuit circuit entity from database
+     * @param executable name of the executable to create
+     */
+    private createSimulator(circuit: Circuit, executable: string): string {
+        this.createSimulatorSrcFiles(circuit);
+        const full_path = bin_path + executable;
+        const relative_path = `../bin/${executable}`;
+        let output: string;
+        try {
+            output = execSync(
+                `make LIB="${lib}" HEADERS_PATH="${headers_path}" PROGRAM="${relative_path}"`,
+                {
+                    cwd: src_path,
+                    encoding: "utf8"
+                });
+        } catch (error) {
+            throw new Error(`Failed to compile circuit '${circuit.uuid}' simulator`);
+        }
+        console.log(output);
+
+        if (!fs.existsSync(full_path)) {
+            throw new Error(`Simulator path '${full_path}' doesnt exist`);
+        }
+        return full_path;
+    }
+
+    /**
+     * Creates simulator source files, compiles them into an executable,
+     * and and its path in the database.
+     * @param circuit circuit entity from database
+     * @param executable name of the executable to create
+     */
+    private async createAndSaveSimulator(circuit: Circuit, executable: string) {
+        if (isEmpty(executable)) {
+            throw new Error(`Simulator name '${executable}' cannot be empty`);
+        }
+        
+        circuit.simulator_path = this.createSimulator(circuit, executable);
+        await this.circuits_service.updateOne(circuit);
+    }
+
+    /**
+     * Creates and saves the executable if it was not saved.
+     * Executes a simulation on a circuit and returns result full path.
+     * Throws an error if something fails.
+     * @param circuit circuit entity from database
+     * @param simulation simulation entity from database
+     */
+    private simulate(circuit: Circuit, simulation: Simulation): string {
+        if (isEmpty(circuit) || isEmpty(simulation)) {
+            throw new Error(`Circuit '${circuit}' and simulation '${simulation}' cannot be empty`);
+        }
+        const circuit_filename = circuit.path.split('/').pop();
+        const simulation_filename = simulation.path.split('/').pop();
+        const simu_relative_path = `../data/${simulation_filename}`;
+        const rslt_full_path = rslt_path + simulation_filename;
+        const rslt_relative_path = `../out/${simulation_filename}`;
+
+        if (isEmpty(circuit.simulator_path)) {
+            this.createAndSaveSimulator(circuit, circuit_filename);
+        }
+
+        let output: string;
+        try {
+            output = execSync(
+                `./${circuit_filename} ${simu_relative_path} > ${rslt_relative_path}`,
+                {
+                    cwd: bin_path,
+                    encoding: "utf8"
+                });
+        } catch (error) {
+            throw new Error(`Failed to simulate circuit '${circuit_filename}' ` +
+                `with simulation '${simu_relative_path}'`);
+        }
+        console.log(output);
+
+        if (!fs.existsSync(rslt_full_path)) {
+            throw new Error(`Simulation result file '${rslt_full_path}' doesnt exist`);
+        }
+        return rslt_full_path;
+    }
+
 }

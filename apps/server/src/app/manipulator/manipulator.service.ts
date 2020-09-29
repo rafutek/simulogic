@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {
     WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
