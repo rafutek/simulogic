@@ -14,7 +14,7 @@ export class SimulatorController {
     async manage(@Body() simulatorDTO: SimulatorDTO): Promise<WaveDrom> {
         let wavedrom: WaveDrom;
         try {
-            wavedrom = await this.simulator_service.manage(simulatorDTO);
+            wavedrom = await this.simulator_service.process(simulatorDTO);
         } catch (error) {
             throw new InternalServerErrorException(error.message)
         }

@@ -6,14 +6,13 @@ import { Simulation } from './simulation.entity';
 import {
     example_files_path,
     circuit_filenames,
-    simu_filenames,
+    simu_files_wavedrom,
     uploadFilesTo,
     clearTableAndFiles,
     getFirstFile
 } from '@simulogic/test';
 
 // Note: The database must be deployed to run those tests
-
 
 describe('Simulations end-to-end tests', () => {
     let app: INestApplication;
@@ -39,6 +38,7 @@ describe('Simulations end-to-end tests', () => {
         await app.close();
     });
 
+    const simu_filenames = simu_files_wavedrom.map(element => element.filename);
 
     describe("POST /simulations", () => {
         it("should succeed", async () => {

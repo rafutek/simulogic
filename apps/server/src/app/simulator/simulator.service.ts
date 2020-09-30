@@ -22,8 +22,8 @@ export class SimulatorService {
     constructor(
         private readonly simulations_service: SimulationsService,
         private readonly circuits_service: CircuitsService,
-        private readonly memory_service: MemoryService,
         private readonly extractor_service: ExtractorService,
+        private readonly memory_service: MemoryService
     ) { }
 
     /**
@@ -33,7 +33,7 @@ export class SimulatorService {
      * if no error was thrown before.
      * @param simulatorDTO variable containing the simulation details
      */
-    async manage(simulatorDTO: SimulatorDTO): Promise<WaveDrom> {
+    async process(simulatorDTO: SimulatorDTO): Promise<WaveDrom> {
         let wavedrom: WaveDrom;
         if (isEmpty(simulatorDTO)) {
             throw new Error(`SimulatorDTO '${simulatorDTO}' cannot be empty`);

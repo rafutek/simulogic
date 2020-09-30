@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import {
     example_files_path,
     circuit_filenames,
-    simu_filenames,
+    simu_files_wavedrom,
     uploadFilesTo,
     clearTableAndFiles,
     getFirstFile
@@ -41,6 +41,7 @@ describe('Circuits end-to-end tests', () => {
         await app.close();
     });
 
+    const simu_filenames = simu_files_wavedrom.map(element => element.filename);
 
     describe("POST /circuits", () => {
         it("should succeed", async () => {
