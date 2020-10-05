@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
-import { Circuit } from './circuit.entity';
+import { CircuitFile } from './circuitFile.entity';
 import { Entity } from '@simulogic/core';
 import * as fs from 'fs';
 import {
@@ -17,7 +17,7 @@ import {
 // Note: The database must be deployed to run those tests
 
 
-describe('Circuits end-to-end tests', () => {
+describe('CircuitFiles end-to-end tests', () => {
     let app: INestApplication;
 
     beforeAll(async () => {
@@ -99,7 +99,7 @@ describe('Circuits end-to-end tests', () => {
 
             // When getting circuits
             const response = await request(app.getHttpServer()).get('/circuits');
-            const uploaded_circuits: Circuit[] = response.body;
+            const uploaded_circuits: CircuitFile[] = response.body;
 
             // Then response should contain the uploaded circuits and be ok
             expect(uploaded_circuits.length).toEqual(circuit_filenames.length);

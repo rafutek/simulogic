@@ -1,26 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CircuitsService } from "./circuits.service"
-import { Circuit } from './circuit.entity';
-import { CircuitsController } from './circuits.controller';
+import { CircuitFilesService } from "./circuitFiles.service"
+import { CircuitFile } from './circuitFile.entity';
+import { CircuitFilesController } from './circuitFiles.controller';
 
-const circuit1 = new Circuit("circuit 1", "/path/test", "sim/path/test");
-const circuit2 = new Circuit("circuit 2", "/path/test", "sim/path/test");
-const circuits: Circuit[] = [circuit1, circuit2];
+const circuit1 = new CircuitFile("circuit 1", "/path/test", "sim/path/test");
+const circuit2 = new CircuitFile("circuit 2", "/path/test", "sim/path/test");
+const circuits: CircuitFile[] = [circuit1, circuit2];
 
 const entity1 = { id: 13, name: "circuit test" };
 const entity2 = { id: 17, name: "another circuit" };
 const entities = [entity1, entity2];
 
-describe("CircuitsController", () => {
-  let controller: CircuitsController;
-  let service: CircuitsService;
+describe("CircuitFilesController", () => {
+  let controller: CircuitFilesController;
+  let service: CircuitFilesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CircuitsController],
+      controllers: [CircuitFilesController],
       providers: [
         {
-          provide: CircuitsService,
+          provide: CircuitFilesService,
           // Mock the service functions
           useValue: {
             insertOne: jest.fn(),
@@ -36,8 +36,8 @@ describe("CircuitsController", () => {
       ]
     }).compile();
 
-    controller = module.get<CircuitsController>(CircuitsController);
-    service = module.get<CircuitsService>(CircuitsService);
+    controller = module.get<CircuitFilesController>(CircuitFilesController);
+    service = module.get<CircuitFilesService>(CircuitFilesService);
   });
 
   it('should be defined', () => {

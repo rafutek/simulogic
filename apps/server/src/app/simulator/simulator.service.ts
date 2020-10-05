@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CircuitsService } from '../circuits/circuits.service';
+import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { ExtractorService } from '../extractor/extractor.service';
 import { MemoryService } from '../memory/memory.service';
 import { SimulatorDTO } from './simulator.dto';
@@ -7,7 +7,7 @@ import { isEmpty, isUUID } from 'class-validator';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
-import { Circuit } from '../circuits/circuit.entity';
+import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import { ManipulatorService } from '../manipulator/manipulator.service';
@@ -23,7 +23,7 @@ const rslt_path = "simulator/home/user1/simulator/out/";
 export class SimulatorService {
     constructor(
         private readonly simulations_service: SimulationFilesService,
-        private readonly circuits_service: CircuitsService,
+        private readonly circuits_service: CircuitFilesService,
         private readonly extractor_service: ExtractorService,
         private readonly manipulator_service: ManipulatorService,
         private readonly memory_service: MemoryService
@@ -123,7 +123,7 @@ export class SimulatorService {
      * Throws an error if it fails.
      * @param uuid_circuit UUID of the circuit to get
      */
-    private async getCircuit(uuid_circuit: string): Promise<Circuit> {
+    private async getCircuit(uuid_circuit: string): Promise<CircuitFile> {
         if (!isUUID(uuid_circuit)) {
             throw new Error(`Circuit UUID '${uuid_circuit}' must be a UUID`);
         }
@@ -138,7 +138,7 @@ export class SimulatorService {
      * Calls Java binary to create the simulator C++ source files.
      * @param circuit circuit entity from database
      */
-    private createSimulatorSrcFiles(circuit: Circuit): void {
+    private createSimulatorSrcFiles(circuit: CircuitFile): void {
         if (isEmpty(circuit.path)) {
             throw new Error(`Circuit path '${circuit.path}' cannot be empty`);
         }
@@ -165,7 +165,7 @@ export class SimulatorService {
      * @param circuit circuit entity from database
      * @param executable name of the executable to create
      */
-    private createSimulator(circuit: Circuit, executable: string): string {
+    private createSimulator(circuit: CircuitFile, executable: string): string {
         this.createSimulatorSrcFiles(circuit);
         const full_path = bin_path + executable;
         const relative_path = `../bin/${executable}`;
@@ -194,7 +194,7 @@ export class SimulatorService {
      * @param circuit circuit entity from database
      * @param executable name of the executable to create
      */
-    private async createAndSaveSimulator(circuit: Circuit, executable: string) {
+    private async createAndSaveSimulator(circuit: CircuitFile, executable: string) {
         if (isEmpty(executable)) {
             throw new Error(`Simulator name '${executable}' cannot be empty`);
         }
@@ -210,7 +210,7 @@ export class SimulatorService {
      * @param circuit circuit entity from database
      * @param simulation simulation entity from database
      */
-    private simulate(circuit: Circuit, simulation: SimulationFile): string {
+    private simulate(circuit: CircuitFile, simulation: SimulationFile): string {
         if (isEmpty(circuit) || isEmpty(simulation)) {
             throw new Error(`Circuit '${circuit}' and simulation '${simulation}' cannot be empty`);
         }

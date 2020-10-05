@@ -10,9 +10,9 @@ import { SimulatorDTO } from '../simulator/simulator.dto';
 import { SimulationFile } from './simulationFile.entity';
 import * as fs from 'fs';
 import { isEmpty, isNotEmpty, validate } from 'class-validator';
-import { CircuitsService } from '../circuits/circuits.service';
+import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { execSync } from 'child_process';
-import { Circuit } from '../circuits/circuit.entity';
+import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { ExtractorService } from '../extractor/extractor.service';
 import "multer";
 import { WaveDrom } from '@simulogic/core';
@@ -22,7 +22,7 @@ import { ManipulatorService } from '../manipulator/manipulator.service';
 export class SimulationFilesController {
   constructor(
     private readonly simulations_service: SimulationFilesService,
-    private readonly circuits_service: CircuitsService,
+    private readonly circuits_service: CircuitFilesService,
     private readonly simulation_extractor: ExtractorService,
     private readonly manipulator_service: ManipulatorService,
   ) { }
@@ -123,7 +123,7 @@ export class SimulationFilesController {
   }
 
 
-  createAndSaveSimulator(circuit: Circuit) {
+  createAndSaveSimulator(circuit: CircuitFile) {
     const circuit_filename = circuit.path.split('/').pop();
     // const circuit_filepath = `../../../home/user1/circuitCreator/data/${circuit_filename}`;
     // const simulator_path = `../../../home/user1/simulator/bin/${circuit_filename}`;
@@ -135,7 +135,7 @@ export class SimulationFilesController {
     } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
 
-  executeAndSaveSimulation(circuit: Circuit, simulation: SimulationFile) {
+  executeAndSaveSimulation(circuit: CircuitFile, simulation: SimulationFile) {
     const circuit_filename = circuit.path.split('/').pop();
     const simulation_filename = simulation.path.split('/').pop();
     execSync(`cd simulator/common/scripts && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);

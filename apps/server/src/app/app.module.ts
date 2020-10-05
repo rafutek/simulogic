@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SimulationFilesModule } from './simulationFiles/simulationFiles.module';
-import { CircuitsModule } from './circuits/circuits.module';
+import { CircuitFilesModule } from './circuitFiles/circuitFiles.module';
 import { SimulatorModule } from './simulator/simulator.module';
 
 @Module({
@@ -19,7 +19,7 @@ import { SimulatorModule } from './simulator/simulator.module';
     }),
     SimulatorModule,
     SimulationFilesModule,
-    CircuitsModule
+    CircuitFilesModule
   ]
 })
 export class AppModule {}

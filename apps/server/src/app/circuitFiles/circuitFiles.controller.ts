@@ -4,16 +4,16 @@ import {
   BadRequestException
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { CircuitsService } from './circuits.service';
-import { CircuitDTO } from './circuit.dto';
-import { Circuit } from './circuit.entity';
+import { CircuitFilesService } from './circuitFiles.service';
+import { CircuitFileDTO } from './circuitFile.dto';
+import { CircuitFile } from './circuitFile.entity';
 import * as fs from 'fs';
 import "multer";
 import { validate } from 'class-validator';
 
 @Controller('circuits')
-export class CircuitsController {
-  constructor(private readonly circuits_service: CircuitsService) { }
+export class CircuitFilesController {
+  constructor(private readonly circuits_service: CircuitFilesService) { }
 
   /**
    * Uploads and saves circuit files in database. Returns invalid files not uploaded.
@@ -25,7 +25,7 @@ export class CircuitsController {
     const invalid_files: Express.Multer.File[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const circuitDTO = new CircuitDTO();
+      const circuitDTO = new CircuitFileDTO();
       circuitDTO.name = file.originalname;
       circuitDTO.path = file.path;
       const errors = await validate(circuitDTO);
@@ -42,7 +42,7 @@ export class CircuitsController {
    * Returns the circuits present in the database by id and name.
    */
   @Get()
-  getCircuits(): Promise<Circuit[]> {
+  getCircuits(): Promise<CircuitFile[]> {
     return this.circuits_service.getAllByEntity();
   }
 
@@ -51,7 +51,7 @@ export class CircuitsController {
    * @param id id of the circuit
    */
   @Get(':id')
-  async getCircuit(@Param('id') id: string): Promise<Circuit> {
+  async getCircuit(@Param('id') id: string): Promise<CircuitFile> {
     const circuit = await this.circuits_service.getOneByEntity(id);
     if (!circuit) {
       throw new BadRequestException(`Circuit with id '${id}' not found`);
@@ -85,7 +85,7 @@ export class CircuitsController {
    * @param exp expression to search in circuit filenames
    */
   @Get('search/:exp')
-  async searchCircuits(@Param('exp') exp: string): Promise<Circuit[]> {
+  async searchCircuits(@Param('exp') exp: string): Promise<CircuitFile[]> {
     const all_circuits = await this.circuits_service.getAll();
     if (all_circuits?.length == 0) {
       throw new BadRequestException(`There are no uploaded circuits to search for`);

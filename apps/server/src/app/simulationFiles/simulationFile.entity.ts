@@ -11,7 +11,6 @@ export class SimulationFile {
   @Column()
   path: string;
 
-  @Column()
   result_path: string;
 
   constructor(name?: string, path?: string, result_path?: string) {

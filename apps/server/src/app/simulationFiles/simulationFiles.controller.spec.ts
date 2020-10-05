@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SimulationFilesService } from "./simulationFiles.service"
 import { SimulationFile } from './simulationFile.entity';
 import { SimulationFilesController } from './simulationFiles.controller';
-import { CircuitsService } from '../circuits/circuits.service';
-import { Circuit } from '../circuits/circuit.entity';
+import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { ExtractorService } from '../extractor/extractor.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 
@@ -38,7 +37,7 @@ describe("SimulationFilesController", () => {
                     }
                 },
                 {
-                    provide: CircuitsService,
+                    provide: CircuitFilesService,
                     // Mock simulations service functions
                     useValue: {}
                 },

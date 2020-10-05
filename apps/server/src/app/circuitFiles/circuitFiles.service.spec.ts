@@ -1,24 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CircuitsService } from "./circuits.service"
+import { CircuitFilesService } from "./circuitFiles.service"
 import { Repository, Like, DeleteResult } from 'typeorm';
-import { Circuit } from './circuit.entity';
+import { CircuitFile } from './circuitFile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CircuitDTO } from './circuit.dto';
+import { CircuitFileDTO } from './circuitFile.dto';
 
-const circuit1 = new Circuit("circuit 1", "/path/test", "sim/path/test");
-const circuit2 = new Circuit("circuit 2", "/path/test", "sim/path/test");
-const circuits: Circuit[] = [circuit1, circuit2];
+const circuit1 = new CircuitFile("circuit 1", "/path/test", "sim/path/test");
+const circuit2 = new CircuitFile("circuit 2", "/path/test", "sim/path/test");
+const circuits: CircuitFile[] = [circuit1, circuit2];
 
-describe("CircuitsService", () => {
-  let service: CircuitsService;
-  let repo: Repository<Circuit>;
+describe("CircuitFilesService", () => {
+  let service: CircuitFilesService;
+  let repo: Repository<CircuitFile>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CircuitsService,
+        CircuitFilesService,
         {
-          provide: getRepositoryToken(Circuit),
+          provide: getRepositoryToken(CircuitFile),
           // Mock the repository functions
           useValue: {
             find: jest.fn().mockResolvedValue(circuits),
@@ -32,8 +32,8 @@ describe("CircuitsService", () => {
       ]
     }).compile();
 
-    service = module.get<CircuitsService>(CircuitsService);
-    repo = module.get<Repository<Circuit>>(getRepositoryToken(Circuit));
+    service = module.get<CircuitFilesService>(CircuitFilesService);
+    repo = module.get<Repository<CircuitFile>>(getRepositoryToken(CircuitFile));
   });
 
   it('should be defined', () => {
@@ -99,7 +99,7 @@ describe("CircuitsService", () => {
     it('should insert one circuit', async () => {
       // Given a circuit DTO, and spies on repo functions
       // Note that DTO validation is done in end-to-end (e2e) tests
-      const circuit_test_dto = new CircuitDTO();
+      const circuit_test_dto = new CircuitFileDTO();
       circuit_test_dto.name = "circuit name";
       circuit_test_dto.path = "circuit path";
       const repo_create_spy = jest.spyOn(repo, 'create');
@@ -120,7 +120,7 @@ describe("CircuitsService", () => {
   describe('updateOne', () => {
     it('should update one circuit', async () => {
       // Given a circuit, and spies on repo functions
-      const circuit_to_update: Circuit = {
+      const circuit_to_update: CircuitFile = {
         uuid: "12",
         name: "circuit name",
         path: "path",
@@ -189,7 +189,7 @@ describe("CircuitsService", () => {
   describe('renameOne', () => {
     it('should rename one circuit', async () => {
       // Given a circuit, and spies on repo functions
-      const circuit_to_rename: Circuit = {
+      const circuit_to_rename: CircuitFile = {
         uuid: "12",
         name: "circuit name",
         path: "path",

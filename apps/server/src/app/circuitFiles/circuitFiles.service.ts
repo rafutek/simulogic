@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
-import { CircuitDTO } from './circuit.dto';
-import { Circuit } from './circuit.entity';
+import { CircuitFileDTO } from './circuitFile.dto';
+import { CircuitFile } from './circuitFile.entity';
 
 @Injectable()
-export class CircuitsService {
+export class CircuitFilesService {
   constructor(
-    @InjectRepository(Circuit)
-    private readonly circuits_repository: Repository<Circuit>,
+    @InjectRepository(CircuitFile)
+    private readonly circuits_repository: Repository<CircuitFile>,
   ) { }
 
   /**
    * Returns all the circuits present in the database.
    */
-  getAll(): Promise<Circuit[]> {
+  getAll(): Promise<CircuitFile[]> {
     return this.circuits_repository.find();
   }
 
   /**
    * Returns all the circuits present in the database by uuid and name.
    */
-  getAllByEntity(): Promise<Circuit[]> {
+  getAllByEntity(): Promise<CircuitFile[]> {
     return this.circuits_repository.find({ select: ["uuid", "name"] });
   }
 
@@ -29,7 +29,7 @@ export class CircuitsService {
    * Returns the circuit with given uuid present in the database.
    * @param uuid uuid of the circuit
    */
-  getOne(uuid: string): Promise<Circuit> {
+  getOne(uuid: string): Promise<CircuitFile> {
     return this.circuits_repository.findOne(uuid);
   }
 
@@ -37,7 +37,7 @@ export class CircuitsService {
    * Returns the circuit with given uuid present in the database by uuid and name.
    * @param uuid uuid of the circuit
    */
-  getOneByEntity(uuid: string): Promise<Circuit> {
+  getOneByEntity(uuid: string): Promise<CircuitFile> {
     return this.circuits_repository.findOne(uuid, { select: ["uuid", "name"] });
   }
 
@@ -45,7 +45,7 @@ export class CircuitsService {
    * Inserts a circuit in the database and returns it.
    * @param new_circuit valid circuit variable
    */
-  async insertOne(new_circuit: CircuitDTO): Promise<Circuit> {
+  async insertOne(new_circuit: CircuitFileDTO): Promise<CircuitFile> {
     const new_circuit_entity = this.circuits_repository.create(new_circuit);
     await this.circuits_repository.save(new_circuit_entity);
     return new_circuit_entity;
@@ -55,7 +55,7 @@ export class CircuitsService {
    * Updates a circuit present in the database and returns it.
    * @param circuit database circuit to update
    */
-  async updateOne(circuit: Circuit): Promise<Circuit> {
+  async updateOne(circuit: CircuitFile): Promise<CircuitFile> {
     const { uuid: uuid } = circuit;
     await this.circuits_repository.update(uuid, circuit);
     return this.getOne(uuid);
@@ -75,7 +75,7 @@ export class CircuitsService {
    * and returns these circuits by uuid and name.
    * @param search_expr expression to search in circuit names
    */
-  findAndGetByEntity(search_expr: string): Promise<Circuit[]> {
+  findAndGetByEntity(search_expr: string): Promise<CircuitFile[]> {
     return this.circuits_repository.find({
       where: { name: Like(search_expr) },
       select: ["uuid", "name"]

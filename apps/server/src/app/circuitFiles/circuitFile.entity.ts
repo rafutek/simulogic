@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Circuit {
+export class CircuitFile {
   @PrimaryGeneratedColumn("uuid")
   uuid: string;
 

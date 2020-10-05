@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
-import { Circuit } from '../circuits/circuit.entity';
-import { CircuitsService } from '../circuits/circuits.service';
+import { CircuitFile } from '../circuitFiles/circuitFile.entity';
+import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { ExtractorService } from '../extractor/extractor.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 import { MemoryService } from '../memory/memory.service';
@@ -17,7 +17,7 @@ const simulation1: SimulationFile = {
     path: "some/path/to/file", result_path: ""
 };
 
-const circuit1: Circuit = {
+const circuit1: CircuitFile = {
     uuid: uuid_test, name: "circ 1",
     path: "some/path/to/file", simulator_path: ""
 };
@@ -47,7 +47,7 @@ describe("SimulatorService", () => {
                     }
                 },
                 {
-                    provide: CircuitsService,
+                    provide: CircuitFilesService,
                     useValue: {
                         getOne: jest.fn().mockResolvedValue(circuit1)
                     }
