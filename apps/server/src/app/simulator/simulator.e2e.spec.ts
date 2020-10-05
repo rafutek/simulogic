@@ -9,7 +9,7 @@ import {
     getFiles
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
-import { Simulation } from '../simulations/simulation.entity';
+import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 
 // Note: The database must be deployed to run those tests
 
@@ -87,7 +87,7 @@ describe('Simulator end-to-end tests', () => {
             for (let i = 0; i < uploaded_simulations.length; i++) {
 
                 // When posting to the simulator simulatorDTO with uuid_simu of a file
-                const simu: Simulation = uploaded_simulations[i];
+                const simu: SimulationFile = uploaded_simulations[i];
                 simulatorDTO.uuid_simu = simu.uuid;
                 const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
@@ -96,6 +96,11 @@ describe('Simulator end-to-end tests', () => {
                 expect(response.ok).toBeTruthy();
                 expect(response.body).toEqual(simu_file_wavedrom.wavedrom);
             }
+        });
+
+        it("should return expected combined WaveDroms", async () => {
+            // Given uploaded simulation and circuit files
+
         });
 
     });

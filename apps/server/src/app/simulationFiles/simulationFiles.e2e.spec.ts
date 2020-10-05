@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
-import { Simulation } from './simulation.entity';
+import { SimulationFile } from './simulationFile.entity';
 import {
     example_files_path,
     circuit_filenames,
@@ -14,7 +14,7 @@ import {
 
 // Note: The database must be deployed to run those tests
 
-describe('Simulations end-to-end tests', () => {
+describe('SimulationFiles end-to-end tests', () => {
     let app: INestApplication;
 
     beforeAll(async () => {
@@ -96,7 +96,7 @@ describe('Simulations end-to-end tests', () => {
 
             // When getting simulations
             const response = await request(app.getHttpServer()).get('/simulations');
-            const uploaded_simulations: Simulation[] = response.body;
+            const uploaded_simulations: SimulationFile[] = response.body;
 
             // Then response should contain the uploaded circuits and be ok
             expect(uploaded_simulations.length).toEqual(simu_filenames.length);

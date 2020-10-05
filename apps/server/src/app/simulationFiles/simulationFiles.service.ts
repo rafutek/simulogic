@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
-import { SimulationDTO } from './simulation.dto';
-import { Simulation } from './simulation.entity';
+import { SimulationFileDTO } from './simulationFile.dto';
+import { SimulationFile } from './simulationFile.entity';
 
 @Injectable()
-export class SimulationsService {
+export class SimulationFilesService {
   constructor(
-    @InjectRepository(Simulation)
-    private readonly simulations_repository: Repository<Simulation>,
+    @InjectRepository(SimulationFile)
+    private readonly simulations_repository: Repository<SimulationFile>,
   ) { }
 
   /**
    * Returns all the simulations present in the database.
    */
-  async getAll(): Promise<Simulation[]> {
+  async getAll(): Promise<SimulationFile[]> {
     return this.simulations_repository.find();
   }
 
   /**
    * Returns all the simulations present in the database by uuid and name.
    */
-  async getAllByEntity(): Promise<Simulation[]> {
+  async getAllByEntity(): Promise<SimulationFile[]> {
     return this.simulations_repository.find({ select: ["uuid", "name"] });
   }
 
@@ -29,7 +29,7 @@ export class SimulationsService {
    * Returns the simulation with given uuid present in the database.
    * @param uuid uuid of the simulation
    */
-  getOne(uuid: string): Promise<Simulation> {
+  getOne(uuid: string): Promise<SimulationFile> {
     return this.simulations_repository.findOne(uuid);
   }
 
@@ -37,7 +37,7 @@ export class SimulationsService {
    * Returns the simulation with given uuid present in the database by uuid and name.
    * @param uuid uuid of the simulation
    */
-  getOneByEntity(uuid: string): Promise<Simulation> {
+  getOneByEntity(uuid: string): Promise<SimulationFile> {
     return this.simulations_repository.findOne(uuid, { select: ["uuid", "name"] });
   }
 
@@ -45,7 +45,7 @@ export class SimulationsService {
  * Inserts a simulation in the database and returns it.
  * @param new_simulation valid simulation variable
  */
-  async insertOne(new_simulation: SimulationDTO): Promise<Simulation> {
+  async insertOne(new_simulation: SimulationFileDTO): Promise<SimulationFile> {
     const new_simu_entity = this.simulations_repository.create(new_simulation);
     await this.simulations_repository.save(new_simu_entity);
     return new_simu_entity;
@@ -55,7 +55,7 @@ export class SimulationsService {
    * Updates a simulation present in the database and returns it.
    * @param simulation database simulation to update
    */
-  async updateOne(simulation: Simulation): Promise<Simulation> {
+  async updateOne(simulation: SimulationFile): Promise<SimulationFile> {
     const { uuid: uuid } = simulation;
     await this.simulations_repository.update(uuid, simulation);
     return this.getOne(uuid);
@@ -75,7 +75,7 @@ export class SimulationsService {
    *  and returns these simulations by uuid and name.
    *  @param search_expr expression to search in simulation names
    */
-  findAndGetByEntity(search_expr: string): Promise<Simulation[]> {
+  findAndGetByEntity(search_expr: string): Promise<SimulationFile[]> {
     return this.simulations_repository.find({
       where: { name: Like(search_expr) },
       select: ["uuid", "name"]

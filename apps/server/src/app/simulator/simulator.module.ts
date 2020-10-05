@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Simulation } from '../simulations/simulation.entity';
-import { SimulationsService } from '../simulations/simulations.service';
+import { SimulationFile } from '../simulationFiles/simulationFile.entity';
+import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { CircuitsService } from '../circuits/circuits.service';
 import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorService } from '../extractor/extractor.service';
@@ -11,10 +11,10 @@ import { SimulatorController } from './simulator.controller';
 import { SimulatorService } from './simulator.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Simulation]), TypeOrmModule.forFeature([Circuit])],
+    imports: [TypeOrmModule.forFeature([SimulationFile]), TypeOrmModule.forFeature([Circuit])],
     providers: [
         SimulatorService,
-        SimulationsService,
+        SimulationFilesService,
         CircuitsService,
         ExtractorService,
         ManipulatorService,

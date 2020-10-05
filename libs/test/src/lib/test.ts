@@ -85,6 +85,18 @@ const triSeq: SimuFileWaveDrom = {
 export const simu_files_wavedrom = [adder, OR_gate, triSeq];
 
 
+interface SimuRsltFileWaveDrom {
+    circuit_filename: string,
+    simu_file_wavedrom: SimuFileWaveDrom,
+    combined_wavedrom: WaveDrom
+}
+
+// const adder_rslt: SimuRsltFileWaveDrom = {
+//     circuit_filename: "adder.logic",
+//     simu_file_wavedrom: adder,
+//     combined_wavedrom: 
+// }
+
 
 
 /**

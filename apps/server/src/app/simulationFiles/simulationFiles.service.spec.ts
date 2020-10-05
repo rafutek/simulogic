@@ -1,24 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SimulationsService } from "./simulations.service"
+import { SimulationFilesService } from "./simulationFiles.service"
 import { Repository, Like, DeleteResult } from 'typeorm';
-import { Simulation } from './simulation.entity';
+import { SimulationFile } from './simulationFile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { SimulationDTO } from './simulation.dto';
+import { SimulationFileDTO } from './simulationFile.dto';
 
-const simu1 = new Simulation("simu 1", "/path/test", "result/path/test");
-const simu2 = new Simulation("simu 2", "/path/test", "result/path/test");
-const simulations: Simulation[] = [simu1, simu2];
+const simu1 = new SimulationFile("simu 1", "/path/test", "result/path/test");
+const simu2 = new SimulationFile("simu 2", "/path/test", "result/path/test");
+const simulations: SimulationFile[] = [simu1, simu2];
 
-describe("SimulationsService", () => {
-    let service: SimulationsService;
-    let repo: Repository<Simulation>;
+describe("SimulationFilesService", () => {
+    let service: SimulationFilesService;
+    let repo: Repository<SimulationFile>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                SimulationsService,
+                SimulationFilesService,
                 {
-                    provide: getRepositoryToken(Simulation),
+                    provide: getRepositoryToken(SimulationFile),
                     // Mock the repository functions
                     useValue: {
                         find: jest.fn().mockResolvedValue(simulations),
@@ -32,8 +32,8 @@ describe("SimulationsService", () => {
             ]
         }).compile();
 
-        service = module.get<SimulationsService>(SimulationsService);
-        repo = module.get<Repository<Simulation>>(getRepositoryToken(Simulation));
+        service = module.get<SimulationFilesService>(SimulationFilesService);
+        repo = module.get<Repository<SimulationFile>>(getRepositoryToken(SimulationFile));
     });
 
     it('should be defined', () => {
@@ -99,7 +99,7 @@ describe("SimulationsService", () => {
         it('should insert one simulation', async () => {
             // Given a simulation DTO, and spies on repo functions
             // Note that DTO validation is done in end-to-end (e2e) tests
-            const simu_test_dto = new SimulationDTO();
+            const simu_test_dto = new SimulationFileDTO();
             simu_test_dto.name = "simu name";
             simu_test_dto.path = "simu path";
             const repo_create_spy = jest.spyOn(repo, 'create');
@@ -120,7 +120,7 @@ describe("SimulationsService", () => {
     describe('updateOne', () => {
         it('should update one simulation', async () => {
             // Given a simulation, and spies on repo functions
-            const simu_to_update: Simulation = {
+            const simu_to_update: SimulationFile = {
                 uuid: "12",
                 name: "simu name",
                 path: "path",
@@ -189,7 +189,7 @@ describe("SimulationsService", () => {
       describe('renameOne', () => {
         it('should rename one simulation', async () => {
           // Given a simulation, and spies on repo functions
-          const simulation_to_rename: Simulation = {
+          const simulation_to_rename: SimulationFile = {
             uuid: "12",
             name: "simulation name",
             path: "path",

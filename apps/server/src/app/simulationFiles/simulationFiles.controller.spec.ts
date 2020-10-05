@@ -1,30 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SimulationsService } from "./simulations.service"
-import { Simulation } from './simulation.entity';
-import { SimulationsController } from './simulations.controller';
+import { SimulationFilesService } from "./simulationFiles.service"
+import { SimulationFile } from './simulationFile.entity';
+import { SimulationFilesController } from './simulationFiles.controller';
 import { CircuitsService } from '../circuits/circuits.service';
 import { Circuit } from '../circuits/circuit.entity';
 import { ExtractorService } from '../extractor/extractor.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 
-const simulation1 = new Simulation("simulation 1", "/path/test", "sim/path/test");
-const simulation2 = new Simulation("simulation 2", "/path/test", "sim/path/test");
-const simulations: Simulation[] = [simulation1, simulation2];
+const simulation1 = new SimulationFile("simulation 1", "/path/test", "sim/path/test");
+const simulation2 = new SimulationFile("simulation 2", "/path/test", "sim/path/test");
+const simulations: SimulationFile[] = [simulation1, simulation2];
 
 const entity1 = { id: 13, name: "simulation test" };
 const entity2 = { id: 17, name: "another simulation" };
 const entities = [entity1, entity2];
 
-describe("SimulationsController", () => {
-    let controller: SimulationsController;
-    let service: SimulationsService;
+describe("SimulationFilesController", () => {
+    let controller: SimulationFilesController;
+    let service: SimulationFilesService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [SimulationsController],
+            controllers: [SimulationFilesController],
             providers: [
                 {
-                    provide: SimulationsService,
+                    provide: SimulationFilesService,
                     // Mock simulation service functions
                     useValue: {
                         insertOne: jest.fn(),
@@ -55,8 +55,8 @@ describe("SimulationsController", () => {
             ]
         }).compile();
 
-        controller = module.get<SimulationsController>(SimulationsController);
-        service = module.get<SimulationsService>(SimulationsService);
+        controller = module.get<SimulationFilesController>(SimulationFilesController);
+        service = module.get<SimulationFilesService>(SimulationFilesService);
     });
 
     it('should be defined', () => {

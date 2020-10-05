@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { SimulationsModule } from './simulations/simulations.module';
+import { SimulationFilesModule } from './simulationFiles/simulationFiles.module';
 import { CircuitsModule } from './circuits/circuits.module';
 import { SimulatorModule } from './simulator/simulator.module';
 
@@ -18,7 +18,7 @@ import { SimulatorModule } from './simulator/simulator.module';
       synchronize: true,
     }),
     SimulatorModule,
-    SimulationsModule,
+    SimulationFilesModule,
     CircuitsModule
   ]
 })

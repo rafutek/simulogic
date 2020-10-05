@@ -4,10 +4,10 @@ import {
   UploadedFiles
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { SimulationsService } from './simulations.service';
-import { SimulationDTO } from './simulation.dto';
+import { SimulationFilesService } from './simulationFiles.service';
+import { SimulationFileDTO } from './simulationFile.dto';
 import { SimulatorDTO } from '../simulator/simulator.dto';
-import { Simulation } from './simulation.entity';
+import { SimulationFile } from './simulationFile.entity';
 import * as fs from 'fs';
 import { isEmpty, isNotEmpty, validate } from 'class-validator';
 import { CircuitsService } from '../circuits/circuits.service';
@@ -19,9 +19,9 @@ import { WaveDrom } from '@simulogic/core';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 
 @Controller('simulations')
-export class SimulationsController {
+export class SimulationFilesController {
   constructor(
-    private readonly simulations_service: SimulationsService,
+    private readonly simulations_service: SimulationFilesService,
     private readonly circuits_service: CircuitsService,
     private readonly simulation_extractor: ExtractorService,
     private readonly manipulator_service: ManipulatorService,
@@ -37,7 +37,7 @@ export class SimulationsController {
     const invalid_files: Express.Multer.File[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const simulationDTO = new SimulationDTO();
+      const simulationDTO = new SimulationFileDTO();
       simulationDTO.name = file.originalname;
       simulationDTO.path = file.path;
       const errors = await validate(simulationDTO);
@@ -55,7 +55,7 @@ export class SimulationsController {
    * Returns the simulations present in the database by id and name.
    */
   @Get()
-  getSimulations(): Promise<Simulation[]> {
+  getSimulations(): Promise<SimulationFile[]> {
     return this.simulations_service.getAllByEntity();
   }
 
@@ -135,7 +135,7 @@ export class SimulationsController {
     } else throw new InternalServerErrorException("Error in circuit simulator creation");
   }
 
-  executeAndSaveSimulation(circuit: Circuit, simulation: Simulation) {
+  executeAndSaveSimulation(circuit: Circuit, simulation: SimulationFile) {
     const circuit_filename = circuit.path.split('/').pop();
     const simulation_filename = simulation.path.split('/').pop();
     execSync(`cd simulator/common/scripts && ./simulate_save.sh user1 ${circuit_filename} ${simulation_filename}`);

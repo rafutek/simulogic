@@ -5,14 +5,14 @@ import { CircuitsService } from '../circuits/circuits.service';
 import { ExtractorService } from '../extractor/extractor.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 import { MemoryService } from '../memory/memory.service';
-import { Simulation } from '../simulations/simulation.entity';
-import { SimulationsService } from '../simulations/simulations.service';
+import { SimulationFile } from '../simulationFiles/simulationFile.entity';
+import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService } from "./simulator.service";
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
-const simulation1: Simulation = {
+const simulation1: SimulationFile = {
     uuid: uuid_test, name: "simu 1",
     path: "some/path/to/file", result_path: ""
 };
@@ -34,14 +34,14 @@ const expected_uuidwavedrom: UUIDWaveDrom = {
 describe("SimulatorService", () => {
     let simulator: SimulatorService;
     let memory: MemoryService;
-    let simu_repo: SimulationsService;
+    let simu_repo: SimulationFilesService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 SimulatorService,
                 {
-                    provide: SimulationsService,
+                    provide: SimulationFilesService,
                     useValue: {
                         getOne: jest.fn().mockResolvedValue(simulation1)
                     }
@@ -51,7 +51,8 @@ describe("SimulatorService", () => {
                     useValue: {
                         getOne: jest.fn().mockResolvedValue(circuit1)
                     }
-                },
+                }, 
+                 ManipulatorService,
                 {
                     provide: ExtractorService,
                     useValue: {
@@ -63,14 +64,14 @@ describe("SimulatorService", () => {
         }).compile();
 
         simulator = module.get<SimulatorService>(SimulatorService);
-        simu_repo = module.get<SimulationsService>(SimulationsService);
+        simu_repo = module.get<SimulationFilesService>(SimulationFilesService);
         memory = module.get<MemoryService>(MemoryService);
     });
 
     it('should be defined', () => {
         expect(simulator).toBeDefined();
     });
-    
+
     describe("process", () => {
 
         let simuDTO: SimulatorDTO;
@@ -107,8 +108,23 @@ describe("SimulatorService", () => {
             expect(error).toBeDefined();
         });
 
+        it("should throw an error when simulatorDTO uuid_simu is not a UUID", async () => {
+            // Given an undefined DTO
+            // When calling process function
+            simuDTO.uuid_simu = "adzlsdl";
+            let error: any;
+            try {
+                await simulator.process(simuDTO);
+            } catch (e) {
+                error = e;
+            }
+            // it should throw an error
+            expect(error).toBeDefined();
+        });
+
         it("should throw an error when simulation is not found", async () => {
-            // Given a getOne function that returns undefined
+            // Given a valid uuid_smi and a getOne function that returns undefined
+            simuDTO.uuid_simu = uuid_test;
             jest.spyOn(simu_repo, "getOne").mockResolvedValue(undefined);
 
             // When calling process function
@@ -123,8 +139,9 @@ describe("SimulatorService", () => {
         });
 
         it("should not throw an error when simulation is found", async () => {
-            // Given a getOne function that returns a simulation
+            // Given a valid uuid_simu and a getOne function that returns a simulation
             // When calling process function
+            simuDTO.uuid_simu = uuid_test;
             let error: any;
             try {
                 await simulator.process(simuDTO);
@@ -147,7 +164,7 @@ describe("SimulatorService", () => {
             expect(memory.simulation).toEqual(expected_uuidwavedrom)
         });
 
-        
+
 
     });
 
