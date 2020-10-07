@@ -2,13 +2,13 @@ import {
     WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval
 } from '@simulogic/core'
 import { isEmpty, isNotEmpty } from 'class-validator';
-import { MemoryService } from '../memory/memory.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ManipulatorService {
+export class WaveDromManipulatorService {
     constructor(
-        private memory_service: MemoryService
+        private saver_service: WaveDromSaverService
     ) { }
 
     /**
@@ -99,8 +99,8 @@ export class ManipulatorService {
      */
     initAndFillIntervalWaveDrom(wavedrom: WaveDrom, interval: Interval) {
         const interval_wavedrom = this.initIntervalWaveDrom(wavedrom);
-        this.memory_service.reached_start = true;
-        this.memory_service.reached_end = true;
+        this.saver_service.reached_start = true;
+        this.saver_service.reached_end = true;
         const str_time_axis = wavedrom.foot.tick.split(' '); // full array
         const time_axis = this.tickToTimeAxis(wavedrom.foot.tick); // array reduced to numbers
         time_axis.forEach(t => {
@@ -112,10 +112,10 @@ export class ManipulatorService {
                 })
             }
             else if (t < interval.start) {
-                this.memory_service.reached_start = false;
+                this.saver_service.reached_start = false;
             }
             else if (t > interval.end) {
-                this.memory_service.reached_end = false;
+                this.saver_service.reached_end = false;
             }
         })
 
@@ -250,10 +250,10 @@ export class ManipulatorService {
      * @param interval_wavedrom WaveDrom variable to modify
      */
     manageIntervalLimits(interval_wavedrom: WaveDrom) {
-        if (this.memory_service.reached_end) {
+        if (this.saver_service.reached_end) {
             interval_wavedrom.foot.tick += "+ ";
         } else interval_wavedrom.foot.tick += "x ";
-        if (this.memory_service.reached_start) {
+        if (this.saver_service.reached_start) {
             interval_wavedrom.foot.tick = "- " + interval_wavedrom.foot.tick;
             interval_wavedrom.signal.forEach(signal => signal.wave = "x" + signal.wave);
         }
@@ -399,8 +399,8 @@ export class ManipulatorService {
      * @param wavedrom special WaveDrom variable to remember
      */
     setFinalWaveDrom(wavedrom: WaveDromBase) {
-        this.memory_service.simulation_sent = wavedrom;
-        return this.memory_service.simulation_sent;
+        this.saver_service.simulation_sent = wavedrom;
+        return this.saver_service.simulation_sent;
     }
 
     /**
@@ -408,9 +408,9 @@ export class ManipulatorService {
      * Each grouped signals contains the group name (like 'input') and an array of signal names.
      */
     getFinalWaveDromSignals() {
-        if (this.memory_service.simulation_sent && this.memory_service.simulation_sent.signal.length > 0) {
+        if (this.saver_service.simulation_sent && this.saver_service.simulation_sent.signal.length > 0) {
             const signal_groups: SignalGroup[] = [];
-            this.getGroupedSignals(this.memory_service.simulation_sent.signal, signal_groups);
+            this.getGroupedSignals(this.saver_service.simulation_sent.signal, signal_groups);
             return signal_groups;
         } else return null;
     }
@@ -490,11 +490,11 @@ export class ManipulatorService {
      */
     getLastTimeAxis() {
         let time_array: number[];
-        if (this.memory_service.full_simulation?.wavedrom) { // simu with result
-            time_array = this.tickToTimeAxis(this.memory_service.full_simulation.wavedrom.foot.tick);
+        if (this.saver_service.full_simulation?.wavedrom) { // simu with result
+            time_array = this.tickToTimeAxis(this.saver_service.full_simulation.wavedrom.foot.tick);
         }
-        else if (this.memory_service.simulation?.wavedrom) { // only simu
-            time_array = this.tickToTimeAxis(this.memory_service.simulation.wavedrom.foot.tick);
+        else if (this.saver_service.simulation?.wavedrom) { // only simu
+            time_array = this.tickToTimeAxis(this.saver_service.simulation.wavedrom.foot.tick);
         }
         // else, no simulation extracted
 

@@ -1,17 +1,17 @@
-import { ManipulatorService } from './manipulator.service'
+import { WaveDromManipulatorService } from './waveDromManipulator.service'
 import { WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MemoryService } from '../memory/memory.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 
-describe("ManipulatorService", () => {
-  let manipulator: ManipulatorService;
+describe("WaveDromManipulatorService", () => {
+  let manipulator: WaveDromManipulatorService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ManipulatorService, MemoryService]
+      providers: [WaveDromManipulatorService, WaveDromSaverService]
     }).compile();
 
-    manipulator = module.get<ManipulatorService>(ManipulatorService);
+    manipulator = module.get<WaveDromManipulatorService>(WaveDromManipulatorService);
   });
 
   it('should be defined', () => {

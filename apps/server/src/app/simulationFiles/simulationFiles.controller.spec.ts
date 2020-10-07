@@ -4,7 +4,7 @@ import { SimulationFile } from './simulationFile.entity';
 import { SimulationFilesController } from './simulationFiles.controller';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
-import { ManipulatorService } from '../manipulator/manipulator.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 
 const simulation1 = new SimulationFile("simulation 1", "/path/test", "sim/path/test");
 const simulation2 = new SimulationFile("simulation 2", "/path/test", "sim/path/test");
@@ -47,7 +47,7 @@ describe("SimulationFilesController", () => {
                     useValue: {}
                 },
                 {
-                    provide: ManipulatorService,
+                    provide: WaveDromManipulatorService,
                     // Mock manipulator service functions
                     useValue: {}
                 }

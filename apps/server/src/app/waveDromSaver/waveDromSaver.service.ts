@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { isEmpty, isUUID } from 'class-validator';
 
 @Injectable()
-export class MemoryService {
+export class WaveDromSaverService {
 
     /**
      * Contains the WaveDrom extracted from a simulation file,

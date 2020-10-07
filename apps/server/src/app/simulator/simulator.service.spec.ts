@@ -3,8 +3,8 @@ import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
-import { ManipulatorService } from '../manipulator/manipulator.service';
-import { MemoryService } from '../memory/memory.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { SimulatorDTO } from './simulator.dto';
@@ -33,7 +33,7 @@ const expected_uuidwavedrom: UUIDWaveDrom = {
 
 describe("SimulatorService", () => {
     let simulator: SimulatorService;
-    let memory: MemoryService;
+    let saver: WaveDromSaverService;
     let simu_repo: SimulationFilesService;
 
     beforeEach(async () => {
@@ -52,20 +52,20 @@ describe("SimulatorService", () => {
                         getOne: jest.fn().mockResolvedValue(circuit1)
                     }
                 }, 
-                 ManipulatorService,
+                 WaveDromManipulatorService,
                 {
                     provide: SimulationFileParserService,
                     useValue: {
                         extractFile: jest.fn().mockResolvedValue(expected_wavedrom)
                     }
                 },
-                MemoryService,
+                WaveDromSaverService,
             ],
         }).compile();
 
         simulator = module.get<SimulatorService>(SimulatorService);
         simu_repo = module.get<SimulationFilesService>(SimulationFilesService);
-        memory = module.get<MemoryService>(MemoryService);
+        saver = module.get<WaveDromSaverService>(WaveDromSaverService);
     });
 
     it('should be defined', () => {
@@ -161,7 +161,7 @@ describe("SimulatorService", () => {
 
             // it should return the expected WaveDrom, and save it in memory
             expect(wavedrom).toEqual(expected_wavedrom);
-            expect(memory.simulation).toEqual(expected_uuidwavedrom)
+            expect(saver.simulation).toEqual(expected_uuidwavedrom)
         });
 
 

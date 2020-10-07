@@ -5,8 +5,8 @@ import { SimulationFilesService } from '../simulationFiles/simulationFiles.servi
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
-import { MemoryService } from '../memory/memory.service';
-import { ManipulatorService } from '../manipulator/manipulator.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 import { SimulatorController } from './simulator.controller';
 import { SimulatorService } from './simulator.service';
 
@@ -17,8 +17,8 @@ import { SimulatorService } from './simulator.service';
         SimulationFilesService,
         CircuitFilesService,
         SimulationFileParserService,
-        ManipulatorService,
-        MemoryService],
+        WaveDromManipulatorService,
+        WaveDromSaverService],
     controllers: [SimulatorController]
 })
 export class SimulatorModule { }

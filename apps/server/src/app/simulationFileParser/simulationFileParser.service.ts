@@ -4,15 +4,15 @@ import {
     Timestep, SignalState, Interval, Clock
 } from '@simulogic/core'
 import { isEmpty, isInt, isNegative } from 'class-validator';
-import { MemoryService } from '../memory/memory.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { Injectable } from '@nestjs/common';
-import { ManipulatorService } from '../manipulator/manipulator.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 
 @Injectable()
 export class SimulationFileParserService {
     constructor(
-        private memory_service: MemoryService,
-        private manipulator_service: ManipulatorService,
+        private saver_service: WaveDromSaverService,
+        private manipulator_service: WaveDromManipulatorService,
     ) { }
 
     /**
@@ -22,11 +22,11 @@ export class SimulationFileParserService {
      * @param file_path path to the simulation file
      */
     async getWaveDrom(uuid: string, file_path: string): Promise<WaveDrom> {
-        if (isEmpty(this.memory_service.simulation) || this.memory_service.simulation.uuid != uuid) {
+        if (isEmpty(this.saver_service.simulation) || this.saver_service.simulation.uuid != uuid) {
             const wavedrom = await this.extractFile(file_path);
-            this.memory_service.simulation = { uuid: uuid, wavedrom: wavedrom };
+            this.saver_service.simulation = { uuid: uuid, wavedrom: wavedrom };
         }
-        return this.memory_service.simulation.wavedrom;
+        return this.saver_service.simulation.wavedrom;
     }
 
     /**
@@ -36,11 +36,11 @@ export class SimulationFileParserService {
      * @param file_path path to the simulation result file
      */
     async getWaveDromResult(uuid: string, file_path: string): Promise<WaveDrom> {
-        if (isEmpty(this.memory_service.simulation_result) || this.memory_service.simulation_result.uuid != uuid) {
+        if (isEmpty(this.saver_service.simulation_result) || this.saver_service.simulation_result.uuid != uuid) {
             const result_wavedrom = await this.extractFile(file_path);
-            this.memory_service.simulation_result = { uuid: uuid, wavedrom: result_wavedrom };
+            this.saver_service.simulation_result = { uuid: uuid, wavedrom: result_wavedrom };
         }
-        return this.memory_service.simulation_result.wavedrom;
+        return this.saver_service.simulation_result.wavedrom;
     }
 
     /**
@@ -400,12 +400,12 @@ export class SimulationFileParserService {
     }
 
     async getCombinedWaveDrom(uuid: string, simu_file_path: string, result_file_path: string) {
-        if (isEmpty(this.memory_service.full_simulation) || this.memory_service.full_simulation.uuid != uuid) {
+        if (isEmpty(this.saver_service.full_simulation) || this.saver_service.full_simulation.uuid != uuid) {
             const wavedrom = await this.getWaveDrom(uuid, simu_file_path);
             const wavedrom_result = await this.getWaveDromResult(uuid, result_file_path);
             const combined_wavedrom = this.manipulator_service.combineWaveDroms(wavedrom, wavedrom_result);
-            this.memory_service.full_simulation = { uuid: uuid, wavedrom: combined_wavedrom };
+            this.saver_service.full_simulation = { uuid: uuid, wavedrom: combined_wavedrom };
         }
-        return this.memory_service.full_simulation.wavedrom;
+        return this.saver_service.full_simulation.wavedrom;
     }
 }

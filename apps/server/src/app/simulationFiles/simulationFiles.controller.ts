@@ -16,7 +16,7 @@ import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import "multer";
 import { WaveDrom } from '@simulogic/core';
-import { ManipulatorService } from '../manipulator/manipulator.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 
 @Controller('simulations')
 export class SimulationFilesController {
@@ -24,7 +24,7 @@ export class SimulationFilesController {
     private readonly simulations_service: SimulationFilesService,
     private readonly circuits_service: CircuitFilesService,
     private readonly simulation_extractor: SimulationFileParserService,
-    private readonly manipulator_service: ManipulatorService,
+    private readonly manipulator_service: WaveDromManipulatorService,
   ) { }
 
   /**

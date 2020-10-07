@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
-import { MemoryService } from '../memory/memory.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { SimulatorDTO } from './simulator.dto';
 import { isEmpty, isUUID } from 'class-validator';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
@@ -10,7 +10,7 @@ import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
-import { ManipulatorService } from '../manipulator/manipulator.service';
+import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 
 const lib = "../../../../common/simulator/lib/simulib.a";
 const headers_path = "../../../../common/simulator/src/";
@@ -25,8 +25,8 @@ export class SimulatorService {
         private readonly simulations_service: SimulationFilesService,
         private readonly circuits_service: CircuitFilesService,
         private readonly extractor_service: SimulationFileParserService,
-        private readonly manipulator_service: ManipulatorService,
-        private readonly memory_service: MemoryService
+        private readonly manipulator_service: WaveDromManipulatorService,
+        private readonly saver_service: WaveDromSaverService
     ) { }
 
     /**
@@ -56,8 +56,8 @@ export class SimulatorService {
             wavedrom = this.manipulator_service.groupInputOutput(wavedrom, file_wavedrom, rslt_file_wavedrom);
         }
 
-        this.memory_service.simulation_sent = wavedrom;
-        return this.memory_service.simulation_sent;
+        this.saver_service.simulation_sent = wavedrom;
+        return this.saver_service.simulation_sent;
     }
 
     /**
@@ -74,14 +74,14 @@ export class SimulatorService {
             if (isEmpty(simulation.result_path)) {
                 throw new Error(`Simulation result path '${simulation.result_path}' cannot be empty`);
             }
-            this.memory_service.simulation_result =
-                await this.extractIfNotSaved(simulation, this.memory_service.simulation_result, result);
-            return this.memory_service.simulation_result.wavedrom;
+            this.saver_service.simulation_result =
+                await this.extractIfNotSaved(simulation, this.saver_service.simulation_result, result);
+            return this.saver_service.simulation_result.wavedrom;
         }
         else {
-            this.memory_service.simulation =
-                await this.extractIfNotSaved(simulation, this.memory_service.simulation);
-            return this.memory_service.simulation.wavedrom;
+            this.saver_service.simulation =
+                await this.extractIfNotSaved(simulation, this.saver_service.simulation);
+            return this.saver_service.simulation.wavedrom;
         }
     }
 
