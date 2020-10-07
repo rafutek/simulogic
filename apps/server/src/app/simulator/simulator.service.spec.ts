@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
-import { ExtractorService } from '../extractor/extractor.service';
+import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 import { MemoryService } from '../memory/memory.service';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -54,7 +54,7 @@ describe("SimulatorService", () => {
                 }, 
                  ManipulatorService,
                 {
-                    provide: ExtractorService,
+                    provide: SimulationFileParserService,
                     useValue: {
                         extractFile: jest.fn().mockResolvedValue(expected_wavedrom)
                     }

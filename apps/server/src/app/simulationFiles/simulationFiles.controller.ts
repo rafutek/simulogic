@@ -13,7 +13,7 @@ import { isEmpty, isNotEmpty, validate } from 'class-validator';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { execSync } from 'child_process';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
-import { ExtractorService } from '../extractor/extractor.service';
+import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import "multer";
 import { WaveDrom } from '@simulogic/core';
 import { ManipulatorService } from '../manipulator/manipulator.service';
@@ -23,7 +23,7 @@ export class SimulationFilesController {
   constructor(
     private readonly simulations_service: SimulationFilesService,
     private readonly circuits_service: CircuitFilesService,
-    private readonly simulation_extractor: ExtractorService,
+    private readonly simulation_extractor: SimulationFileParserService,
     private readonly manipulator_service: ManipulatorService,
   ) { }
 

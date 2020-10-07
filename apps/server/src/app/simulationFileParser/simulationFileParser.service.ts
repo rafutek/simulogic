@@ -3,13 +3,13 @@ import {
     WaveDrom, SignalWave,
     Timestep, SignalState, Interval, Clock
 } from '@simulogic/core'
-import { isEmpty, isInt, isNegative, isUUID } from 'class-validator';
+import { isEmpty, isInt, isNegative } from 'class-validator';
 import { MemoryService } from '../memory/memory.service';
 import { Injectable } from '@nestjs/common';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 
 @Injectable()
-export class ExtractorService {
+export class SimulationFileParserService {
     constructor(
         private memory_service: MemoryService,
         private manipulator_service: ManipulatorService,

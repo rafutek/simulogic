@@ -4,7 +4,7 @@ import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
-import { ExtractorService } from '../extractor/extractor.service';
+import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import { MemoryService } from '../memory/memory.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 import { SimulatorController } from './simulator.controller';
@@ -16,7 +16,7 @@ import { SimulatorService } from './simulator.service';
         SimulatorService,
         SimulationFilesService,
         CircuitFilesService,
-        ExtractorService,
+        SimulationFileParserService,
         ManipulatorService,
         MemoryService],
     controllers: [SimulatorController]

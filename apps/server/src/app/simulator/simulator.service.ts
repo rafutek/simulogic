@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
-import { ExtractorService } from '../extractor/extractor.service';
+import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import { MemoryService } from '../memory/memory.service';
 import { SimulatorDTO } from './simulator.dto';
 import { isEmpty, isUUID } from 'class-validator';
@@ -24,7 +24,7 @@ export class SimulatorService {
     constructor(
         private readonly simulations_service: SimulationFilesService,
         private readonly circuits_service: CircuitFilesService,
-        private readonly extractor_service: ExtractorService,
+        private readonly extractor_service: SimulationFileParserService,
         private readonly manipulator_service: ManipulatorService,
         private readonly memory_service: MemoryService
     ) { }

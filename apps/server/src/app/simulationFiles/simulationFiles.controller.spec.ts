@@ -3,7 +3,7 @@ import { SimulationFilesService } from "./simulationFiles.service"
 import { SimulationFile } from './simulationFile.entity';
 import { SimulationFilesController } from './simulationFiles.controller';
 import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
-import { ExtractorService } from '../extractor/extractor.service';
+import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
 import { ManipulatorService } from '../manipulator/manipulator.service';
 
 const simulation1 = new SimulationFile("simulation 1", "/path/test", "sim/path/test");
@@ -42,7 +42,7 @@ describe("SimulationFilesController", () => {
                     useValue: {}
                 },
                 {
-                    provide: ExtractorService,
+                    provide: SimulationFileParserService,
                     // Mock extractor service functions
                     useValue: {}
                 },
