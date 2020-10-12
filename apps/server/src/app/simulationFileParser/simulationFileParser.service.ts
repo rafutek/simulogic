@@ -17,13 +17,13 @@ export class SimulationFileParserService {
 
     /**
      * Returns the WaveDrom corresponding to a simulation file.
-     * Saves it for later calls, so that extraction is not needed each time.
+     * Saves it for later calls, so that parsing is not needed each time.
      * @param uuid uuid of the simulation to get
      * @param file_path path to the simulation file
      */
     async getWaveDrom(uuid: string, file_path: string): Promise<WaveDrom> {
         if (isEmpty(this.saver_service.simulation) || this.saver_service.simulation.uuid != uuid) {
-            const wavedrom = await this.extractFile(file_path);
+            const wavedrom = await this.parseFile(file_path);
             this.saver_service.simulation = { uuid: uuid, wavedrom: wavedrom };
         }
         return this.saver_service.simulation.wavedrom;
@@ -31,24 +31,24 @@ export class SimulationFileParserService {
 
     /**
      * Returns the WaveDrom corresponding to a simulation result file.
-     * Saves it for later calls, so that extraction is not needed each time.
+     * Saves it for later calls, so that parsing is not needed each time.
      * @param uuid uuid of the simulation result to get
      * @param file_path path to the simulation result file
      */
     async getWaveDromResult(uuid: string, file_path: string): Promise<WaveDrom> {
         if (isEmpty(this.saver_service.simulation_result) || this.saver_service.simulation_result.uuid != uuid) {
-            const result_wavedrom = await this.extractFile(file_path);
+            const result_wavedrom = await this.parseFile(file_path);
             this.saver_service.simulation_result = { uuid: uuid, wavedrom: result_wavedrom };
         }
         return this.saver_service.simulation_result.wavedrom;
     }
 
     /**
-     * Extracts a simulation file into a WaveDrom variable.
-     * Throws an error if extraction fails.
+     * Parses a simulation file into a WaveDrom variable.
+     * Throws an error if parsing fails.
      * @param file_path path to the simulation file
      */
-    async extractFile(file_path: string): Promise<WaveDrom> {
+    async parseFile(file_path: string): Promise<WaveDrom> {
         const file_content = fs.readFileSync(file_path, 'utf8');
 
         const start = file_content.match(/START_TIME (.*)/)[1];

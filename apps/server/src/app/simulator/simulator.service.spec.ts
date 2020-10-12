@@ -10,16 +10,18 @@ import { SimulationFilesService } from '../simulationFiles/simulationFiles.servi
 import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService } from "./simulator.service";
 
+import { simu_rslt_files_wavedrom, filenameToFilepath } from "@simulogic/test"
+
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
 const simulation1: SimulationFile = {
     uuid: uuid_test, name: "simu 1",
-    path: "some/path/to/file", result_path: ""
+    path: "some/path/to/simufile", result_path: ""
 };
 
 const circuit1: CircuitFile = {
     uuid: uuid_test, name: "circ 1",
-    path: "some/path/to/file", simulator_path: ""
+    path: "some/path/to/circfile", simulator_path: ""
 };
 
 const expected_wavedrom: WaveDrom = {
@@ -35,6 +37,7 @@ describe("SimulatorService", () => {
     let simulator: SimulatorService;
     let saver: WaveDromSaverService;
     let simu_repo: SimulationFilesService;
+    let circuit_repo: CircuitFilesService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -51,12 +54,12 @@ describe("SimulatorService", () => {
                     useValue: {
                         getOne: jest.fn().mockResolvedValue(circuit1)
                     }
-                }, 
-                 WaveDromManipulatorService,
+                },
+                WaveDromManipulatorService,
                 {
                     provide: SimulationFileParserService,
                     useValue: {
-                        extractFile: jest.fn().mockResolvedValue(expected_wavedrom)
+                        parseFile: jest.fn().mockResolvedValue(expected_wavedrom)
                     }
                 },
                 WaveDromSaverService,
@@ -65,6 +68,7 @@ describe("SimulatorService", () => {
 
         simulator = module.get<SimulatorService>(SimulatorService);
         simu_repo = module.get<SimulationFilesService>(SimulationFilesService);
+        circuit_repo = module.get<CircuitFilesService>(CircuitFilesService);
         saver = module.get<WaveDromSaverService>(WaveDromSaverService);
     });
 
@@ -164,7 +168,158 @@ describe("SimulatorService", () => {
             expect(saver.simulation).toEqual(expected_uuidwavedrom)
         });
 
+        it("should fail to execute a simulation when uuid_circuit is undefined", async () => {
+            // Given a DTO with a valid uuid_simu and result variable set to true
+            simuDTO.uuid_simu = expected_uuidwavedrom.uuid;
+            simuDTO.result = true;
 
+            // When calling process function
+            let error: any;
+            try {
+                await simulator.process(simuDTO);
+            } catch (e) {
+                error = e;
+            }
+            // it should throw an error
+            expect(error).toBeDefined();
+        });
+
+        it("should fail to execute a simulation when simulation and circuit files are not present", async () => {
+            // Given a DTO with a valid uuid_simu
+            // a valid uuid_circuit and result variable set to true
+            simuDTO.uuid_simu = expected_uuidwavedrom.uuid;
+            simuDTO.uuid_circuit = circuit1.uuid;
+            simuDTO.result = true;
+
+            // When calling process function
+            let error: any;
+            try {
+                await simulator.process(simuDTO);
+            } catch (e) {
+                error = e;
+            }
+            // it should throw an error
+            expect(error).toBeDefined();
+        });
+
+        let spy_creation: any;
+        let spy_execution: any;
+
+        /**
+         * Sets simulation DTO for a simulation, and spies on simulator creation and execution.
+         * The spies are also mocks, so creation and execution are fake.
+         */
+        const setSpiesAndDTO = () => {
+            simuDTO.uuid_simu = simulation1.uuid;
+            simuDTO.uuid_circuit = circuit1.uuid;
+            simuDTO.result = true;
+            spy_creation = jest.spyOn(simulator, "createAndSaveSimulator").mockResolvedValue(undefined);
+            spy_execution = jest.spyOn(simulator, "executeSimulator").mockReturnThis();
+        }
+        /**
+         * Makes CircuitsService 'getOne' function return wanted CircuitFile as if it was uploaded.
+         * @param circuit_filename name of the circuit file
+         */
+        const mockGetOneCircuit = (circuit_filename: string) => {
+            const circ_filepath = filenameToFilepath(circuit_filename);
+            const circ: CircuitFile = {
+                uuid: simuDTO.uuid_circuit,
+                name: "some_name",
+                path: circ_filepath,
+                simulator_path: undefined
+            };
+            jest.spyOn(circuit_repo, "getOne").mockResolvedValue(circ);
+        };
+
+        /**
+         * Makes SimulationsService 'getOne' function return wanted SimulationFile as if it was uploaded.
+         * @param simulation_filename name of the simulation file
+         */
+        const mockGetOneSimulation = (simulation_filename: string) => {
+            const simu_filepath = filenameToFilepath(simulation_filename);
+            const simu: SimulationFile = {
+                uuid: simuDTO.uuid_simu,
+                name: "some_name",
+                path: simu_filepath,
+                result_path: undefined
+            };
+            jest.spyOn(simu_repo, "getOne").mockResolvedValue(simu);
+        }
+
+        it("should not fail to execute a simulation when simulation and circuit files are present", async () => {
+            // Given a DTO with a valid uuid_simu
+            // a valid uuid_circuit, a result variable set to true,
+            // and mocked function responsible for simulator creation and execution
+            setSpiesAndDTO();
+
+            // When faking the simulation of valid files
+            let num_exceptions = 0;
+            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
+                const simu_rslt_file = simu_rslt_files_wavedrom[i];
+                mockGetOneCircuit(simu_rslt_file.circuit_filename);
+                mockGetOneSimulation(simu_rslt_file.simu_file_wavedrom.filename);
+                try {
+                    await simulator.process(simuDTO); // function to test
+                } catch (e) {
+                    num_exceptions++;
+                }
+            }
+
+            // it should throw no exception and call mocked functions for every simulation
+            expect(num_exceptions).toEqual(0);
+            expect(spy_creation).toBeCalledTimes(simu_rslt_files_wavedrom.length);
+            expect(spy_execution).toBeCalledTimes(simu_rslt_files_wavedrom.length);
+        });
+
+        it("should fail to execute a simulation when simulation files are not present", async () => {
+            // Given a DTO with a valid uuid_simu
+            // a valid uuid_circuit, a result variable set to true,
+            // and mocked function responsible for simulator creation and execution
+            setSpiesAndDTO();
+
+            // When trying to simulate present circuit files with absent simulation files
+            let num_exceptions = 0;
+            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
+                const simu_rslt_file = simu_rslt_files_wavedrom[i];
+                mockGetOneCircuit(simu_rslt_file.circuit_filename);
+                try {
+                    await simulator.process(simuDTO); // function to test
+                } catch (e) {
+                    num_exceptions++;
+                }
+            }
+
+            // it should throw an exception for each tried simulation
+            // and creation and execution functions should never be called
+            expect(num_exceptions).toEqual(simu_rslt_files_wavedrom.length);
+            expect(spy_creation).toBeCalledTimes(0);
+            expect(spy_execution).toBeCalledTimes(0);
+        });
+
+        it("should fail to execute a simulation when circuit files are not present", async () => {
+            // Given a DTO with a valid uuid_simu
+            // a valid uuid_circuit, a result variable set to true,
+            // and mocked function responsible for simulator creation and execution
+            setSpiesAndDTO();
+
+            // When trying to simulate present simulation files with absent circuit files
+            let num_exceptions = 0;
+            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
+                const simu_rslt_file = simu_rslt_files_wavedrom[i];
+                mockGetOneSimulation(simu_rslt_file.simu_file_wavedrom.filename);
+                try {
+                    await simulator.process(simuDTO); // function to test
+                } catch (e) {
+                    num_exceptions++;
+                }
+            }
+
+            // it should throw an exception for each tried simulation
+            // and creation and execution functions should never be called
+            expect(num_exceptions).toEqual(simu_rslt_files_wavedrom.length);
+            expect(spy_creation).toBeCalledTimes(0);
+            expect(spy_execution).toBeCalledTimes(0);
+        });
 
     });
 

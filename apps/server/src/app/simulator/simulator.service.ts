@@ -24,14 +24,14 @@ export class SimulatorService {
     constructor(
         private readonly simulations_service: SimulationFilesService,
         private readonly circuits_service: CircuitFilesService,
-        private readonly extractor_service: SimulationFileParserService,
+        private readonly parser_service: SimulationFileParserService,
         private readonly manipulator_service: WaveDromManipulatorService,
         private readonly saver_service: WaveDromSaverService
     ) { }
 
     /**
      * Reads the simulation details and computes what is asked.
-     * Depending on the details, and on memory service, extraction and manupulation can be done.
+     * Depending on the details and saver service, parsing and manupulation might be done.
      * Whatever the simulatorDTO variable contains, a WaveDrom variable will be returned,
      * if no error was thrown before.
      * @param simulatorDTO variable containing the simulation details
@@ -57,12 +57,14 @@ export class SimulatorService {
         }
 
         this.saver_service.simulation_sent = wavedrom;
+        // const util = require('util')
+        // console.log(util.inspect(wavedrom, { showHidden: false, depth: null }))
         return this.saver_service.simulation_sent;
     }
 
     /**
      * Returns the WaveDrom variable of the simulation file, or the simulation result file,
-     * if no error was thrown before. Extracts it from the file if not saved, and saves it.
+     * if no error was thrown before. Parses it from the file if not saved, and saves it.
      * @param uuid_simu UUID of the simulation to get
      * @param result boolean to get simulation result or not
      */
@@ -75,30 +77,30 @@ export class SimulatorService {
                 throw new Error(`Simulation result path '${simulation.result_path}' cannot be empty`);
             }
             this.saver_service.simulation_result =
-                await this.extractIfNotSaved(simulation, this.saver_service.simulation_result, result);
+                await this.parseIfNotSaved(simulation, this.saver_service.simulation_result, result);
             return this.saver_service.simulation_result.wavedrom;
         }
         else {
             this.saver_service.simulation =
-                await this.extractIfNotSaved(simulation, this.saver_service.simulation);
+                await this.parseIfNotSaved(simulation, this.saver_service.simulation);
             return this.saver_service.simulation.wavedrom;
         }
     }
 
     /**
-     * Checks if simulation is already saved so extraction is not necessary.
+     * Checks if simulation is already saved so parsing is not necessary.
      * If not, reads the associated file and returns the created variable.
      * @param simu_to_get variable containing simulation uuid and path
-     * @param simu_memo memory variable to check
-     * @param result boolean to extract simulation input or output file
+     * @param saved_simu saved variable to check
+     * @param result boolean to parse simulation input or output file
      */
-    private async extractIfNotSaved(simu_to_get: SimulationFile, simu_memo: UUIDWaveDrom, result?: boolean): Promise<UUIDWaveDrom> {
-        if (isEmpty(simu_memo) || simu_memo.uuid != simu_to_get.uuid) {
+    private async parseIfNotSaved(simu_to_get: SimulationFile, saved_simu: UUIDWaveDrom, result?: boolean): Promise<UUIDWaveDrom> {
+        if (isEmpty(saved_simu) || saved_simu.uuid != simu_to_get.uuid) {
             const filepath = result ? simu_to_get.result_path : simu_to_get.path;
-            const wavedrom = await this.extractor_service.extractFile(filepath);
+            const wavedrom = await this.parser_service.parseFile(filepath);
             return { uuid: simu_to_get.uuid, wavedrom: wavedrom };
         }
-        return simu_memo;
+        return saved_simu;
     }
 
 
@@ -194,7 +196,7 @@ export class SimulatorService {
      * @param circuit circuit entity from database
      * @param executable name of the executable to create
      */
-    private async createAndSaveSimulator(circuit: CircuitFile, executable: string) {
+    async createAndSaveSimulator(circuit: CircuitFile, executable: string) {
         if (isEmpty(executable)) {
             throw new Error(`Simulator name '${executable}' cannot be empty`);
         }
@@ -214,6 +216,12 @@ export class SimulatorService {
         if (isEmpty(circuit) || isEmpty(simulation)) {
             throw new Error(`Circuit '${circuit}' and simulation '${simulation}' cannot be empty`);
         }
+        if (!fs.existsSync(simulation.path)) {
+            throw new Error(`Simulation file '${simulation.path}' not found`);
+        }
+        if (!fs.existsSync(circuit.path)) {
+            throw new Error(`Circuit file '${circuit.path}' not found`);
+        }
         const circuit_filename = circuit.path.split('/').pop();
         const simulation_filename = simulation.path.split('/').pop();
         const simu_relative_path = `../data/${simulation_filename}`;
@@ -223,25 +231,38 @@ export class SimulatorService {
         if (isEmpty(circuit.simulator_path)) {
             this.createAndSaveSimulator(circuit, circuit_filename);
         }
+        this.executeSimulator(circuit_filename, simu_relative_path, rslt_relative_path, rslt_full_path);
+        return rslt_full_path;
+    }
 
+    /**
+     * Executes given simulator with given simulation file, and outputs to the given result file.
+     * Throws an error if execution fails, or if full result filepath doesn't exist.
+     * Relative paths are from the user simulator bin folder (where simulator should be).
+     * @param simulator_filepath relative path to the circuit simulator executable
+     * @param simu_relative_filepath relative path to the simulation file
+     * @param rslt_relative_filepath relative path to the simulation result file to generate (or overwrite)
+     * @param rslt_full_filepath path from project root to simulation result file
+     */
+    executeSimulator(simulator_filepath: string, simu_relative_filepath: string,
+        rslt_relative_filepath: string, rslt_full_filepath: string) {
         let output: string;
         try {
             output = execSync(
-                `./"${circuit_filename}" "${simu_relative_path}" > "${rslt_relative_path}"`,
+                `./"${simulator_filepath}" "${simu_relative_filepath}" > "${rslt_relative_filepath}"`,
                 {
                     cwd: bin_path,
                     encoding: "utf8"
                 });
         } catch (error) {
-            throw new Error(`Failed to simulate circuit '${circuit_filename}' ` +
-                `with simulation '${simu_relative_path}'`);
+            throw new Error(`Failed to simulate circuit '${simulator_filepath}' ` +
+                `with simulation '${simu_relative_filepath}'`);
         }
         console.log(output);
 
-        if (!fs.existsSync(rslt_full_path)) {
-            throw new Error(`Simulation result file '${rslt_full_path}' doesnt exist`);
+        if (!fs.existsSync(rslt_full_filepath)) {
+            throw new Error(`Simulation result file '${rslt_full_filepath}' doesnt exist`);
         }
-        return rslt_full_path;
     }
 
 }

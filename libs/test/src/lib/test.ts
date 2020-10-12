@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { entity, WaveDrom } from '@simulogic/core';
+import { entity, WaveDrom, WaveDromBase } from '@simulogic/core';
 const request = require("supertest");
 
 export const example_files_path = "./examples/";
@@ -85,19 +85,136 @@ const triSeq: SimuFileWaveDrom = {
 export const simu_files_wavedrom = [adder, OR_gate, triSeq];
 
 
-interface SimuRsltFileWaveDrom {
+export interface SimuRsltFileWaveDrom {
     circuit_filename: string,
     simu_file_wavedrom: SimuFileWaveDrom,
-    combined_wavedrom: WaveDrom
+    combined_wavedrom: WaveDromBase
 }
 
-// const adder_rslt: SimuRsltFileWaveDrom = {
-//     circuit_filename: "adder.logic",
-//     simu_file_wavedrom: adder,
-//     combined_wavedrom: 
-// }
+const adder_rslt: SimuRsltFileWaveDrom = {
+    circuit_filename: "adder.logic",
+    simu_file_wavedrom: adder,
+    combined_wavedrom: {
+        signal: [
+            [
+                'input',
+                { name: 'x0', wave: 'x1.......x' },
+                { name: 'x1', wave: 'x0.......x' },
+                { name: 'x2', wave: 'x1.......x' },
+                { name: 'x3', wave: 'x1.......x' },
+                { name: 'x4', wave: 'x1.......x' },
+                { name: 'x5', wave: 'x0.......x' },
+                { name: 'x6', wave: 'x0.......x' },
+                { name: 'x7', wave: 'x1.......x' },
+                { name: 'y0', wave: 'x1.......x' },
+                { name: 'y1', wave: 'x0.......x' },
+                { name: 'y2', wave: 'x0.......x' },
+                { name: 'y3', wave: 'x1.......x' },
+                { name: 'y4', wave: 'x1.......x' },
+                { name: 'y5', wave: 'x1.......x' },
+                { name: 'y6', wave: 'x1.......x' },
+                { name: 'y7', wave: 'x1.......x' }
+            ],
+            [
+                'output',
+                { name: 's0', wave: 'x.0......x' },
+                { name: 's1', wave: 'x..1.....x' },
+                { name: 's8', wave: 'x..1.....x' },
+                { name: 's4', wave: 'x...1....x' },
+                { name: 's5', wave: 'x...0....x' },
+                { name: 's2', wave: 'x....1...x' },
+                { name: 's6', wave: 'x.....0..x' },
+                { name: 's3', wave: 'x......0.x' },
+                { name: 's7', wave: 'x.......1x' }
+            ]
+        ],
+        foot: { tick: '- 0 100 200 300 400 500 600 700 3000 + ' }
+    }
+};
 
+export const Or_gate_rslt: SimuRsltFileWaveDrom = {
+    circuit_filename: "OR.logic",
+    simu_file_wavedrom: OR_gate,
+    combined_wavedrom: {
+        signal: [
+            [
+                'input',
+                { name: 'a1', wave: 'x01..0..x' },
+                { name: 'a2', wave: 'x01...0.x' }
+            ],
+            ['output', { name: 's1', wave: 'x..01..0x' }]
+        ],
+        foot: { tick: '- 0 50 100 150 650 1000 1100 2000 + ' }
+    }
+}
 
+const triSeq_rslt: SimuRsltFileWaveDrom = {
+    circuit_filename: "triSeq.logic",
+    simu_file_wavedrom: triSeq,
+    combined_wavedrom: {
+        signal: [
+            [
+                'input',
+                {
+                    name: 'ss',
+                    wave: 'x0...............................................................................................................................x'
+                },
+                {
+                    name: 'sr',
+                    wave: 'x0...............................................................................................................................x'
+                },
+                {
+                    name: 'tri1En',
+                    wave: 'x0..1.............0...............................1........................0.....................................................x'
+                },
+                {
+                    name: 'tri2En',
+                    wave: 'x0................1...............................0........................1.....................................................x'
+                }
+            ],
+            [
+                'output',
+                {
+                    name: 'e0',
+                    wave: 'x.10..1.0.10.10.10..1.0.10.10.10.10.10.10.10.10.10..1.0.10.10.10.10.10.10.1.0.1.0.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10.10x'
+                },
+                {
+                    name: 'e1',
+                    wave: 'x..1..0.1.01.01.01..0.1.01.01.01.01.01.01.01.01.01..0.1.01.01.01.01.01.01.0.1.0.1.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01x'
+                },
+                {
+                    name: 'clk',
+                    wave: 'x....1...0..1..0...1...0..1..0..1..0..1..0..1..0...1...0..1..0..1..0..1..0...1...0..1..0..1..0..1..0..1..0..1..0..1..0..1..0..1..x'
+                },
+                {
+                    name: 'out',
+                    wave: 'x......0.............1...............................0.........................1.................................................x'
+                }
+            ]
+        ],
+        foot: {
+            tick: '- 0 20 70 87 108 120 150 170 208 220 270 308 320 370 408 420 470 487 508 520 550 570 608 620 670 708 720 770 808 820 870 908 920 970 1008 1020 1070 1108 1120 1170 1208 1220 1270 1308 1320 1370 1408 1420 1470 1487 1508 1520 1550 1570 1608 1620 1670 1708 1720 1770 1808 1820 1870 1908 1920 1970 2008 2020 2070 2108 2120 2170 2208 2220 2250 2270 2308 2320 2350 2370 2408 2420 2470 2508 2520 2570 2608 2620 2670 2708 2720 2770 2808 2820 2870 2908 2920 2970 3008 3020 3070 3108 3120 3170 3208 3220 3270 3308 3320 3370 3408 3420 3470 3508 3520 3570 3608 3620 3670 3708 3720 3770 3808 3820 3870 3908 3920 3970 4000 + '
+        }
+    }
+}
+
+export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
+
+/**
+ * Converts a filename to a filepath.
+ * @param filename name of the file
+ */
+export const filenameToFilepath = (filename: string) => {
+    return example_files_path + filename;
+}
+
+/**
+ * Converts an array of filenames to an array of filepaths.
+ * @param filenames array containing the names of the files
+ */
+export const filenamesToFilepaths = (filenames: string[]) => {
+    return filenames.map(filename => filenameToFilepath(filename));
+}
 
 /**
  * Uploads some files to the server.
@@ -106,11 +223,10 @@ interface SimuRsltFileWaveDrom {
  * @param table database table associated to the files (circuit or simulation)
  */
 export const uploadFilesTo = async (app: INestApplication, filenames: string[], table: entity) => {
+    const filepaths = filenamesToFilepaths(filenames);
     await Promise.all(
-        filenames.map(filename => {
-            return request(app.getHttpServer())
-                .post(`/${table}s`)
-                .attach("file", example_files_path + filename);
+        filepaths.map(filepath => {
+            return request(app.getHttpServer()).post(`/${table}s`).attach("file", filepath);
         }));
 }
 

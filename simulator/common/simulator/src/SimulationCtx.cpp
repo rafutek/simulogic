@@ -108,11 +108,17 @@ vector<string> SimulationCtx::parseLine(string line)
 
 void printParsedLine(vector<string> parsed_line)
 {
-    for (auto &&s : parsed_line)
+    for (size_t i = 0; i < parsed_line.size(); i++)
     {
-        cout << s << " ";
+        if (i != parsed_line.size() - 1)
+        {
+            cout << parsed_line[i] << ' ';
+        }
+        else
+        {
+            cout << parsed_line[i] << '\n';
+        }
     }
-    cout << '\n';
 }
 
 vector<vector<string>> SimulationCtx::findAndParseLines(string file_path, string line_name)

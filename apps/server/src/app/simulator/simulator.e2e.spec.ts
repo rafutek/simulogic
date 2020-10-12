@@ -39,7 +39,7 @@ describe('Simulator end-to-end tests', () => {
         await app.close();
     });
 
-    describe("process", () => {
+    describe("POST /simulator", () => {
         let simulatorDTO: SimulatorDTO;
 
         beforeEach(() => {
