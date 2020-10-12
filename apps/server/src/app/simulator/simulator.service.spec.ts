@@ -8,8 +8,8 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { SimulatorDTO } from './simulator.dto';
-import { SimulatorService } from "./simulator.service";
-
+import { SimulatorService, bin_path } from "./simulator.service";
+import * as fs from 'fs';
 import { simu_rslt_files_wavedrom, filenameToFilepath } from "@simulogic/test"
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
@@ -52,7 +52,8 @@ describe("SimulatorService", () => {
                 {
                     provide: CircuitFilesService,
                     useValue: {
-                        getOne: jest.fn().mockResolvedValue(circuit1)
+                        getOne: jest.fn().mockResolvedValue(circuit1),
+                        updateOne: jest.fn().mockResolvedValue(circuit1)
                     }
                 },
                 WaveDromManipulatorService,
@@ -323,4 +324,85 @@ describe("SimulatorService", () => {
 
     });
 
+    describe("createAndSaveSimulator", () => {
+
+        it("should throw an error when circuit is not present", async () => {
+            // Given an absent circuit file returned by mocked getOne function
+            // and a spy on updateOne function
+            const circ: CircuitFile = {
+                uuid: uuid_test,
+                name: "some_name",
+                path: "bad_path",
+                simulator_path: undefined
+            };
+            jest.spyOn(circuit_repo, "getOne").mockResolvedValue(circ);
+            const spy_update = jest.spyOn(circuit_repo, "updateOne");
+
+            // When creating and saving associated simulator
+            let error: any;
+            try {
+                await simulator.createAndSaveSimulator(circ, "simulator");
+            } catch (e) { error = e };
+
+            // Then it should throw an error and updateOne function should not be called
+            expect(error).toBeDefined();
+            expect(spy_update).toBeCalledTimes(0);
+        });
+
+        it("should throw an error when executable name is empty, null or undefined", async () => {
+            // Given a present circuit file returned by mocked getOne function
+            // and a spy on updateOne function
+            const circ_filepath = filenameToFilepath(simu_rslt_files_wavedrom[0].circuit_filename);
+            const circ: CircuitFile = {
+                uuid: uuid_test,
+                name: "some_name",
+                path: circ_filepath,
+                simulator_path: undefined
+            };
+            jest.spyOn(circuit_repo, "getOne").mockResolvedValue(circ);
+            const spy_update = jest.spyOn(circuit_repo, "updateOne");
+
+            // When trying to create associated simulator with bad executable names
+            let num_exceptions = 0;
+            const bad_names = ["", null, undefined];
+            for (let i = 0; i < bad_names.length; i++) {
+                const bad_name = bad_names[i];
+                try {
+                    await simulator.createAndSaveSimulator(circ, bad_name);
+                } catch (e) { num_exceptions++ };
+            }
+
+            // Then it should throw errors and updateOne function should not be called
+            expect(num_exceptions).toEqual(bad_names.length);
+            expect(spy_update).toBeCalledTimes(0);
+        });
+
+        it("should create and save simulators", async () => {
+            const spy_update = jest.spyOn(circuit_repo, "updateOne");
+            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
+
+                // Given a present circuit file returned by mocked getOne function
+                const circ_filepath = filenameToFilepath(simu_rslt_files_wavedrom[i].circuit_filename);
+                const circ: CircuitFile = {
+                    uuid: uuid_test,
+                    name: "some_name",
+                    path: circ_filepath,
+                    simulator_path: undefined
+                };
+                jest.spyOn(circuit_repo, "getOne").mockResolvedValue(circ);
+
+                // When creating and saving associated simulator
+                const updated_circ = await simulator.createAndSaveSimulator(circ, "simulator");
+
+                // Then updated circuit entity should contain expected simulator path,
+                // simulator should exist, and updateOne function should have been called once
+                const expected_simulator_path = bin_path + "simulator";
+                circ.simulator_path = expected_simulator_path;
+                expect(updated_circ).toEqual(circ);
+                expect(fs.existsSync(circ.simulator_path)).toBeTruthy();
+                fs.unlinkSync(circ.simulator_path); // delete created simulator
+            }
+            expect(spy_update).toBeCalledTimes(simu_rslt_files_wavedrom.length);
+        });
+    });
 });

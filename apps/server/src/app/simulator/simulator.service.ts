@@ -16,8 +16,9 @@ const lib = "../../../../common/simulator/lib/simulib.a";
 const headers_path = "../../../../common/simulator/src/";
 const makefile_path = headers_path;
 const src_path = "simulator/home/user1/simulator/src/";
-const bin_path = "simulator/home/user1/simulator/bin/";
+export const bin_path = "simulator/home/user1/simulator/bin/";
 const rslt_path = "simulator/home/user1/simulator/out/";
+const parser_bin_path = "simulator/common/circuitCreator/bin/";
 
 @Injectable()
 export class SimulatorService {
@@ -141,24 +142,24 @@ export class SimulatorService {
      * @param circuit circuit entity from database
      */
     private createSimulatorSrcFiles(circuit: CircuitFile): void {
-        if (isEmpty(circuit.path)) {
-            throw new Error(`Circuit path '${circuit.path}' cannot be empty`);
+        if (!fs.existsSync(circuit.path)) {
+            throw new Error(`Circuit '${circuit.path}' not found`);
         }
 
-        const circuit_filepath = circuit.path.replace("simulator", "../../../");
-        const output_path = src_path.replace("simulator", "../../../");
+        const relative_path = "../".repeat(parser_bin_path.split('/').length - 1);
+        const circuit_filepath = relative_path + circuit.path;
+        const output_path = relative_path + src_path;
         let output: string;
         try {
             output = execSync(`
             java LogicToCpp "${headers_path}" "${output_path}" "${circuit_filepath}"
             `, {
-                cwd: "simulator/common/circuitCreator/bin",
+                cwd: parser_bin_path,
                 encoding: "utf8"
             });
         } catch (error) {
-            throw new Error(`Failed to create circuit '${circuit.uuid}' simulator source files`);
+            throw new Error(`Failed to create circuit '${circuit.name}' simulator source files`);
         }
-        console.log(output);
     }
 
     /**
@@ -174,15 +175,15 @@ export class SimulatorService {
         let output: string;
         try {
             output = execSync(`
-                make -f "${makefile_path}/Makefile" LIB="${lib}" HEADERS_PATH="${headers_path}" PROGRAM="${relative_path}"
+                make -f "${makefile_path}/Makefile" \
+                LIB="${lib}" HEADERS_PATH="${headers_path}" PROGRAM="${relative_path}"
                 `, {
                 cwd: src_path,
                 encoding: "utf8"
             });
         } catch (error) {
-            throw new Error(`Failed to compile circuit '${circuit.uuid}' simulator`);
+            throw new Error(`Failed to compile circuit '${circuit.name}' simulator`);
         }
-        console.log(output);
 
         if (!fs.existsSync(full_path)) {
             throw new Error(`Simulator path '${full_path}' doesnt exist`);
@@ -192,17 +193,18 @@ export class SimulatorService {
 
     /**
      * Creates simulator source files, compiles them into an executable,
-     * and and its path in the database.
+     * and and its path in the database. Returns updated circuit entity.
      * @param circuit circuit entity from database
      * @param executable name of the executable to create
      */
-    async createAndSaveSimulator(circuit: CircuitFile, executable: string) {
+    async createAndSaveSimulator(circuit: CircuitFile, executable: string): Promise<CircuitFile> {
         if (isEmpty(executable)) {
             throw new Error(`Simulator name '${executable}' cannot be empty`);
         }
 
         circuit.simulator_path = this.createSimulator(circuit, executable);
         await this.circuits_service.updateOne(circuit);
+        return circuit;
     }
 
     /**
