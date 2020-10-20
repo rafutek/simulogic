@@ -326,7 +326,26 @@ describe("SimulatorService", () => {
 
     describe("createAndSaveSimulator", () => {
 
-        it("should throw an error when circuit is not present", async () => {
+        it("should throw an error when circuit is null or undefined", async () => {
+            // Given a spy on updateOne function
+            const spy_update = jest.spyOn(circuit_repo, "updateOne");
+
+            // When creating and saving associated simulator
+            const bad_circuits: CircuitFile[] = [null, undefined];
+            let num_exceptions = 0;
+            for (let i = 0; i < bad_circuits.length; i++) {
+                const bad_circ = bad_circuits[i];
+                try {
+                    await simulator.createAndSaveSimulator(bad_circ, "simulator");
+                } catch (e) { num_exceptions++ };   
+            }
+
+            // Then it should throw errors and updateOne function should not be called
+            expect(num_exceptions).toEqual(bad_circuits.length);
+            expect(spy_update).toBeCalledTimes(0);
+        });
+
+        it("should throw an error when circuit file is not present", async () => {
             // Given an absent circuit file returned by mocked getOne function
             // and a spy on updateOne function
             const circ: CircuitFile = {
@@ -377,7 +396,7 @@ describe("SimulatorService", () => {
             expect(spy_update).toBeCalledTimes(0);
         });
 
-        it("should create and save simulators", async () => {
+        it("should create and save circuit simulators", async () => {
             const spy_update = jest.spyOn(circuit_repo, "updateOne");
             for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
 
@@ -400,9 +419,13 @@ describe("SimulatorService", () => {
                 circ.simulator_path = expected_simulator_path;
                 expect(updated_circ).toEqual(circ);
                 expect(fs.existsSync(circ.simulator_path)).toBeTruthy();
-                fs.unlinkSync(circ.simulator_path); // delete created simulator
+                fs.unlinkSync(circ.simulator_path); // delete created simulator file
             }
             expect(spy_update).toBeCalledTimes(simu_rslt_files_wavedrom.length);
         });
     });
+
+    // describe("executeSimulator", () => {
+
+    // });
 });

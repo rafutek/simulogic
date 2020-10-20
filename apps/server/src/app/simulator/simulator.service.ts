@@ -95,7 +95,8 @@ export class SimulatorService {
      * @param saved_simu saved variable to check
      * @param result boolean to parse simulation input or output file
      */
-    private async parseIfNotSaved(simu_to_get: SimulationFile, saved_simu: UUIDWaveDrom, result?: boolean): Promise<UUIDWaveDrom> {
+    private async parseIfNotSaved(simu_to_get: SimulationFile, saved_simu: UUIDWaveDrom, result?: boolean):
+        Promise<UUIDWaveDrom> {
         if (isEmpty(saved_simu) || saved_simu.uuid != simu_to_get.uuid) {
             const filepath = result ? simu_to_get.result_path : simu_to_get.path;
             const wavedrom = await this.parser_service.parseFile(filepath);
