@@ -36,11 +36,11 @@ export class SimulationFileParserService {
      * @param file_path path to the simulation result file
      */
     async getWaveDromResult(uuid: string, file_path: string): Promise<WaveDrom> {
-        if (isEmpty(this.saver_service.simulation_result) || this.saver_service.simulation_result.uuid != uuid) {
+        if (isEmpty(this.saver_service.result) || this.saver_service.result.uuid != uuid) {
             const result_wavedrom = await this.parseFile(file_path);
-            this.saver_service.simulation_result = { uuid: uuid, wavedrom: result_wavedrom };
+            this.saver_service.result = { uuid: uuid, wavedrom: result_wavedrom };
         }
-        return this.saver_service.simulation_result.wavedrom;
+        return this.saver_service.result.wavedrom;
     }
 
     /**

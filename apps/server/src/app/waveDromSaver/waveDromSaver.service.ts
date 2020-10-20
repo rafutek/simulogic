@@ -6,8 +6,7 @@ import { isEmpty, isUUID } from 'class-validator';
 export class WaveDromSaverService {
 
     /**
-     * Contains the WaveDrom extracted from a simulation file,
-     * and the file id.
+     * Contains the WaveDrom parsed from a simulation file and the file id.
      */
     private _simulation: UUIDWaveDrom;
 
@@ -15,29 +14,23 @@ export class WaveDromSaverService {
         return this._simulation;
     }
 
-    /**
-     * Sets the simulation variable after some validations.
-     * If value is not valid, it throws an error.
-     * @param value simulation to save containing a uuid and a WaveDrom
-     */
     public set simulation(value: UUIDWaveDrom) {
         this.validateUUIDWaveDrom(value);
         this._simulation = value;
     }
 
     /**
-     * Contains the WaveDrom extracted from a simulation result file,
-     * and the simulation file id.
+     * Contains the WaveDrom parsed from a result file and the result file id.
      */
-    private _simulation_result: UUIDWaveDrom;
+    private _result: UUIDWaveDrom;
 
-    public get simulation_result(): UUIDWaveDrom {
-        return this._simulation_result;
+    public get result(): UUIDWaveDrom {
+        return this._result;
     }
 
-    public set simulation_result(value: UUIDWaveDrom) {
+    public set result(value: UUIDWaveDrom) {
         this.validateUUIDWaveDrom(value);
-        this._simulation_result = value;
+        this._result = value;
     }
 
     /**

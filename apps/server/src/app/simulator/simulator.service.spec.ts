@@ -11,18 +11,25 @@ import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService, bin_path } from "./simulator.service";
 import * as fs from 'fs';
 import { simu_rslt_files_wavedrom, filenameToFilepath } from "@simulogic/test"
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
+import { ResultFile } from '../resultFiles/resultFile.entity';
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
 const simulation1: SimulationFile = {
     uuid: uuid_test, name: "simu 1",
-    path: "some/path/to/simufile", result_path: ""
+    path: "some/path/to/simufile",
 };
 
 const circuit1: CircuitFile = {
     uuid: uuid_test, name: "circ 1",
     path: "some/path/to/circfile", simulator_path: ""
 };
+
+const result1: ResultFile = {
+    uuid: uuid_test, path: "some/path/to/rsltfile",
+    circuit_file: circuit1, simulation_file: simulation1
+}
 
 const expected_wavedrom: WaveDrom = {
     signal: [{ name: "s1", wave: "x010x" }],
@@ -56,6 +63,7 @@ describe("SimulatorService", () => {
                         updateOne: jest.fn().mockResolvedValue(circuit1)
                     }
                 },
+                ResultFilesService,
                 WaveDromManipulatorService,
                 {
                     provide: SimulationFileParserService,
@@ -96,7 +104,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
@@ -109,7 +117,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
@@ -123,7 +131,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
@@ -139,7 +147,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
@@ -153,7 +161,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should not throw an error
+            // Then it should not throw an error
             expect(error).toBeUndefined();
         });
 
@@ -164,7 +172,7 @@ describe("SimulatorService", () => {
             // When calling process function
             const wavedrom = await simulator.process(simuDTO);
 
-            // it should return the expected WaveDrom, and save it in memory
+            // Then it should return the expected WaveDrom, and save it in memory
             expect(wavedrom).toEqual(expected_wavedrom);
             expect(saver.simulation).toEqual(expected_uuidwavedrom)
         });
@@ -181,7 +189,7 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
@@ -199,16 +207,17 @@ describe("SimulatorService", () => {
             } catch (e) {
                 error = e;
             }
-            // it should throw an error
+            // Then it should throw an error
             expect(error).toBeDefined();
         });
 
         let spy_creation: any;
         let spy_execution: any;
+        let spy_save_rslt: any;
 
         /**
-         * Sets simulation DTO for a simulation, and spies on simulator creation and execution.
-         * The spies are also mocks, so creation and execution are fake.
+         * Sets simulation DTO for a simulation, and spies on simulator creation and execution, and result saving.
+         * The spies are also mocks, so creation and execution and result saving are fake.
          */
         const setSpiesAndDTO = () => {
             simuDTO.uuid_simu = simulation1.uuid;
@@ -216,6 +225,7 @@ describe("SimulatorService", () => {
             simuDTO.result = true;
             spy_creation = jest.spyOn(simulator, "createAndSaveSimulator").mockResolvedValue(undefined);
             spy_execution = jest.spyOn(simulator, "executeSimulator").mockReturnThis();
+            spy_save_rslt = jest.spyOn(simulator, "saveResult").mockResolvedValue(result1);
         }
         /**
          * Makes CircuitsService 'getOne' function return wanted CircuitFile as if it was uploaded.
@@ -241,16 +251,13 @@ describe("SimulatorService", () => {
             const simu: SimulationFile = {
                 uuid: simuDTO.uuid_simu,
                 name: "some_name",
-                path: simu_filepath,
-                result_path: undefined
+                path: simu_filepath
             };
             jest.spyOn(simu_repo, "getOne").mockResolvedValue(simu);
         }
 
         it("should not fail to execute a simulation when simulation and circuit files are present", async () => {
-            // Given a DTO with a valid uuid_simu
-            // a valid uuid_circuit, a result variable set to true,
-            // and mocked function responsible for simulator creation and execution
+            // Given
             setSpiesAndDTO();
 
             // When faking the simulation of valid files
@@ -266,16 +273,15 @@ describe("SimulatorService", () => {
                 }
             }
 
-            // it should throw no exception and call mocked functions for every simulation
+            // Then it should throw no exception and call mocked functions for every simulation
             expect(num_exceptions).toEqual(0);
             expect(spy_creation).toBeCalledTimes(simu_rslt_files_wavedrom.length);
             expect(spy_execution).toBeCalledTimes(simu_rslt_files_wavedrom.length);
+            expect(spy_save_rslt).toBeCalledTimes(simu_rslt_files_wavedrom.length);
         });
 
         it("should fail to execute a simulation when simulation files are not present", async () => {
-            // Given a DTO with a valid uuid_simu
-            // a valid uuid_circuit, a result variable set to true,
-            // and mocked function responsible for simulator creation and execution
+            // Given
             setSpiesAndDTO();
 
             // When trying to simulate present circuit files with absent simulation files
@@ -290,17 +296,16 @@ describe("SimulatorService", () => {
                 }
             }
 
-            // it should throw an exception for each tried simulation
+            // Then it should throw an exception for each tried simulation
             // and creation and execution functions should never be called
             expect(num_exceptions).toEqual(simu_rslt_files_wavedrom.length);
             expect(spy_creation).toBeCalledTimes(0);
             expect(spy_execution).toBeCalledTimes(0);
+            expect(spy_save_rslt).toBeCalledTimes(0);
         });
 
         it("should fail to execute a simulation when circuit files are not present", async () => {
-            // Given a DTO with a valid uuid_simu
-            // a valid uuid_circuit, a result variable set to true,
-            // and mocked function responsible for simulator creation and execution
+            // Given
             setSpiesAndDTO();
 
             // When trying to simulate present simulation files with absent circuit files
@@ -315,11 +320,12 @@ describe("SimulatorService", () => {
                 }
             }
 
-            // it should throw an exception for each tried simulation
+            // Then it should throw an exception for each tried simulation
             // and creation and execution functions should never be called
             expect(num_exceptions).toEqual(simu_rslt_files_wavedrom.length);
             expect(spy_creation).toBeCalledTimes(0);
             expect(spy_execution).toBeCalledTimes(0);
+            expect(spy_save_rslt).toBeCalledTimes(0);
         });
 
     });
@@ -337,7 +343,7 @@ describe("SimulatorService", () => {
                 const bad_circ = bad_circuits[i];
                 try {
                     await simulator.createAndSaveSimulator(bad_circ, "simulator");
-                } catch (e) { num_exceptions++ };   
+                } catch (e) { num_exceptions++ };
             }
 
             // Then it should throw errors and updateOne function should not be called

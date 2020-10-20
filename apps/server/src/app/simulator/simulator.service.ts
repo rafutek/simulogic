@@ -11,6 +11,9 @@ import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
+import { ResultFileDTO } from '../resultFiles/resultFile.dto';
+import { ResultFile } from '../resultFiles/resultFile.entity';
 
 const lib = "../../../../common/simulator/lib/simulib.a";
 const headers_path = "../../../../common/simulator/src/";
@@ -25,6 +28,7 @@ export class SimulatorService {
     constructor(
         private readonly simulations_service: SimulationFilesService,
         private readonly circuits_service: CircuitFilesService,
+        private readonly results_service: ResultFilesService,
         private readonly parser_service: SimulationFileParserService,
         private readonly manipulator_service: WaveDromManipulatorService,
         private readonly saver_service: WaveDromSaverService
@@ -46,63 +50,37 @@ export class SimulatorService {
             throw new Error(`SimulatorDTO '${simulatorDTO}' cannot be empty`);
         }
         const simulation = await this.getSimulation(simulatorDTO.uuid_simu);
-        file_wavedrom = await this.getSimuFileWaveDrom(simulation);
+        this.saver_service.simulation = await this.parseIfNotSaved(simulation, this.saver_service.simulation);
+        file_wavedrom = this.saver_service.simulation.wavedrom;
         wavedrom = file_wavedrom;
 
         if (simulatorDTO.result) {
             const circuit = await this.getCircuit(simulatorDTO.uuid_circuit);
-            simulation.result_path = this.simulate(circuit, simulation);
-            rslt_file_wavedrom = await this.getSimuFileWaveDrom(simulation, true);
+            const result_path = this.simulate(circuit, simulation);
+            const result = await this.saveResult(result_path, circuit, simulation);
+            this.saver_service.result = await this.parseIfNotSaved(result, this.saver_service.result);
+            rslt_file_wavedrom = this.saver_service.result.wavedrom;
             wavedrom = this.manipulator_service.combineWaveDroms(file_wavedrom, rslt_file_wavedrom);
             wavedrom = this.manipulator_service.groupInputOutput(wavedrom, file_wavedrom, rslt_file_wavedrom);
         }
 
         this.saver_service.simulation_sent = wavedrom;
-        // const util = require('util')
-        // console.log(util.inspect(wavedrom, { showHidden: false, depth: null }))
         return this.saver_service.simulation_sent;
     }
 
     /**
-     * Returns the WaveDrom variable of the simulation file, or the simulation result file,
-     * if no error was thrown before. Parses it from the file if not saved, and saves it.
-     * @param uuid_simu UUID of the simulation to get
-     * @param result boolean to get simulation result or not
+     * Checks if simulation or result (entity) WaveDrom is already saved.
+     * If not, parses the entity file and returns the created WaveDrom.
+     * @param entity variable containing entity uuid and path
+     * @param saved_wavedrom saved variable to check
      */
-    private async getSimuFileWaveDrom(simulation: SimulationFile, result?: boolean): Promise<WaveDrom> {
-        if (isEmpty(simulation.path)) {
-            throw new Error(`Simulation path '${simulation.path}' cannot be empty`);
-        }
-        if (result) {
-            if (isEmpty(simulation.result_path)) {
-                throw new Error(`Simulation result path '${simulation.result_path}' cannot be empty`);
-            }
-            this.saver_service.simulation_result =
-                await this.parseIfNotSaved(simulation, this.saver_service.simulation_result, result);
-            return this.saver_service.simulation_result.wavedrom;
-        }
-        else {
-            this.saver_service.simulation =
-                await this.parseIfNotSaved(simulation, this.saver_service.simulation);
-            return this.saver_service.simulation.wavedrom;
-        }
-    }
-
-    /**
-     * Checks if simulation is already saved so parsing is not necessary.
-     * If not, reads the associated file and returns the created variable.
-     * @param simu_to_get variable containing simulation uuid and path
-     * @param saved_simu saved variable to check
-     * @param result boolean to parse simulation input or output file
-     */
-    private async parseIfNotSaved(simu_to_get: SimulationFile, saved_simu: UUIDWaveDrom, result?: boolean):
+    private async parseIfNotSaved(entity: SimulationFile | ResultFile, saved_wavedrom: UUIDWaveDrom):
         Promise<UUIDWaveDrom> {
-        if (isEmpty(saved_simu) || saved_simu.uuid != simu_to_get.uuid) {
-            const filepath = result ? simu_to_get.result_path : simu_to_get.path;
-            const wavedrom = await this.parser_service.parseFile(filepath);
-            return { uuid: simu_to_get.uuid, wavedrom: wavedrom };
+        if (isEmpty(saved_wavedrom) || saved_wavedrom.uuid != entity.uuid) {
+            const wavedrom = await this.parser_service.parseFile(entity.path);
+            return { uuid: entity.uuid, wavedrom: wavedrom };
         }
-        return saved_simu;
+        return saved_wavedrom;
     }
 
 
@@ -266,6 +244,31 @@ export class SimulatorService {
         if (!fs.existsSync(rslt_full_filepath)) {
             throw new Error(`Simulation result file '${rslt_full_filepath}' doesnt exist`);
         }
+    }
+
+    /**
+     * Inserts a new result file entity in ResultFile table, if not already inserted.
+     * Throws an error if result file to save is not found or if insertion fails.
+     * @param result_filepath path to the result file
+     * @param circuit circuit entity from CircuitFile table
+     * @param simulation simulation entity from SimulationFile table
+     */
+    async saveResult(result_filepath: string, circuit: CircuitFile, simulation: SimulationFile)
+        : Promise<ResultFile> {
+        let saved_result: ResultFile;
+        saved_result = await this.results_service.getOneByCircuitAndSimulation(circuit, simulation);
+        if (!saved_result) {
+            if (!fs.existsSync(result_filepath)) {
+                throw new Error(`Result file to save '${result_filepath}' not found`);
+            }
+            const new_result: ResultFileDTO = {
+                path: result_filepath,
+                circuit_file: circuit,
+                simulation_file: simulation
+            };
+            saved_result = await this.results_service.insertOne(new_result);
+        }
+        return saved_result;
     }
 
 }

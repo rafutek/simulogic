@@ -9,13 +9,20 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 import { SimulatorController } from './simulator.controller';
 import { SimulatorService } from './simulator.service';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
+import { ResultFile } from '../resultFiles/resultFile.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([SimulationFile]), TypeOrmModule.forFeature([CircuitFile])],
+    imports: [
+        TypeOrmModule.forFeature([SimulationFile]), 
+        TypeOrmModule.forFeature([CircuitFile]),
+        TypeOrmModule.forFeature([ResultFile]) 
+    ],
     providers: [
         SimulatorService,
         SimulationFilesService,
         CircuitFilesService,
+        ResultFilesService,
         SimulationFileParserService,
         WaveDromManipulatorService,
         WaveDromSaverService],
