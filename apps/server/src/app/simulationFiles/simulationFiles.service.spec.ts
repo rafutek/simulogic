@@ -5,8 +5,8 @@ import { SimulationFile } from './simulationFile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SimulationFileDTO } from './simulationFile.dto';
 
-const simu1 = new SimulationFile("simu 1", "/path/test", "result/path/test");
-const simu2 = new SimulationFile("simu 2", "/path/test", "result/path/test");
+const simu1 = new SimulationFile("simu 1", "/path/test");
+const simu2 = new SimulationFile("simu 2", "/path/test");
 const simulations: SimulationFile[] = [simu1, simu2];
 
 describe("SimulationFilesService", () => {
@@ -123,8 +123,7 @@ describe("SimulationFilesService", () => {
             const simu_to_update: SimulationFile = {
                 uuid: "12",
                 name: "simu name",
-                path: "path",
-                result_path: ""
+                path: "path"
             };
             const repo_spy = jest.spyOn(repo, 'update');
 
@@ -192,8 +191,7 @@ describe("SimulationFilesService", () => {
           const simulation_to_rename: SimulationFile = {
             uuid: "12",
             name: "simulation name",
-            path: "path",
-            result_path: ""
+            path: "path"
           };
           const repo_find_spy = jest.spyOn(repo, 'findOne');
           const repo_update_spy = jest.spyOn(repo, 'update');

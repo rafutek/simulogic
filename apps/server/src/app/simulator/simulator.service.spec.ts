@@ -8,11 +8,12 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
 import { SimulatorDTO } from './simulator.dto';
-import { SimulatorService, bin_path } from "./simulator.service";
+import { SimulatorService, simulator_bin_folder } from "./simulator.service";
 import * as fs from 'fs';
 import { simu_rslt_files_wavedrom, filenameToFilepath } from "@simulogic/test"
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
 import { ResultFile } from '../resultFiles/resultFile.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
@@ -24,6 +25,11 @@ const simulation1: SimulationFile = {
 const circuit1: CircuitFile = {
     uuid: uuid_test, name: "circ 1",
     path: "some/path/to/circfile", simulator_path: ""
+};
+
+const circuit1_with_simulator: CircuitFile = {
+    uuid: uuid_test, name: "circ 1",
+    path: "some/path/to/circfile", simulator_path: "path/to/simulator"
 };
 
 const result1: ResultFile = {
@@ -50,6 +56,10 @@ describe("SimulatorService", () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 SimulatorService,
+                {
+                    provide: getRepositoryToken(ResultFile),
+                    useValue: {}
+                },
                 {
                     provide: SimulationFilesService,
                     useValue: {
@@ -223,7 +233,7 @@ describe("SimulatorService", () => {
             simuDTO.uuid_simu = simulation1.uuid;
             simuDTO.uuid_circuit = circuit1.uuid;
             simuDTO.result = true;
-            spy_creation = jest.spyOn(simulator, "createAndSaveSimulator").mockResolvedValue(undefined);
+            spy_creation = jest.spyOn(simulator, "createAndSaveSimulator").mockResolvedValue(circuit1_with_simulator);
             spy_execution = jest.spyOn(simulator, "executeSimulator").mockReturnThis();
             spy_save_rslt = jest.spyOn(simulator, "saveResult").mockResolvedValue(result1);
         }
@@ -269,6 +279,7 @@ describe("SimulatorService", () => {
                 try {
                     await simulator.process(simuDTO); // function to test
                 } catch (e) {
+                    console.log(e.message)
                     num_exceptions++;
                 }
             }
@@ -421,7 +432,7 @@ describe("SimulatorService", () => {
 
                 // Then updated circuit entity should contain expected simulator path,
                 // simulator should exist, and updateOne function should have been called once
-                const expected_simulator_path = bin_path + "simulator";
+                const expected_simulator_path = simulator_bin_folder + "simulator";
                 circ.simulator_path = expected_simulator_path;
                 expect(updated_circ).toEqual(circ);
                 expect(fs.existsSync(circ.simulator_path)).toBeTruthy();

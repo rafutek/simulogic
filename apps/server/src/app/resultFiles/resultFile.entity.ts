@@ -10,11 +10,11 @@ export class ResultFile {
   @Column()
   path: string;
 
-  @OneToOne(type => CircuitFile)
+  @OneToOne(type => CircuitFile, { cascade: true })
   @JoinColumn()
   circuit_file: CircuitFile;
 
-  @OneToOne(type => SimulationFile)
+  @OneToOne(type => SimulationFile, { cascade: true })
   @JoinColumn()
   simulation_file: SimulationFile;
 }
