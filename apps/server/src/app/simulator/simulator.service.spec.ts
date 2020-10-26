@@ -10,10 +10,13 @@ import { SimulationFilesService } from '../simulationFiles/simulationFiles.servi
 import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService, simulator_bin_folder } from "./simulator.service";
 import * as fs from 'fs';
-import { simu_rslt_files_wavedrom, filenameToFilepath } from "@simulogic/test"
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
 import { ResultFile } from '../resultFiles/resultFile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import {
+    simu_rslt_files_wavedrom, filenameToFilepath,
+    simulators_filepaths, simu_filepaths
+} from "@simulogic/test"
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
 
@@ -73,7 +76,12 @@ describe("SimulatorService", () => {
                         updateOne: jest.fn().mockResolvedValue(circuit1)
                     }
                 },
-                ResultFilesService,
+                {
+                    provide: ResultFilesService,
+                    useValue: {
+                        getOneByCircuitAndSimulation: jest.fn().mockResolvedValue(undefined)
+                    }
+                },
                 WaveDromManipulatorService,
                 {
                     provide: SimulationFileParserService,
@@ -442,7 +450,69 @@ describe("SimulatorService", () => {
         });
     });
 
-    // describe("executeSimulator", () => {
+    describe("executeSimulator", () => {
 
-    // });
+        const bad_simulator_filepath = "bad/simulator";
+        const bad_simu_filepath = "bad/simu";
+        const bad_rslt_filepath = "bad/rslt";
+        const good_rslt_filepath = "good_rslt_filepath";
+
+        it("should fail when one or more filepath does not exist", () => {
+            // Given all combinations possible of bad parameters (wrong filepaths)
+            interface executeSimulator_params {
+                simulator_filepath: string, simu_filepath: string, rslt_filepath: string
+            };
+            const bad_params: executeSimulator_params[] = [];
+            bad_params.push({
+                simulator_filepath: bad_simulator_filepath,
+                simu_filepath: bad_simu_filepath,
+                rslt_filepath: bad_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: bad_simulator_filepath,
+                simu_filepath: bad_simu_filepath,
+                rslt_filepath: good_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: bad_simulator_filepath,
+                simu_filepath: simu_filepaths[0],
+                rslt_filepath: bad_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: simulators_filepaths[0],
+                simu_filepath: bad_simu_filepath,
+                rslt_filepath: bad_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: simulators_filepaths[0],
+                simu_filepath: bad_simu_filepath,
+                rslt_filepath: good_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: simulators_filepaths[0],
+                simu_filepath: simu_filepaths[0],
+                rslt_filepath: bad_rslt_filepath
+            });
+            bad_params.push({
+                simulator_filepath: bad_simulator_filepath,
+                simu_filepath: simu_filepaths[0],
+                rslt_filepath: good_rslt_filepath
+            });
+
+            // When calling executeSimulator with those parameters
+            let num_exceptions = 0;
+            for (let i = 0; i < bad_params.length; i++) {
+                const { simulator_filepath, simu_filepath, rslt_filepath } = bad_params[i];
+                try {
+                    simulator.executeSimulator(simulator_filepath, simu_filepath, rslt_filepath);
+                } catch (e) {
+                    num_exceptions++;
+                }
+            }
+
+            // Then it should throw an error for each call
+            expect(num_exceptions).toEqual(bad_params.length);
+            if (fs.existsSync(good_rslt_filepath)) fs.unlinkSync(good_rslt_filepath);
+        })
+    });
 });

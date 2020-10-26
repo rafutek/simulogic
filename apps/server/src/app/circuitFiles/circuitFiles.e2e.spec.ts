@@ -3,10 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import { CircuitFile } from './circuitFile.entity';
-import { Entity } from '@simulogic/core';
-import * as fs from 'fs';
 import {
-    example_files_path,
+    example_files_folder,
     circuit_filenames,
     simu_files_wavedrom,
     uploadFilesTo,
@@ -48,7 +46,7 @@ describe('CircuitFiles end-to-end tests', () => {
             // When posting a valid circuit file
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + circuit_filenames[0])
+                .attach("file", example_files_folder + circuit_filenames[0])
 
             // Then response should be empty and ok
             expect(response.body).toEqual([]);
@@ -59,7 +57,7 @@ describe('CircuitFiles end-to-end tests', () => {
             // When posting an invalid circuit file
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + simu_filenames[0])
+                .attach("file", example_files_folder + simu_filenames[0])
 
             // Then response should contain the invalid file and still be ok
             expect(response.body.length).toEqual(1);
@@ -71,9 +69,9 @@ describe('CircuitFiles end-to-end tests', () => {
             // When posting valid and invalid circuit files
             const response = await request(app.getHttpServer())
                 .post('/circuits')
-                .attach("file", example_files_path + circuit_filenames[0])
-                .attach("file", example_files_path + circuit_filenames[1])
-                .attach("file", example_files_path + simu_filenames[0]);
+                .attach("file", example_files_folder + circuit_filenames[0])
+                .attach("file", example_files_folder + circuit_filenames[1])
+                .attach("file", example_files_folder + simu_filenames[0]);
 
             // Then response should contain only the invalid file and be ok
             expect(response.body.length).toEqual(1);

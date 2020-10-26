@@ -14,6 +14,7 @@ import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManip
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
 import { ResultFileDTO } from '../resultFiles/resultFile.dto';
 import { ResultFile } from '../resultFiles/resultFile.entity';
+import * as path from 'path';
 
 const parser_bin_path = "simulator/common/circuitCreator/bin/";
 const lib = "../../../../common/simulator/lib/simulib.a";
@@ -57,8 +58,7 @@ export class SimulatorService {
 
         if (simulatorDTO.result) {
             const circuit = await this.getCircuit(simulatorDTO.uuid_circuit);
-            const result_path = await this.simulate(circuit, simulation);
-            const result = await this.saveResult(result_path, circuit, simulation);
+            const result = await this.simulate(circuit, simulation);
             this.saver_service.result = await this.parseIfNotSaved(result, this.saver_service.result);
             rslt_file_wavedrom = this.saver_service.result.wavedrom;
             wavedrom = this.manipulator_service.combineWaveDroms(file_wavedrom, rslt_file_wavedrom);
@@ -189,13 +189,14 @@ export class SimulatorService {
     }
 
     /**
-     * Creates and saves the executable if it was not saved.
-     * Executes a simulation on a circuit and returns result full path.
+     * If not already saved, creates and saves the executable.
+     * If not already saved, executes a simulation on a circuit and saves its result.
+     * Returns saved result file entity.
      * Throws an error if something fails.
      * @param circuit circuit entity from database
      * @param simulation simulation entity from database
      */
-    private async simulate(circuit: CircuitFile, simulation: SimulationFile): Promise<string> {
+    private async simulate(circuit: CircuitFile, simulation: SimulationFile): Promise<ResultFile> {
         if (isEmpty(circuit) || isEmpty(simulation)) {
             throw new Error(`Circuit '${circuit}' and simulation '${simulation}' cannot be empty`);
         }
@@ -212,30 +213,39 @@ export class SimulatorService {
         if (isEmpty(circuit.simulator_path)) {
             circuit = await this.createAndSaveSimulator(circuit, circuit_filename);
         }
-        this.executeSimulator(circuit.simulator_path, simulation.path, rslt_filepath);
-        return rslt_filepath;
+        let saved_result_file = await this.results_service.getOneByCircuitAndSimulation(circuit, simulation);
+        if (isEmpty(saved_result_file)) {            
+            this.executeSimulator(circuit.simulator_path, simulation.path, rslt_filepath);
+            saved_result_file = await this.saveResult(rslt_filepath, circuit, simulation);
+        }
+        return saved_result_file;
     }
 
     /**
      * Executes given simulator with given simulation file, and outputs to the given result file.
-     * Throws an error if execution fails, or if full result filepath doesn't exist.
+     * Throws an error if execution fails, or if result file does not exist.
      * @param simulator_filepath path from project root to the circuit simulator executable
      * @param simu_filepath path from project root to the simulation file
      * @param rslt_filepath path from project root to simulation result file
      */
     executeSimulator(simulator_filepath: string, simu_filepath: string, rslt_filepath: string) {
-        let output: string;
+        if (!fs.existsSync(simulator_filepath)) {
+            throw new Error(`Simulator filepath '${simulator_filepath}' not found`);
+        }
+        if (!fs.existsSync(simu_filepath)) {
+            throw new Error(`Simulation filepath '${simu_filepath}' not found`);
+        }
+        const rslt_folder = path.dirname(rslt_filepath);
+        if (!fs.statSync(rslt_folder).isDirectory()) {
+            throw new Error(`Result filepath directory '${rslt_folder}' not found or not a directory`);
+        }
+
         try {
-            output = execSync(
-                `./"${simulator_filepath}" "${simu_filepath}" > "${rslt_filepath}"`,
-                {
-                    encoding: "utf8"
-                });
+            execSync(`./"${simulator_filepath}" "${simu_filepath}" > "${rslt_filepath}"`);
         } catch (error) {
             throw new Error(`Failed to simulate circuit '${simulator_filepath}' ` +
                 `with simulation '${simu_filepath}' and output to '${rslt_filepath}'`);
         }
-        console.log(output);
 
         if (!fs.existsSync(rslt_filepath)) {
             throw new Error(`Simulation result file '${rslt_filepath}' does not exist`);

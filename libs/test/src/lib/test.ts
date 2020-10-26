@@ -2,8 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { entity, WaveDrom, WaveDromBase } from '@simulogic/core';
 const request = require("supertest");
 
-export const example_files_path = "./examples/";
-export const circuit_filenames = ["adder.logic", "OR.logic", "triSeq.logic"];
+export const example_files_folder = "./examples/";
 
 interface SimuFileWaveDrom {
     filename: string,
@@ -199,13 +198,16 @@ const triSeq_rslt: SimuRsltFileWaveDrom = {
 }
 
 export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
+export const circuit_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename);
+export const simulator_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename.replace("logic", "exe"));
+export const simu_filenames = simu_rslt_files_wavedrom.map(el => el.simu_file_wavedrom.filename);
 
 /**
  * Converts a filename to a filepath.
  * @param filename name of the file
  */
 export const filenameToFilepath = (filename: string) => {
-    return example_files_path + filename;
+    return example_files_folder + filename;
 }
 
 /**
@@ -215,6 +217,12 @@ export const filenameToFilepath = (filename: string) => {
 export const filenamesToFilepaths = (filenames: string[]) => {
     return filenames.map(filename => filenameToFilepath(filename));
 }
+
+
+export const circuit_filepaths = filenamesToFilepaths(circuit_filenames);
+const simulators_folder = "./examples/simulators/";
+export const simulators_filepaths = simulator_filenames.map(filename => simulators_folder + filename);
+export const simu_filepaths = filenamesToFilepaths(simu_filenames);
 
 /**
  * Uploads some files to the server.
