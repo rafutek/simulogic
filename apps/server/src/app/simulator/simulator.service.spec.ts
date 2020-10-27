@@ -456,12 +456,16 @@ describe("SimulatorService", () => {
         const bad_simu_filepath = "bad/simu";
         const bad_rslt_filepath = "bad/rslt";
         const good_rslt_filepath = "good_rslt_filepath";
+        interface executeSimulator_params {
+            simulator_filepath: string, simu_filepath: string, rslt_filepath: string
+        };
+        const deleteResultFile = () => {
+            if (fs.existsSync(good_rslt_filepath)) fs.unlinkSync(good_rslt_filepath);
+        }
+        afterEach(deleteResultFile);
 
         it("should fail when one or more filepath does not exist", () => {
             // Given all combinations possible of bad parameters (wrong filepaths)
-            interface executeSimulator_params {
-                simulator_filepath: string, simu_filepath: string, rslt_filepath: string
-            };
             const bad_params: executeSimulator_params[] = [];
             bad_params.push({
                 simulator_filepath: bad_simulator_filepath,
@@ -512,7 +516,44 @@ describe("SimulatorService", () => {
 
             // Then it should throw an error for each call
             expect(num_exceptions).toEqual(bad_params.length);
-            if (fs.existsSync(good_rslt_filepath)) fs.unlinkSync(good_rslt_filepath);
-        })
+        });
+
+        it("should fail when simulator and simulation files are not compatible", () => {
+            // Given incompatible simulator and simulation files
+            const incompatible_params: executeSimulator_params = {
+                simulator_filepath: simulators_filepaths[0],
+                simu_filepath: simu_filepaths[1],
+                rslt_filepath: good_rslt_filepath
+            };
+
+            // When calling executeSimulator
+            let error: any;
+            const { simulator_filepath, simu_filepath, rslt_filepath } = incompatible_params;
+            try {
+                simulator.executeSimulator(simulator_filepath, simu_filepath, rslt_filepath);
+            } catch (e) {
+                error = e;
+            }
+            // Then it should throw an error
+            expect(error).toBeDefined();
+        });
+
+        it("should not fail when simulator and simulation files are compatible", () => {
+            // Given compatible simulator and simulation files
+            let num_exceptions = 0;
+            for (let i = 0; i < simulators_filepaths.length; i++) {
+                const simulator_filepath = simulators_filepaths[i];
+                const simu_filepath = simu_filepaths[i];
+                // When calling executeSimulator
+                try {
+                    simulator.executeSimulator(simulator_filepath, simu_filepath, good_rslt_filepath);
+                } catch (e) {
+                    num_exceptions++;
+                }
+
+                // Then it should throw no error
+                expect(num_exceptions).toEqual(0);
+            }
+        });
     });
 });
