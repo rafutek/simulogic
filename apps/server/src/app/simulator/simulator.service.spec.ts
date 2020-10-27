@@ -15,7 +15,7 @@ import { ResultFile } from '../resultFiles/resultFile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
     simu_rslt_files_wavedrom, filenameToFilepath,
-    simulators_filepaths, simu_filepaths
+    simulators_filepaths, simu_filepaths, simu_executions
 } from "@simulogic/test"
 
 const uuid_test = "527161a0-0155-4d0c-9022-b6de2b921932";
@@ -539,20 +539,25 @@ describe("SimulatorService", () => {
         });
 
         it("should not fail when simulator and simulation files are compatible", () => {
-            // Given compatible simulator and simulation files
             let num_exceptions = 0;
-            for (let i = 0; i < simulators_filepaths.length; i++) {
-                const simulator_filepath = simulators_filepaths[i];
-                const simu_filepath = simu_filepaths[i];
+            let read_rslt_file_content: string;
+            for (let i = 0; i < simu_executions.length; i++) {
+
+                // Given compatible simulator and simulation files
+                const { simulator_filepath, simu_filepath, rslt_file_content } = simu_executions[i];
+
                 // When calling executeSimulator
                 try {
                     simulator.executeSimulator(simulator_filepath, simu_filepath, good_rslt_filepath);
+                    read_rslt_file_content = fs.readFileSync(good_rslt_filepath, 'utf8');
                 } catch (e) {
                     num_exceptions++;
                 }
 
                 // Then it should throw no error
+                // and result file content should equal expected one
                 expect(num_exceptions).toEqual(0);
+                expect(read_rslt_file_content).toEqual(rslt_file_content);
             }
         });
     });

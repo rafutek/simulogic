@@ -224,6 +224,57 @@ const simulators_folder = "./examples/simulators/";
 export const simulators_filepaths = simulator_filenames.map(filename => simulators_folder + filename);
 export const simu_filepaths = filenamesToFilepaths(simu_filenames);
 
+interface SimuExecution {
+    simulator_filepath: string,
+    simu_filepath: string,
+    rslt_file_content: string
+}
+
+const adder_execution: SimuExecution = {
+    simulator_filepath: simulators_filepaths[0],
+    simu_filepath: simu_filepaths[0],
+    rslt_file_content: `START_TIME 0
+END_TIME 3000
+EVENT s0 F 100
+EVENT s1 T 200
+EVENT s2 T 400
+EVENT s3 F 600
+EVENT s4 T 300
+EVENT s5 F 300
+EVENT s6 F 500
+EVENT s7 T 700
+EVENT s8 T 200
+`
+};
+
+const OR_execution: SimuExecution = {
+    simulator_filepath: simulators_filepaths[1],
+    simu_filepath: simu_filepaths[1],
+    rslt_file_content: `START_TIME 0
+END_TIME 2000
+EVENT s1 F 100
+EVENT s1 T 150
+EVENT s1 F 1100
+`
+};
+
+const triSeq_execution: SimuExecution = {
+    simulator_filepath: simulators_filepaths[2],
+    simu_filepath: simu_filepaths[2],
+    rslt_file_content: `START_TIME 0
+END_TIME 4000
+CLOCK e0 20 100 50
+CLOCK e1 70 100 50
+CLOCK clk 108 200 50
+EVENT out F 150
+EVENT out T 550
+EVENT out F 1550
+EVENT out T 2350
+`
+};
+
+export const simu_executions: SimuExecution[] = [adder_execution, OR_execution, triSeq_execution];
+
 /**
  * Uploads some files to the server.
  * @param app server application previously compiled
