@@ -292,10 +292,7 @@ export const uploadFileTo = async (app: INestApplication, filename: string, tabl
  * @param table database table associated to the files (circuit or simulation)
  */
 export const uploadFilesTo = async (app: INestApplication, filenames: string[], table: entity) => {
-    for (let i = 0; i < filenames.length; i++) {
-        const filename = filenames[i];
-        await uploadFileTo(app, filename, table);
-    }
+    await Promise.all(filenames.map(filename => uploadFileTo(app, filename, table)));
 }
 
 /**
