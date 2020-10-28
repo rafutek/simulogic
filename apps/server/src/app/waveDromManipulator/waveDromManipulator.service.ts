@@ -345,7 +345,7 @@ export class WaveDromManipulatorService {
             foot: wavedrom.foot
         };
         if (input) {
-            const input_group = this.groupSignals(wavedrom.signal, input.signal, "input");
+            const input_group = this.groupSignals(wavedrom.signal, input.signal, "input", output.signal);
             new_wavedrom.signal.push(input_group);
         }
         if (output) {
@@ -361,13 +361,18 @@ export class WaveDromManipulatorService {
      * @param all_signals Array containing all the WaveDrom signals
      * @param signals_to_group Array containing only the WaveDrom signals to group
      * @param group_name name of the group
+     * @param signals_not_to_group Optional array containing the signals not to group
      */
-    private groupSignals(all_signals: SignalWave[], signals_to_group: SignalWave[], group_name: string) {
+    private groupSignals(all_signals: SignalWave[], signals_to_group: SignalWave[], group_name: string,
+        signals_not_to_group?: SignalWave[]) {
         const group = [];
         signals_to_group.forEach(s => {
-            const present = all_signals.find(signal => signal.name == s.name);
-            if (present) {
-                group.push(present);
+            const signal_not_to_group = signals_not_to_group?.find(signal => signal.name == s.name);
+            if (isEmpty(signal_not_to_group)) {
+                const signal_to_group = all_signals.find(signal => signal.name == s.name);
+                if (isNotEmpty(signal_to_group)) {
+                    group.push(signal_to_group);
+                }
             }
         });
         group.unshift(group_name);

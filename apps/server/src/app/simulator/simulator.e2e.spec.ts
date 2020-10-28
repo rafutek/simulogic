@@ -112,7 +112,7 @@ describe('Simulator end-to-end tests', () => {
                 await uploadFileTo(app, circuit_filename, "circuit");
                 await uploadFileTo(app, simu_filename, "simulation");
                 const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
-                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");                                
 
                 // When posting a simulatorDTO with uuid_simu, uuid_circuit and result
                 simulatorDTO.uuid_simu = simu_entity.uuid;
