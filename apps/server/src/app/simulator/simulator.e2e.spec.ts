@@ -6,12 +6,9 @@ import {
     simu_files_wavedrom,
     simu_files_intervals,
     uploadFileTo,
-    uploadFilesTo,
     clearTableAndFiles,
-    getFiles,
     simu_rslt_files_wavedrom,
-    getFirstFile,
-    deleteFile
+    getFirstFile
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -84,25 +81,22 @@ describe('Simulator end-to-end tests', () => {
             expect(response.ok).toBeFalsy();
         });
 
-        it("should return expected WaveDroms", async () => {
-            // Given uploaded simulation files
-            const simu_filenames = simu_files_wavedrom.map(element => element.filename);
-            await uploadFilesTo(app, simu_filenames, "simulation");
-            const uploaded_simulations = await getFiles(app, "simulation");
+        test.each(simu_files_wavedrom)
+            ("should return expected WaveDrom (%#)", async (simu_file) => {
+                // Given uploaded simulation file
+                const { filename, wavedrom } = simu_file;
+                await uploadFileTo(app, filename, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
 
-            for (let i = 0; i < uploaded_simulations.length; i++) {
-
-                // When posting to the simulator simulatorDTO with uuid_simu of a file
-                const simu: SimulationFile = uploaded_simulations[i];
-                simulatorDTO.uuid_simu = simu.uuid;
+                // When posting a simulatorDTO with uuid_simu
+                simulatorDTO.uuid_simu = simu_entity.uuid;
                 const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-                // Then response should be ok and returned WaveDrom equal to expected one
-                const simu_file_wavedrom = simu_files_wavedrom.find(element => element.filename == simu.name);
+                // Then response should be OK and contain the expected WaveDrom
                 expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(simu_file_wavedrom.wavedrom);
-            }
-        });
+                expect(response.body).toEqual(wavedrom);
+
+            });
 
         test.each(simu_rslt_files_wavedrom)
             ("should return expected combined WaveDrom (%#)", async (simu_rslt_file) => {
