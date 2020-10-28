@@ -276,17 +276,26 @@ EVENT out T 2350
 export const simu_executions: SimuExecution[] = [adder_execution, OR_execution, triSeq_execution];
 
 /**
+ * Uploads a file to the server.
+ * @param app server application previously compiled
+ * @param filename name of the file to upload
+ * @param table database table associated to the file (circuit or simulation)
+ */
+export const uploadFileTo = async (app: INestApplication, filename: string, table: entity) => {
+    await request(app.getHttpServer()).post(`/${table}s`).attach("file", filenameToFilepath(filename));
+}
+
+/**
  * Uploads some files to the server.
  * @param app server application previously compiled
  * @param filenames names of the files to upload
  * @param table database table associated to the files (circuit or simulation)
  */
 export const uploadFilesTo = async (app: INestApplication, filenames: string[], table: entity) => {
-    const filepaths = filenamesToFilepaths(filenames);
-    await Promise.all(
-        filepaths.map(filepath => {
-            return request(app.getHttpServer()).post(`/${table}s`).attach("file", filepath);
-        }));
+    for (let i = 0; i < filenames.length; i++) {
+        const filename = filenames[i];
+        await uploadFileTo(app, filename, table);
+    }
 }
 
 /**
@@ -321,4 +330,14 @@ export const getFiles = async (app: INestApplication, table: entity) => {
  */
 export const getFirstFile = async (app: INestApplication, table: entity) => {
     return (await getFiles(app, table))[0];
+}
+
+/**
+ * Deletes wanted file from server.
+ * @param app server application previously compiled
+ * @param table database table containing the file entity
+ * @param file_uuid uuid of the file in the table
+ */
+export const deleteFile = async (app: INestApplication, table: entity, file_uuid: string) => {
+    await request(app.getHttpServer()).delete(`/${table}s/${file_uuid}`);
 }

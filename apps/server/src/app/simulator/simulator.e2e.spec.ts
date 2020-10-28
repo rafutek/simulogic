@@ -4,12 +4,17 @@ import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import {
     simu_files_wavedrom,
+    uploadFileTo,
     uploadFilesTo,
     clearTableAndFiles,
-    getFiles
+    getFiles,
+    simu_rslt_files_wavedrom,
+    getFirstFile,
+    deleteFile
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
+import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 
 // Note: The database must be deployed to run those tests
 
@@ -99,8 +104,30 @@ describe('Simulator end-to-end tests', () => {
         });
 
         it("should return expected combined WaveDroms", async () => {
-            // Given uploaded simulation and circuit files
+            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
 
+                // Given uploaded simulation and circuit files
+                const circuit_filename = simu_rslt_files_wavedrom[i].circuit_filename;
+                const simu_filename = simu_rslt_files_wavedrom[i].simu_file_wavedrom.filename;
+                await uploadFileTo(app, circuit_filename, "circuit");
+                await uploadFileTo(app, simu_filename, "simulation");
+                const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+
+                // When posting a simulatorDTO with uuid_simu, uuid_circuit and result
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                simulatorDTO.uuid_circuit = circuit_entity.uuid;
+                simulatorDTO.result = true;
+                const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // Then response should be OK and contain the expected combined WaveDrom
+                // (simulation input and output in a single variable)
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(simu_rslt_files_wavedrom[i].combined_wavedrom);
+                
+                await deleteFile(app, "circuit", circuit_entity.uuid);
+                await deleteFile(app, "simulation", simu_entity.uuid);
+            }
         });
 
     });
