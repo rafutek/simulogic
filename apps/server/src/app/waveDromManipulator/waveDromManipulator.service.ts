@@ -345,7 +345,7 @@ export class WaveDromManipulatorService {
             foot: wavedrom.foot
         };
         if (input) {
-            const input_group = this.groupSignals(wavedrom.signal, input.signal, "input", output.signal);
+            const input_group = this.groupSignals(wavedrom.signal, input.signal, "input", output?.signal);
             new_wavedrom.signal.push(input_group);
         }
         if (output) {

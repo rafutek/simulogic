@@ -62,6 +62,12 @@ export class SimulatorService {
             this.saver_service.result = await this.parseIfNotSaved(result, this.saver_service.result);
             rslt_file_wavedrom = this.saver_service.result.wavedrom;
             wavedrom = this.manipulator_service.combineWaveDroms(file_wavedrom, rslt_file_wavedrom);
+        }
+
+        if (!isEmpty(simulatorDTO.interval)) {
+            wavedrom = this.manipulator_service.cutWaveDrom(wavedrom, simulatorDTO.interval);
+        }
+        if (simulatorDTO.result) {
             wavedrom = this.manipulator_service.groupInputOutput(wavedrom, file_wavedrom, rslt_file_wavedrom);
         }
 
@@ -214,7 +220,7 @@ export class SimulatorService {
             circuit = await this.createAndSaveSimulator(circuit, circuit_filename);
         }
         let saved_result_file = await this.results_service.getOneByCircuitAndSimulation(circuit, simulation);
-        if (isEmpty(saved_result_file)) {            
+        if (isEmpty(saved_result_file)) {
             this.executeSimulator(circuit.simulator_path, simulation.path, rslt_filepath);
             saved_result_file = await this.saveResult(rslt_filepath, circuit, simulation);
         }

@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import {
     simu_files_wavedrom,
+    simu_files_intervals,
     uploadFileTo,
     uploadFilesTo,
     clearTableAndFiles,
@@ -103,16 +104,14 @@ describe('Simulator end-to-end tests', () => {
             }
         });
 
-        it("should return expected combined WaveDroms", async () => {
-            for (let i = 0; i < simu_rslt_files_wavedrom.length; i++) {
-
+        test.each(simu_rslt_files_wavedrom)
+            ("should return expected combined WaveDrom (%#)", async (simu_rslt_file) => {
                 // Given uploaded simulation and circuit files
-                const circuit_filename = simu_rslt_files_wavedrom[i].circuit_filename;
-                const simu_filename = simu_rslt_files_wavedrom[i].simu_file_wavedrom.filename;
+                const { circuit_filename, combined_wavedrom, simu_file_wavedrom } = simu_rslt_file;
                 await uploadFileTo(app, circuit_filename, "circuit");
-                await uploadFileTo(app, simu_filename, "simulation");
+                await uploadFileTo(app, simu_file_wavedrom.filename, "simulation");
                 const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
-                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");                                
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
 
                 // When posting a simulatorDTO with uuid_simu, uuid_circuit and result
                 simulatorDTO.uuid_simu = simu_entity.uuid;
@@ -123,13 +122,26 @@ describe('Simulator end-to-end tests', () => {
                 // Then response should be OK and contain the expected combined WaveDrom
                 // (simulation input and output in a single variable)
                 expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(simu_rslt_files_wavedrom[i].combined_wavedrom);
-                
-                await deleteFile(app, "circuit", circuit_entity.uuid);
-                await deleteFile(app, "simulation", simu_entity.uuid);
-            }
-        });
+                expect(response.body).toEqual(combined_wavedrom);
 
+            });
+
+        test.each(simu_files_intervals)
+            ("should return expected WaveDrom interval (%#)", async (simu_file_interval) => {
+                // Given uploaded simulation file and an interval
+                const { filename, interval, wavedrom } = simu_file_interval;
+                await uploadFileTo(app, filename, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+
+                // When posting a simulatorDTO with uuid_simu and interval
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                simulatorDTO.interval = interval;
+                const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // Then response should be OK and contain wanted simulation interval
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(wavedrom);
+            });
     });
 
 });

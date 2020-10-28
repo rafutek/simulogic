@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { entity, WaveDrom, WaveDromBase } from '@simulogic/core';
+import { entity, Interval, WaveDrom, WaveDromBase } from '@simulogic/core';
 const request = require("supertest");
 
 export const example_files_folder = "./examples/";
@@ -82,6 +82,67 @@ const triSeq: SimuFileWaveDrom = {
 }
 
 export const simu_files_wavedrom = [adder, OR_gate, triSeq];
+
+
+interface SimuFileIntervalWaveDrom {
+    filename: string,
+    interval: Interval,
+    wavedrom: WaveDrom
+}
+
+const adder_interval: SimuFileIntervalWaveDrom = {
+    filename: "adder.simu",
+    interval: { start: 10, end: 100 },
+    wavedrom: {
+        signal: [
+            { name: 'x0', wave: '1.' },
+            { name: 'x1', wave: '0.' },
+            { name: 'x2', wave: '1.' },
+            { name: 'x3', wave: '1.' },
+            { name: 'x4', wave: '1.' },
+            { name: 'x5', wave: '0.' },
+            { name: 'x6', wave: '0.' },
+            { name: 'x7', wave: '1.' },
+            { name: 'y0', wave: '1.' },
+            { name: 'y1', wave: '0.' },
+            { name: 'y2', wave: '0.' },
+            { name: 'y3', wave: '1.' },
+            { name: 'y4', wave: '1.' },
+            { name: 'y5', wave: '1.' },
+            { name: 'y6', wave: '1.' },
+            { name: 'y7', wave: '1.' }
+        ],
+        foot: { tick: '10 100 x ' }
+    }
+};
+
+const OR_interval: SimuFileIntervalWaveDrom = {
+    filename: "OR.simu",
+    interval: { start: 0, end: 100 },
+    wavedrom: {
+        signal: [{ name: 'a1', wave: 'x01.' }, { name: 'a2', wave: 'x01.' }],
+        foot: { tick: '- 0 50 100 x ' }
+    }
+};
+
+const triSeq_interval: SimuFileIntervalWaveDrom = {
+    filename: "triSeq.simu",
+    interval: { start: 3800, end: 10000 },
+    wavedrom: {
+        signal: [
+            { name: 'ss', wave: '0......x.' },
+            { name: 'sr', wave: '0......x.' },
+            { name: 'tri1En', wave: '0......x.' },
+            { name: 'tri2En', wave: '1......x.' },
+            { name: 'e0', wave: '0.10.10x.' },
+            { name: 'e1', wave: '1.01.01x.' },
+            { name: 'clk', wave: '10..1..x.' }
+        ],
+        foot: { tick: '3800 3808 3820 3870 3908 3920 3970 4000 10000 + ' }
+    }
+};
+
+export const simu_files_intervals = [adder_interval, OR_interval, triSeq_interval];
 
 
 export interface SimuRsltFileWaveDrom {
