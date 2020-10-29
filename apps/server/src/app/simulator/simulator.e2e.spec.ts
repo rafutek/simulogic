@@ -150,6 +150,36 @@ describe('Simulator end-to-end tests', () => {
             expect(response.ok).toBeFalsy();
         });
 
+        it("should not fail when interval start is defined and interval end is undefined", async () => {
+            // Given uploaded simulation file and an interval with start greater than end
+            await uploadFileTo(app, simu_filenames[0], "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const interval: Interval = { start: 100, end: undefined };
+
+            // When posting a simulatorDTO with uuid_simu and interval
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.interval = interval;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should be OK
+            expect(response.ok).toBeTruthy()
+        });
+
+        it("should not fail when interval start is undefined and interval end is defined", async () => {
+            // Given uploaded simulation file and an interval with start greater than end
+            await uploadFileTo(app, simu_filenames[0], "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const interval: Interval = { start: undefined, end: 100 };
+
+            // When posting a simulatorDTO with uuid_simu and interval
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.interval = interval;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should be OK
+            expect(response.ok).toBeTruthy()
+        });
+
         test.each(simu_files_intervals)
             ("should return expected WaveDrom interval (%#)", async (simu_file_interval) => {
                 // Given uploaded simulation file and an interval
@@ -166,6 +196,26 @@ describe('Simulator end-to-end tests', () => {
                 expect(response.ok).toBeTruthy();
                 expect(response.body).toEqual(wavedrom);
             });
+
+        it("should not fail to request simulation result interval", async () => {
+            // Given uploaded circuit and simulation files and an interval
+            const { circuit_filename, simu_file_wavedrom } = simu_rslt_files_wavedrom[0];
+            await uploadFileTo(app, circuit_filename, "circuit");
+            await uploadFileTo(app, simu_file_wavedrom.filename, "simulation");
+            const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const interval: Interval = { start: 10, end: 100 };
+
+            // When posting a simulatorDTO with uuid_simu, uuid_circuit, result and interval
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.uuid_circuit = circuit_entity.uuid;
+            simulatorDTO.result = true;
+            simulatorDTO.interval = interval;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should be OK
+            expect(response.ok).toBeTruthy()
+        });
     });
 
 });
