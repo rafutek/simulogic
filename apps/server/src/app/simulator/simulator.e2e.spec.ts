@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
@@ -8,11 +8,13 @@ import {
     uploadFileTo,
     clearTableAndFiles,
     simu_rslt_files_wavedrom,
-    getFirstFile
+    getFirstFile,
+    simu_filenames
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
+import { Interval } from '@simulogic/core';
 
 // Note: The database must be deployed to run those tests
 
@@ -25,6 +27,7 @@ describe('Simulator end-to-end tests', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.useGlobalPipes(new ValidationPipe()); // for DTO validations
         await app.init();
     });
 
@@ -95,8 +98,21 @@ describe('Simulator end-to-end tests', () => {
                 // Then response should be OK and contain the expected WaveDrom
                 expect(response.ok).toBeTruthy();
                 expect(response.body).toEqual(wavedrom);
-
             });
+
+        it("should fail to return expected combined WaveDrom when no circuit uuid", async () => {
+            // Given uploaded simulation file
+            await uploadFileTo(app, simu_filenames[0], "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+
+            // When posting a simulatorDTO with uuid_simu and result
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.result = true;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should not be OK (circuit uuid expected)
+            expect(response.ok).toBeFalsy();
+        });
 
         test.each(simu_rslt_files_wavedrom)
             ("should return expected combined WaveDrom (%#)", async (simu_rslt_file) => {
@@ -117,8 +133,22 @@ describe('Simulator end-to-end tests', () => {
                 // (simulation input and output in a single variable)
                 expect(response.ok).toBeTruthy();
                 expect(response.body).toEqual(combined_wavedrom);
-
             });
+
+        it("should fail to return expected WaveDrom interval when bad interval", async () => {
+            // Given uploaded simulation file and an interval with start greater than end
+            await uploadFileTo(app, simu_filenames[0], "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const interval: Interval = { start: 100, end: 10 };
+
+            // When posting a simulatorDTO with uuid_simu and interval
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.interval = interval;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should not be OK (bad interval)
+            expect(response.ok).toBeFalsy();
+        });
 
         test.each(simu_files_intervals)
             ("should return expected WaveDrom interval (%#)", async (simu_file_interval) => {
