@@ -1,29 +1,22 @@
 import {
   Controller, Post, Get, Delete, Param, UseInterceptors,
-  BadRequestException, InternalServerErrorException, Body,
-  UploadedFiles
+  BadRequestException, UploadedFiles
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationFilesService } from './simulationFiles.service';
 import { SimulationFileDTO } from './simulationFile.dto';
-import { SimulatorDTO } from '../simulator/simulator.dto';
 import { SimulationFile } from './simulationFile.entity';
 import * as fs from 'fs';
-import { isEmpty, isNotEmpty, validate } from 'class-validator';
-import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
-import { execSync } from 'child_process';
-import { CircuitFile } from '../circuitFiles/circuitFile.entity';
-import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
+import { validate } from 'class-validator';
 import "multer";
-import { WaveDrom } from '@simulogic/core';
 import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
 
 @Controller('simulations')
 export class SimulationFilesController {
   constructor(
     private readonly simulations_service: SimulationFilesService,
-    private readonly circuits_service: CircuitFilesService,
-    private readonly simulation_extractor: SimulationFileParserService,
+    private readonly results_service: ResultFilesService,
     private readonly manipulator_service: WaveDromManipulatorService,
   ) { }
 
@@ -80,9 +73,9 @@ export class SimulationFilesController {
   async deleteSimulation(@Param('id') id: string): Promise<void> {
     const simulation = await this.simulations_service.getOne(id);
     if (simulation) {
-      if (fs.existsSync(simulation.path)) {
-        fs.unlinkSync(simulation.path);
-      }
+      if (fs.existsSync(simulation.path)) fs.unlinkSync(simulation.path);
+      this.results_service.deleteBySimulation(simulation);
+
     }
     const deleted = await this.simulations_service.deleteOne(id);
     if (!deleted) {

@@ -5,6 +5,7 @@ import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { ResultFileDTO } from './resultFile.dto';
 import { ResultFile } from './resultFile.entity';
+import * as fs from 'fs';
 
 @Injectable()
 export class ResultFilesService {
@@ -38,4 +39,28 @@ export class ResultFilesService {
     getOneByCircuitAndSimulation(circuit: CircuitFile, simulation: SimulationFile): Promise<ResultFile> {
         return this.results_repository.findOne({ where: { circuit_file: circuit, simulation_file: simulation } });
     }
-}
+
+    /**
+     * Deletes all the results linked to a circuit file entity.
+     * @param circuit circuit entity associated to the results
+     */
+    async deleteByCircuit(circuit: CircuitFile) {
+        const circuit_results: ResultFile[] = await this.results_repository.find({ where: { circuit_file: circuit } });
+        circuit_results?.forEach(async result_file => {
+            if (fs.existsSync(result_file.path)) fs.unlinkSync(result_file.path);
+            await this.results_repository.delete(result_file);
+        })
+    }
+
+    /**
+     * Deletes all the results linked to a simulation file entity.
+     * @param simulation simulation entity associated to the results
+     */
+    async deleteBySimulation(simulation: SimulationFile) {
+        const simu_results: ResultFile[] = await this.results_repository.find({ where: { simulation_file: simulation } });
+        simu_results?.forEach(async result_file => {
+            if (fs.existsSync(result_file.path)) fs.unlinkSync(result_file.path);
+            await this.results_repository.delete(result_file);
+        })
+    }
+} 

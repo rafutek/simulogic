@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CircuitFilesService } from "./circuitFiles.service"
 import { CircuitFile } from './circuitFile.entity';
 import { CircuitFilesController } from './circuitFiles.controller';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
 
 const circuit1 = new CircuitFile("circuit 1", "/path/test", "sim/path/test");
 const circuit2 = new CircuitFile("circuit 2", "/path/test", "sim/path/test");
@@ -31,6 +32,11 @@ describe("CircuitFilesController", () => {
             deleteOne: jest.fn().mockReturnValue(true),
             findAndGetByEntity: jest.fn().mockResolvedValue(entities),
             renameOne: jest.fn().mockResolvedValue(true),
+          }
+        },
+        {
+          provide: ResultFilesService, useValue: {
+            deleteByCircuit: jest.fn()
           }
         }
       ]

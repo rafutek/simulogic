@@ -3,15 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SimulationFile } from './simulationFile.entity';
 import { SimulationFilesController } from './simulationFiles.controller';
 import { SimulationFilesService } from './simulationFiles.service';
-import { CircuitFilesService } from '../circuitFiles/circuitFiles.service';
-import { CircuitFile } from '../circuitFiles/circuitFile.entity';
-import { SimulationFileParserService } from '../simulationFileParser/simulationFileParser.service';
-import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
+import { ResultFile } from '../resultFiles/resultFile.entity';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
 import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
+import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SimulationFile]), TypeOrmModule.forFeature([CircuitFile])],
-  providers: [SimulationFilesService, CircuitFilesService, SimulationFileParserService, WaveDromManipulatorService, WaveDromSaverService],
+  imports: [
+    TypeOrmModule.forFeature([SimulationFile]),
+    TypeOrmModule.forFeature([ResultFile])
+  ],
+  providers: [
+    SimulationFilesService,
+    ResultFilesService,
+    WaveDromManipulatorService,
+    WaveDromSaverService
+  ],
   controllers: [SimulationFilesController]
 })
 export class SimulationFilesModule { }

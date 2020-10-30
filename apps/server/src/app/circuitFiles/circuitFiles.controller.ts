@@ -10,10 +10,14 @@ import { CircuitFile } from './circuitFile.entity';
 import * as fs from 'fs';
 import "multer";
 import { validate } from 'class-validator';
+import { ResultFilesService } from '../resultFiles/resultFiles.service';
 
 @Controller('circuits')
 export class CircuitFilesController {
-  constructor(private readonly circuits_service: CircuitFilesService) { }
+  constructor(
+    private readonly circuits_service: CircuitFilesService,
+    private readonly results_service: ResultFilesService
+  ) { }
 
   /**
    * Uploads and saves circuit files in database. Returns invalid files not uploaded.
@@ -70,9 +74,8 @@ export class CircuitFilesController {
       if (circuit.simulator_path != '' && fs.existsSync(circuit.simulator_path)) {
         fs.unlinkSync(circuit.simulator_path);
       }
-      if (fs.existsSync(circuit.path)) {
-        fs.unlinkSync(circuit.path);
-      }
+      if (fs.existsSync(circuit.path)) fs.unlinkSync(circuit.path);
+      this.results_service.deleteByCircuit(circuit);
     }
     const deleted = await this.circuits_service.deleteOne(id);
     if (!deleted) {
