@@ -64,9 +64,9 @@ export class SimulatorService {
             wavedrom = this.manipulator_service.combineWaveDroms(file_wavedrom, rslt_file_wavedrom);
         }
 
-        // if (simulatorDTO.wires?.length > 0) {
-        //     wavedrom = this.manipulator_service.selectSignals(wavedrom, simulatorDTO.wires);
-        // }
+        if (simulatorDTO.wires?.length > 0) {
+            wavedrom = this.manipulator_service.selectSignals(wavedrom, simulatorDTO.wires);
+        }
         if (!isEmpty(simulatorDTO.interval)) {
             wavedrom = this.manipulator_service.cutWaveDrom(wavedrom, simulatorDTO.interval);
         }

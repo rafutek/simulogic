@@ -5,6 +5,7 @@ import { AppModule } from '../app.module';
 import {
     simu_files_wavedrom,
     simu_files_intervals,
+    simu_files_wires,
     uploadFileTo,
     clearTableAndFiles,
     simu_rslt_files_wavedrom,
@@ -45,7 +46,7 @@ describe('Simulator end-to-end tests', () => {
         await app.close();
     });
 
-    describe("POST /simulator", () => {
+    describe("POST simulatorDTO to /simulator", () => {
         let simulatorDTO: SimulatorDTO;
 
         beforeEach(() => {
@@ -211,6 +212,43 @@ describe('Simulator end-to-end tests', () => {
             simulatorDTO.uuid_circuit = circuit_entity.uuid;
             simulatorDTO.result = true;
             simulatorDTO.interval = interval;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should be OK
+            expect(response.ok).toBeTruthy()
+        });
+
+        test.each(simu_files_wires)
+        ("should return expected WaveDrom with selected wires (%#)", async (simu_file_wire) => {
+            // Given uploaded simulation file and an interval
+            const { simu_filename, selected_wires,  expected_wavedrom } = simu_file_wire;
+            await uploadFileTo(app, simu_filename, "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+
+            // When posting a simulatorDTO with uuid_simu and wires array
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.wires = selected_wires;
+            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // Then response should be OK and contain simulation with wanted wires
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual(expected_wavedrom);
+        });
+
+        it("should not fail to request simulation result wires", async () => {
+            // Given uploaded circuit and simulation files and an interval
+            const { circuit_filename, simu_file_wavedrom } = simu_rslt_files_wavedrom[0];
+            await uploadFileTo(app, circuit_filename, "circuit");
+            await uploadFileTo(app, simu_file_wavedrom.filename, "simulation");
+            const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const selected_wires = simu_files_wires[0].selected_wires;
+
+            // When posting a simulatorDTO with uuid_simu, uuid_circuit, result and interval
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.uuid_circuit = circuit_entity.uuid;
+            simulatorDTO.result = true;
+            simulatorDTO.wires = selected_wires;
             const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
             // Then response should be OK
