@@ -74,7 +74,7 @@ export interface WaveDrom {
  * Used for grouped signals.
  */
 export interface WaveDromBase {
-    signal: any,
+    signal: any[],
     foot: {
         tick: string
     }
@@ -110,9 +110,9 @@ export interface ExtractionDetails {
 /**
  * Stores signals names into a group with a name.
  */
-export interface SignalGroup {
-    name?: string,
-    signals?: string[]
+export interface SignalNamesGroup {
+    group_name?: string,
+    signals_names?: string[]
 }
 
 /**

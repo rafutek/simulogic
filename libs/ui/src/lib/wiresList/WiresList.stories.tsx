@@ -10,8 +10,8 @@ export default {
 
 const props: WiresListProps = {
     signal_groups: [
-        { "name": "input", "signals": ["a1", "a2"] },
-        { "name": "output", "signals": ["s1"] }
+        { "group_name": "input", "signals_names": ["a1", "a2"] },
+        { "group_name": "output", "signals_names": ["s1"] }
     ],
     visible_wires: null,
     setVisibleWires: null

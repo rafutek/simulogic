@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import axios from 'axios';
-import { Entity, entity, SignalGroup } from '@simulogic/core';
+import { Entity, entity, SignalNamesGroup } from '@simulogic/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface SearchFieldProps {
     what: entity | "wire",
     setSearchEntityResult?: (search_result: Entity[]) => void,
-    setSearchWiresResult?: (search_result: SignalGroup[]) => void,
+    setSearchWiresResult?: (search_result: SignalNamesGroup[]) => void,
     refresh?: boolean,
     setRefresh?: (refresh: boolean) => void
 }
@@ -37,7 +37,7 @@ export const SearchField = (props: SearchFieldProps) => {
 
     const search = () => {
         let search_address: string;
-        let setSearchResult: (search_result: Entity[] | SignalGroup[]) => void;
+        let setSearchResult: (search_result: Entity[] | SignalNamesGroup[]) => void;
 
         if (props.what != "wire") {
             setSearchResult = props.setSearchEntityResult;

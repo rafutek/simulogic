@@ -1,5 +1,5 @@
 import {
-    WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval
+    WaveDrom, SignalWave, WaveDromBase, SignalNamesGroup, Interval
 } from '@simulogic/core'
 import { isEmpty, isNotEmpty } from 'class-validator';
 import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
@@ -409,71 +409,75 @@ export class WaveDromManipulatorService {
     }
 
     /**
-     * Returns an array of grouped signals.
-     * Each grouped signals contains the group name (like 'input') and an array of signal names.
-     */
-    getFinalWaveDromSignals() {
-        if (this.saver_service.simulation_sent && this.saver_service.simulation_sent.signal.length > 0) {
-            const signal_groups: SignalGroup[] = [];
-            this.getGroupedSignals(this.saver_service.simulation_sent.signal, signal_groups);
-            return signal_groups;
-        } else return null;
-    }
-
-    /**
      * Returns an array of grouped signals which signal names contain the expression.
      * @param signal_groups array of grouped signals to search into
      * @param expression expression to search
      */
-    searchSignals(signal_groups: SignalGroup[], expression: string) {
+    searchSignals(signal_groups: SignalNamesGroup[], expression: string) {
         if (signal_groups) {
             signal_groups = signal_groups.map(signal_group => {
-                const new_group = {
-                    name: signal_group.name,
-                    signals: signal_group.signals.filter(signal_name => signal_name.includes(expression))
+                const new_group: SignalNamesGroup = {
+                    group_name: signal_group.group_name,
+                    signals_names: signal_group.signals_names.filter(signal_name => signal_name.includes(expression))
                 }
-                return new_group.signals.length > 0 ? new_group : null;
+                return new_group.signals_names.length > 0 ? new_group : null;
             });
             return signal_groups.filter(signal_group => signal_group != null);
         } else return null;
     }
 
     /**
-     * Iterates over signals variable to find grouped signals and fills output variable.
-     * @param signals special WaveDrom variable signals (grouped by name)
-     * @param output Array of signal groups to fill
-     * @param group_idx index of the group (0 by default)
+     * Returns an array of SignalGroups containing the names of the WaveDrom signals
+     * organized by group. If the WaveDrom signals are not grouped, their names are
+     * grouped into "input" group.
+     * @param wavedrom WaveDrom variable where signals can be grouped by name
      */
-    getGroupedSignals(signals: any[], output: SignalGroup[], group_idx?: number) {
-        group_idx = group_idx ? group_idx : 0;
-        if (signals[0]) {
-            if (typeof signals[0] == "string") { // signals is a group
-                if (!output[group_idx]) {
-                    output[group_idx] = {};
-                }
-                output[group_idx].name = signals[0];
-                this.getGroupedSignals(signals.slice(1), output, group_idx);
-            }
-            else { // signals is an array of objects
-                signals.forEach((element) => {
-                    if (element.name) { // element is a signal object
-                        if (!output[group_idx]) {
-                            output[group_idx] = {};
-                        }
-                        if (!output[group_idx].signals) {
-                            output[group_idx].signals = [];
-                        }
-                        output[group_idx].signals.push(element.name);
-                    }
-                    else { // element is an object so we get its signals
-                        if (!output[group_idx]) {
-                            this.getGroupedSignals(element, output, group_idx);
-                        }
-                        else this.getGroupedSignals(element, output, group_idx + 1);
-                    }
-                })
-            }
+    getWaveDromSignalsNames(wavedrom: WaveDromBase): SignalNamesGroup[] {
+        let signals_groups: SignalNamesGroup[] = [];
+        if (wavedrom?.signal[0]?.name) {
+            // signal array should be an array of SignalWaves
+            // so we get the names and store them in "input" group
+            const input_group: SignalNamesGroup = {
+                group_name: "input",
+                signals_names: this.getSignalsNames(wavedrom.signal)
+            };
+            signals_groups.push(input_group);
         }
+        else if (wavedrom?.signal[0]?.length > 0 && typeof wavedrom?.signal[0][0] == "string") {
+            // signal array should be an array of grouped SignalWaves
+            signals_groups = this.getGroupedSignalsNames(wavedrom.signal);
+        }
+        return signals_groups;
+    }
+
+    /**
+     * Returns an array containing the names of each SignalWave.
+     * @param signals array of SignalWaves
+     */
+    private getSignalsNames(signals: SignalWave[]): string[] {
+        const names: string[] = [];
+        signals?.forEach(s => {
+            if (s.name?.length > 0) {
+                names.push(s.name);
+            }
+        })
+        return names;
+    }
+
+    /**
+     * Returns an array of SignalGroups containing the name and the signals names of each group.
+     * @param grouped_signals array of arrays containing a name at first position and SignalWaves after
+     */
+    private getGroupedSignalsNames(grouped_signals: any[][]): SignalNamesGroup[] {
+        const signals_groups: SignalNamesGroup[] = [];
+        grouped_signals?.forEach(g_s => {
+            const signal_group: SignalNamesGroup = {
+                group_name: g_s.shift(), // first element should be the name of the group
+                signals_names: this.getSignalsNames(g_s) // next elements should be SignalWaves
+            };
+            signals_groups.push(signal_group);
+        })
+        return signals_groups;
     }
 
     /**

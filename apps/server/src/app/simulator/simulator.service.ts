@@ -5,7 +5,7 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { SimulatorDTO } from './simulator.dto';
 import { isEmpty, isUUID } from 'class-validator';
 import { SimulationFilesService } from '../simulationFiles/simulationFiles.service';
-import { UUIDWaveDrom, WaveDrom } from '@simulogic/core';
+import { SignalNamesGroup, UUIDWaveDrom, WaveDrom } from '@simulogic/core';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
 import { CircuitFile } from '../circuitFiles/circuitFile.entity';
 import { execSync } from 'child_process';
@@ -286,4 +286,19 @@ export class SimulatorService {
         return saved_result;
     }
 
+
+    /**
+    * Returns an array containing the signal names of the last sent WaveDrom, grouped by name.
+    * Returns null if last sent WaveDrom is empty.
+    */
+    getSentWaveDromSignalsNames() {
+        if (this.saver_service.simulation_sent?.signal?.length > 0) {
+            return this.manipulator_service.getWaveDromSignalsNames(this.saver_service.simulation_sent);
+        } else return null;
+    }
+
+    searchSentWaveDromSignals(search_expression: string) {
+        const signal_groups = this.getSentWaveDromSignalsNames();
+        return this.manipulator_service.searchSignals(signal_groups, search_expression);
+    }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Accordion, AccordionSummary, AccordionDetails, Divider } from '@material-ui/core';
-import { SignalGroup } from '@simulogic/core';
+import { SignalNamesGroup } from '@simulogic/core';
 import { List } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { WireItem } from '../wireItem/WireItem';
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 export interface WiresListProps {
-    signal_groups: SignalGroup[],
+    signal_groups: SignalNamesGroup[],
     visible_wires: string[],
     setVisibleWires: (visible_wires: string[]) => void
 }
@@ -33,24 +33,24 @@ export const WiresList = (props: WiresListProps) => {
     }
 
     interface SignalGroupProps {
-        signal_group: SignalGroup
+        signal_group: SignalNamesGroup
     }
     const SignalGroup = (group_props: SignalGroupProps) => {
         const { signal_group } = group_props;
 
-        if (signal_group.signals && signal_group.signals.length > 0) {
+        if (signal_group.signals_names && signal_group.signals_names.length > 0) {
             const wires_list = <List>
-                {signal_group.signals.map(signal =>
+                {signal_group.signals_names.map(signal =>
                     <WireItem key={signal} name={signal} visible={props.visible_wires?.includes(signal)}
                         handleClickVisibility={handleClickVisibility} />
                 )}
             </List>
 
-            if (signal_group.name) {
+            if (signal_group.group_name) {
                 return (
                     <Accordion defaultExpanded>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            {signal_group.name}
+                            {signal_group.group_name}
                         </AccordionSummary>
                         <Divider />
                         <AccordionDetails>
@@ -67,7 +67,7 @@ export const WiresList = (props: WiresListProps) => {
         <List>
             {props.signal_groups ?
                 props.signal_groups.map(signal_group =>
-                    <SignalGroup key={signal_group.name} signal_group={signal_group} />)
+                    <SignalGroup key={signal_group.group_name} signal_group={signal_group} />)
                 : null}
         </List>
     );

@@ -7,7 +7,7 @@ import InputIcon from '@material-ui/icons/Input';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 import BuildIcon from '@material-ui/icons/Build';
 import { SearchField, SearchFieldProps } from '../searchField/SearchField';
-import { Entity, entity, SignalGroup, Configuration } from '@simulogic/core';
+import { Entity, entity, SignalNamesGroup, Configuration } from '@simulogic/core';
 import { List, Box } from '@material-ui/core';
 import { EntityItem, EntityItemProps } from '../entityItem/EntityItem';
 import { EntityUploader } from '../entityUploader/EntityUploader';
@@ -52,10 +52,10 @@ export interface TabMenuProps {
     setSelectedCircuit: (circuit: Entity) => void,
     selected_simulation: Entity,
     setSelectedSimulation: (simulation: Entity) => void,
-    signal_groups: SignalGroup[]
+    signal_groups: SignalNamesGroup[]
     visible_wires: string[],
     setVisibleWires: (visible_wires: string[]) => void,
-    onSearchWires: (result: SignalGroup[]) => void,
+    onSearchWires: (result: SignalNamesGroup[]) => void,
     configuration: Configuration,
     setConfiguration: (config: Configuration) => void
 }
@@ -68,7 +68,7 @@ export const TabMenu = (props: TabMenuProps) => {
     const [simulations, setSimulations] = useState<Entity[]>();
     const [refresh_circuits, setRefreshCircuits] = useState(true);
     const [refresh_simulations, setRefreshSimulations] = useState(true);
-    const [signal_groups_found, setSignalGroupsFound] = useState<SignalGroup[]>();
+    const [signal_groups_found, setSignalGroupsFound] = useState<SignalNamesGroup[]>();
 
     interface TabPanelProps {
         children?: React.ReactNode;

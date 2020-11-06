@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { entity, Entity, WaveDrom, ExtractionDetails, SignalGroup, Configuration } from '@simulogic/core';
+import { entity, Entity, WaveDrom, ExtractionDetails, SignalNamesGroup, Configuration } from '@simulogic/core';
 import { Grid, makeStyles, Theme } from '@material-ui/core';
 import axios from 'axios';
 import { TimeDiagram } from '../timeDiagram/TimeDiagram';

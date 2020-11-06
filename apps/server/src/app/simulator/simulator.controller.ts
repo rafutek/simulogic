@@ -1,4 +1,4 @@
-import { Body, Controller, InternalServerErrorException, Post } from '@nestjs/common';
+import { Body, Controller, Get, InternalServerErrorException, Param, Post } from '@nestjs/common';
 import { WaveDrom } from '@simulogic/core';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService } from './simulator.service';
@@ -21,5 +21,17 @@ export class SimulatorController {
         return wavedrom;
     }
 
+    @Get("sentsignals")
+    getSentWaveDromSignals() {
+        return this.simulator_service.getSentWaveDromSignalsNames();
+    }
 
+    /**
+    * Returns the wires of the last extracted and sent wavedrom
+    * which names contain the expression.
+    */
+    @Get('sentsignals/:search_expression')
+    searchSentWaveDromSignals(@Param("search_expression") search_expression: string) {
+        return this.simulator_service.searchSentWaveDromSignals(search_expression);
+    }
 }

@@ -1,5 +1,5 @@
 import { WaveDromManipulatorService } from './waveDromManipulator.service'
-import { WaveDrom, SignalWave, WaveDromBase, SignalGroup, Interval } from '@simulogic/core';
+import { WaveDrom, SignalWave, WaveDromBase, SignalNamesGroup, Interval } from '@simulogic/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 
@@ -299,7 +299,7 @@ describe("WaveDromManipulatorService", () => {
     });
   });
 
-  describe("getWires", () => {
+  describe("getWaveDromSignalsNames", () => {
     let s1: SignalWave, s2: SignalWave, s3: SignalWave, s4: SignalWave;
     let initial_wavedrom: WaveDromBase;
 
@@ -314,17 +314,17 @@ describe("WaveDromManipulatorService", () => {
       };
     })
 
-    it("should return a signal group without name", () => {
+    it("should group ungrouped signals into 'input' signal names group", () => {
       // Given a wavedrom without groups
       initial_wavedrom.signal.push(s1, s2, s3, s4);
 
       // When getting the signals
-      const result: SignalGroup[] = [];
-      manipulator.getGroupedSignals(initial_wavedrom.signal, result);
+      const result = manipulator.getWaveDromSignalsNames(initial_wavedrom);
 
       // Then we should have
-      const group: SignalGroup = {
-        signals: ["s1", "s2", "s3", "s4"]
+      const group: SignalNamesGroup = {
+        group_name: "input",
+        signals_names: ["s1", "s2", "s3", "s4"]
       };
       const expected = [group];
 
@@ -332,30 +332,28 @@ describe("WaveDromManipulatorService", () => {
 
     });
 
-    it("should return signal groups with names", () => {
+    it("should group grouped signals in their own signal names group", () => {
       // Given a wavedrom with a signal group
       const group1 = ["input", s1, s2];
       const group2 = ["output", s3, s4];
       initial_wavedrom.signal.push(group1, group2);
 
-      // When getting the signals
-      const result: SignalGroup[] = [];
-      manipulator.getGroupedSignals(initial_wavedrom.signal, result);
+      // When getting the signals groups
+      const result = manipulator.getWaveDromSignalsNames(initial_wavedrom);
 
       // Then we should have on group with a name and another without
-      const input_group: SignalGroup = {
-        name: "input",
-        signals: ["s1", "s2"]
+      const input_group: SignalNamesGroup = {
+        group_name: "input",
+        signals_names: ["s1", "s2"]
       };
-      const output_group: SignalGroup = {
-        name: "output",
-        signals: ["s3", "s4"]
+      const output_group: SignalNamesGroup = {
+        group_name: "output",
+        signals_names: ["s3", "s4"]
       };
       const expected = [input_group, output_group];
 
       expect(result).toEqual(expected);
 
     });
-
   });
 });
