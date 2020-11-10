@@ -10,7 +10,8 @@ import {
     clearTableAndFiles,
     simu_rslt_files_wavedrom,
     getFirstFile,
-    simu_filenames
+    simu_filenames,
+    adder_signals_names
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -277,8 +278,23 @@ describe('Simulator end-to-end tests', () => {
             expect(response.body).toEqual({});
         });
 
+        it("should return input group signals of previously sent WaveDrom", async () => {
+            // Given a simulation file uploaded and a request to get its parsed variable
+            await uploadFileTo(app, adder_signals_names.simu_filename, "simulation");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+            // When getting sent signals
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+
+            // Then it should be ok and get nothing
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual([adder_signals_names.signals_names_group]);
+        });
+
+
         // TODO:
-        // test quand wavedrom envoyé a que le groupe input
         // test quand wavedrom envoyé a input et output
         // test quand wavedrom envoyé puis un autre
     });
