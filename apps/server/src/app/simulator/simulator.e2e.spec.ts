@@ -11,7 +11,8 @@ import {
     simu_rslt_files_wavedrom,
     getFirstFile,
     simu_filenames,
-    adder_signals_names
+    OR_signals_names,
+    OR_rslt_signals_names
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -273,14 +274,14 @@ describe('Simulator end-to-end tests', () => {
             // When getting sent signals
             const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
 
-            // Then it should be ok and get nothing
+            // Then response should be ok and contain nothing
             expect(response.ok).toBeTruthy();
             expect(response.body).toEqual({});
         });
 
         it("should return input group signals of previously sent WaveDrom", async () => {
             // Given a simulation file uploaded and a request to get its parsed variable
-            await uploadFileTo(app, adder_signals_names.simu_filename, "simulation");
+            await uploadFileTo(app, OR_signals_names.simu_filename, "simulation");
             const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
             simulatorDTO.uuid_simu = simu_entity.uuid;
             await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
@@ -288,14 +289,30 @@ describe('Simulator end-to-end tests', () => {
             // When getting sent signals
             const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
 
-            // Then it should be ok and get nothing
+            // Then response should be ok and contain input signals names
             expect(response.ok).toBeTruthy();
-            expect(response.body).toEqual([adder_signals_names.signals_names_group]);
+            expect(response.body).toEqual([OR_signals_names.signals_names_group]);
         });
 
+        it("should return input group signals of previously sent result WaveDrom", async () => {
+            // Given uploaded simulation and circuit files
+            // and a request sent to get simulation result variable
+            await uploadFileTo(app, OR_rslt_signals_names.simu_filename, "simulation");
+            await uploadFileTo(app, OR_rslt_signals_names.circ_filename, "circuit");
+            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            const circ_entity: CircuitFile = await getFirstFile(app, "circuit");
+            simulatorDTO.uuid_simu = simu_entity.uuid;
+            simulatorDTO.uuid_circuit = circ_entity.uuid;
+            simulatorDTO.result = true;
+            await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-        // TODO:
-        // test quand wavedrom envoyé a input et output
-        // test quand wavedrom envoyé puis un autre
+            // When getting sent signals
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+
+            // Then response should be ok and contain input and output signals names
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual(OR_rslt_signals_names.signals_names_groups);
+        });
+
     });
 });

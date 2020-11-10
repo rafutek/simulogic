@@ -342,13 +342,32 @@ interface SimuFileSignalsNamesGroup {
     simu_filename: string,
     signals_names_group: SignalNamesGroup
 }
-
-export const adder_signals_names: SimuFileSignalsNamesGroup = {
-    simu_filename: adder.simulation_filename,
+export const OR_signals_names: SimuFileSignalsNamesGroup = {
+    simu_filename: OR_gate.simulation_filename,
     signals_names_group: {
         group_name: "input",
-        signals_names: ["x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "y0", "y1", "y2", "y3", "y4", "y5", "y6", "y7"]
+        signals_names: ["a1", "a2"]
     }
+}
+
+interface SimuRsltFileSignalsNamesGroup {
+    simu_filename: string,
+    circ_filename: string,
+    signals_names_groups: SignalNamesGroup[]
+}
+export const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroup = {
+    simu_filename: OR_gate.simulation_filename,
+    circ_filename: OR_gate.circuit_filename,
+    signals_names_groups: [
+        {
+            group_name: "input",
+            signals_names: ["a1", "a2"]
+        }, 
+        {
+            group_name: "output",
+            signals_names: ["s1"]
+        }
+    ]
 }
 
 export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
