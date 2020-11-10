@@ -427,7 +427,7 @@ export class WaveDromManipulatorService {
     }
 
     /**
-     * Returns an array of SignalGroups containing the names of the WaveDrom signals
+     * Returns an array of SignalNamesGroups containing the names of the WaveDrom signals
      * organized by group. If the WaveDrom signals are not grouped, their names are
      * grouped into "input" group.
      * @param wavedrom WaveDrom variable where signals can be grouped by name
@@ -465,7 +465,7 @@ export class WaveDromManipulatorService {
     }
 
     /**
-     * Returns an array of SignalGroups containing the name and the signals names of each group.
+     * Returns an array of SignalNamesGroups containing the name and the signals names of each group.
      * @param grouped_signals array of arrays containing a name at first position and SignalWaves after
      */
     private getGroupedSignalsNames(grouped_signals: any[][]): SignalNamesGroup[] {

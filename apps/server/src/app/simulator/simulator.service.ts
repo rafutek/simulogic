@@ -294,7 +294,8 @@ export class SimulatorService {
     getSentWaveDromSignalsNames() {
         if (this.saver_service.simulation_sent?.signal?.length > 0) {
             return this.manipulator_service.getWaveDromSignalsNames(this.saver_service.simulation_sent);
-        } else return null;
+        }
+        return undefined;
     }
 
     searchSentWaveDromSignals(search_expression: string) {

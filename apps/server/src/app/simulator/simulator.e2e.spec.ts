@@ -21,8 +21,9 @@ import { Interval } from '@simulogic/core';
 
 describe('Simulator end-to-end tests', () => {
     let app: INestApplication;
+    let simulatorDTO: SimulatorDTO;
 
-    beforeAll(async () => {
+    const startApp = async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
@@ -30,28 +31,32 @@ describe('Simulator end-to-end tests', () => {
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(new ValidationPipe()); // for DTO validations
         await app.init();
-    });
+    }
 
-    // Removes all simulations from database before and after each test.
-    beforeEach(async () => {
-        await clearTableAndFiles(app, "simulation");
-        await clearTableAndFiles(app, "circuit");
-    });
-    afterEach(async () => {
-        await clearTableAndFiles(app, "simulation");
-        await clearTableAndFiles(app, "circuit");
-    });
-
-    afterAll(async () => {
+    const stopApp = async () => {
         await app.close();
+    }
+    const clearApp = async () => {
+        await clearTableAndFiles(app, "simulation");
+        await clearTableAndFiles(app, "circuit");
+    }
+    const clearAndStopApp = async () => {
+        await clearApp();
+        await stopApp();
+    }
+    // Sets an empty simulatorDTO variable before each test.
+    beforeEach(() => {
+        simulatorDTO = { uuid_simu: "" };
     });
 
     describe("POST simulatorDTO to /simulator", () => {
-        let simulatorDTO: SimulatorDTO;
 
-        beforeEach(() => {
-            simulatorDTO = { uuid_simu: "" };
-        })
+        // Starts the app before all these tests, and stops it after.
+        // Removes all simulations from database before and after each test.
+        beforeAll(startApp);
+        beforeEach(clearApp);
+        afterEach(clearApp);
+        afterAll(stopApp);
 
         it("should fail when simulatorDTO is undefined", async () => {
             // Given an undefined simulatorDTO
@@ -88,7 +93,7 @@ describe('Simulator end-to-end tests', () => {
         test.each(simu_files_wavedrom)
             ("should return expected WaveDrom (%#)", async (simu_file) => {
                 // Given uploaded simulation file
-                const { filename, wavedrom } = simu_file;
+                const { filename, expected_wavedrom } = simu_file;
                 await uploadFileTo(app, filename, "simulation");
                 const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
 
@@ -98,7 +103,7 @@ describe('Simulator end-to-end tests', () => {
 
                 // Then response should be OK and contain the expected WaveDrom
                 expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(wavedrom);
+                expect(response.body).toEqual(expected_wavedrom);
             });
 
         it("should fail to return expected combined WaveDrom when no circuit uuid", async () => {
@@ -118,7 +123,7 @@ describe('Simulator end-to-end tests', () => {
         test.each(simu_rslt_files_wavedrom)
             ("should return expected combined WaveDrom (%#)", async (simu_rslt_file) => {
                 // Given uploaded simulation and circuit files
-                const { circuit_filename, combined_wavedrom, simu_file_wavedrom } = simu_rslt_file;
+                const { circuit_filename, expected_combined_wavedrom, simu_file_wavedrom } = simu_rslt_file;
                 await uploadFileTo(app, circuit_filename, "circuit");
                 await uploadFileTo(app, simu_file_wavedrom.filename, "simulation");
                 const circuit_entity: CircuitFile = await getFirstFile(app, "circuit");
@@ -133,7 +138,7 @@ describe('Simulator end-to-end tests', () => {
                 // Then response should be OK and contain the expected combined WaveDrom
                 // (simulation input and output in a single variable)
                 expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(combined_wavedrom);
+                expect(response.body).toEqual(expected_combined_wavedrom);
             });
 
         it("should fail to return expected WaveDrom interval when bad interval", async () => {
@@ -184,7 +189,7 @@ describe('Simulator end-to-end tests', () => {
         test.each(simu_files_intervals)
             ("should return expected WaveDrom interval (%#)", async (simu_file_interval) => {
                 // Given uploaded simulation file and an interval
-                const { filename, interval, wavedrom } = simu_file_interval;
+                const { filename, interval, expected_wavedrom } = simu_file_interval;
                 await uploadFileTo(app, filename, "simulation");
                 const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
 
@@ -195,7 +200,7 @@ describe('Simulator end-to-end tests', () => {
 
                 // Then response should be OK and contain wanted simulation interval
                 expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(wavedrom);
+                expect(response.body).toEqual(expected_wavedrom);
             });
 
         it("should not fail to request simulation result interval", async () => {
@@ -219,21 +224,21 @@ describe('Simulator end-to-end tests', () => {
         });
 
         test.each(simu_files_wires)
-        ("should return expected WaveDrom with selected wires (%#)", async (simu_file_wire) => {
-            // Given uploaded simulation file and an interval
-            const { simu_filename, selected_wires,  expected_wavedrom } = simu_file_wire;
-            await uploadFileTo(app, simu_filename, "simulation");
-            const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+            ("should return expected WaveDrom with selected wires (%#)", async (simu_file_wire) => {
+                // Given uploaded simulation file and an interval
+                const { simu_filename, selected_wires, expected_wavedrom } = simu_file_wire;
+                await uploadFileTo(app, simu_filename, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
 
-            // When posting a simulatorDTO with uuid_simu and wires array
-            simulatorDTO.uuid_simu = simu_entity.uuid;
-            simulatorDTO.wires = selected_wires;
-            const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+                // When posting a simulatorDTO with uuid_simu and wires array
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                simulatorDTO.wires = selected_wires;
+                const response = await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-            // Then response should be OK and contain simulation with wanted wires
-            expect(response.ok).toBeTruthy();
-            expect(response.body).toEqual(expected_wavedrom);
-        });
+                // Then response should be OK and contain simulation with wanted wires
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(expected_wavedrom);
+            });
 
         it("should not fail to request simulation result wires", async () => {
             // Given uploaded circuit and simulation files and an interval
@@ -256,4 +261,25 @@ describe('Simulator end-to-end tests', () => {
         });
     });
 
+    describe("GET /simulator/sentsignals", () => {
+
+        // Restarts a clean app before each test.
+        beforeEach(startApp);
+        afterEach(clearAndStopApp);
+
+        it("should return nothing when no previously sent WaveDrom", async () => {
+            // Given a fresh app
+            // When getting sent signals
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+
+            // Then it should be ok and get nothing
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual({});
+        });
+
+        // TODO:
+        // test quand wavedrom envoyé a que le groupe input
+        // test quand wavedrom envoyé a input et output
+        // test quand wavedrom envoyé puis un autre
+    });
 });

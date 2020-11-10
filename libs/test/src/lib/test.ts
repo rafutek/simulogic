@@ -6,12 +6,12 @@ export const example_files_folder = "./examples/";
 
 interface SimuFileWaveDrom {
     filename: string,
-    wavedrom: WaveDrom
+    expected_wavedrom: WaveDrom
 }
 
 const adder: SimuFileWaveDrom = {
     filename: "adder.simu",
-    wavedrom: {
+    expected_wavedrom: {
         signal: [
             { name: 'x0', wave: 'x1x' },
             { name: 'x1', wave: 'x0x' },
@@ -36,7 +36,7 @@ const adder: SimuFileWaveDrom = {
 
 const OR_gate: SimuFileWaveDrom = {
     filename: "OR.simu",
-    wavedrom: {
+    expected_wavedrom: {
         signal: [{ name: 'a1', wave: 'x010.x' }, { name: 'a2', wave: 'x01.0x' }],
         foot: { tick: '- 0 50 650 1000 2000 + ' }
     }
@@ -44,7 +44,7 @@ const OR_gate: SimuFileWaveDrom = {
 
 const triSeq: SimuFileWaveDrom = {
     filename: "triSeq.simu",
-    wavedrom: {
+    expected_wavedrom: {
         signal: [
             {
                 name: 'ss',
@@ -87,13 +87,13 @@ export const simu_files_wavedrom = [adder, OR_gate, triSeq];
 interface SimuFileIntervalWaveDrom {
     filename: string,
     interval: Interval,
-    wavedrom: WaveDrom
+    expected_wavedrom: WaveDrom
 }
 
 const adder_interval: SimuFileIntervalWaveDrom = {
     filename: "adder.simu",
     interval: { start: 10, end: 100 },
-    wavedrom: {
+    expected_wavedrom: {
         signal: [
             { name: 'x0', wave: '1.' },
             { name: 'x1', wave: '0.' },
@@ -119,7 +119,7 @@ const adder_interval: SimuFileIntervalWaveDrom = {
 const OR_interval: SimuFileIntervalWaveDrom = {
     filename: "OR.simu",
     interval: { start: 0, end: 100 },
-    wavedrom: {
+    expected_wavedrom: {
         signal: [{ name: 'a1', wave: 'x01.' }, { name: 'a2', wave: 'x01.' }],
         foot: { tick: '- 0 50 100 x ' }
     }
@@ -128,7 +128,7 @@ const OR_interval: SimuFileIntervalWaveDrom = {
 const triSeq_interval: SimuFileIntervalWaveDrom = {
     filename: "triSeq.simu",
     interval: { start: 3800, end: 10000 },
-    wavedrom: {
+    expected_wavedrom: {
         signal: [
             { name: 'ss', wave: '0......x.' },
             { name: 'sr', wave: '0......x.' },
@@ -202,13 +202,13 @@ export const simu_files_wires = [adder_wires, OR_wires, triSeq_wires];
 export interface SimuRsltFileWaveDrom {
     circuit_filename: string,
     simu_file_wavedrom: SimuFileWaveDrom,
-    combined_wavedrom: WaveDromBase
+    expected_combined_wavedrom: WaveDromBase
 }
 
 const adder_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: "adder.logic",
     simu_file_wavedrom: adder,
-    combined_wavedrom: {
+    expected_combined_wavedrom: {
         signal: [
             [
                 'input',
@@ -249,7 +249,7 @@ const adder_rslt: SimuRsltFileWaveDrom = {
 export const Or_gate_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: "OR.logic",
     simu_file_wavedrom: OR_gate,
-    combined_wavedrom: {
+    expected_combined_wavedrom: {
         signal: [
             [
                 'input',
@@ -265,7 +265,7 @@ export const Or_gate_rslt: SimuRsltFileWaveDrom = {
 const triSeq_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: "triSeq.logic",
     simu_file_wavedrom: triSeq,
-    combined_wavedrom: {
+    expected_combined_wavedrom: {
         signal: [
             [
                 'input',
