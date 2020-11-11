@@ -472,7 +472,7 @@ export class WaveDromManipulatorService {
         const signals_groups: SignalNamesGroup[] = [];
         grouped_signals?.forEach(g_s => {
             const signal_group: SignalNamesGroup = {
-                group_name: g_s.shift(), // first element should be the name of the group
+                group_name: g_s[0], // first element should be the name of the group
                 signals_names: this.getSignalsNames(g_s) // next elements should be SignalWaves
             };
             signals_groups.push(signal_group);

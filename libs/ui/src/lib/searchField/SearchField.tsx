@@ -42,20 +42,21 @@ export const SearchField = (props: SearchFieldProps) => {
         if (props.what != "wire") {
             setSearchResult = props.setSearchEntityResult;
             search_address = `/${props.what}s`; // to get all simulations or circuits
-            if (search_exp && search_exp.length > 0) {
+            if (search_exp?.length > 0) {
                 search_address += `/search/${search_exp}`;
             }
         } else {
             setSearchResult = props.setSearchWiresResult;
-            if (search_exp && search_exp.length > 0) {
-                search_address = `/simulations/extract/wires/${search_exp}`;
+            if (search_exp?.length > 0) {
+                search_address = `/simulator/sentsignals/${search_exp}`;
             } else {
-                search_address = `/simulations/extract/wires`;
+                search_address = `/simulator/sentsignals`;
             }
         }
         if (search_address) {
             axios.get(search_address)
                 .then(response => {
+                    console.log(response.data)
                     setSearchResult ? setSearchResult(response.data) : null;
                 })
                 .catch(error => {
