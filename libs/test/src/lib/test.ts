@@ -34,7 +34,6 @@ interface SimuFileWaveDrom {
     filename: string,
     expected_wavedrom: WaveDrom
 }
-
 const adder_wavedrom: SimuFileWaveDrom = {
     filename: adder.simulation_filename,
     expected_wavedrom: {
@@ -59,7 +58,6 @@ const adder_wavedrom: SimuFileWaveDrom = {
         foot: { tick: '- 0 3000 + ' }
     }
 }
-
 const OR_gate_wavedrom: SimuFileWaveDrom = {
     filename: OR_gate.simulation_filename,
     expected_wavedrom: {
@@ -67,7 +65,6 @@ const OR_gate_wavedrom: SimuFileWaveDrom = {
         foot: { tick: '- 0 50 650 1000 2000 + ' }
     }
 }
-
 const triSeq_wavedrom: SimuFileWaveDrom = {
     filename: triSeq.simulation_filename,
     expected_wavedrom: {
@@ -106,7 +103,6 @@ const triSeq_wavedrom: SimuFileWaveDrom = {
         }
     }
 }
-
 export const simu_files_wavedrom = [adder_wavedrom, OR_gate_wavedrom, triSeq_wavedrom];
 
 
@@ -115,7 +111,6 @@ interface SimuFileIntervalWaveDrom {
     interval: Interval,
     expected_wavedrom: WaveDrom
 }
-
 const adder_interval: SimuFileIntervalWaveDrom = {
     filename: adder.simulation_filename,
     interval: { start: 10, end: 100 },
@@ -140,8 +135,7 @@ const adder_interval: SimuFileIntervalWaveDrom = {
         ],
         foot: { tick: '10 100 x ' }
     }
-};
-
+}
 const OR_interval: SimuFileIntervalWaveDrom = {
     filename: OR_gate.simulation_filename,
     interval: { start: 0, end: 100 },
@@ -149,8 +143,7 @@ const OR_interval: SimuFileIntervalWaveDrom = {
         signal: [{ name: 'a1', wave: 'x01.' }, { name: 'a2', wave: 'x01.' }],
         foot: { tick: '- 0 50 100 x ' }
     }
-};
-
+}
 const triSeq_interval: SimuFileIntervalWaveDrom = {
     filename: triSeq.simulation_filename,
     interval: { start: 3800, end: 10000 },
@@ -166,8 +159,7 @@ const triSeq_interval: SimuFileIntervalWaveDrom = {
         ],
         foot: { tick: '3800 3808 3820 3870 3908 3920 3970 4000 10000 + ' }
     }
-};
-
+}
 export const simu_files_intervals = [adder_interval, OR_interval, triSeq_interval];
 
 interface SimuFileWiresWaveDrom {
@@ -175,7 +167,6 @@ interface SimuFileWiresWaveDrom {
     selected_wires: string[],
     expected_wavedrom: WaveDrom
 }
-
 const adder_wires: SimuFileWiresWaveDrom = {
     simu_filename: adder.simulation_filename,
     selected_wires: ["x0", "x1", "x2"],
@@ -188,7 +179,6 @@ const adder_wires: SimuFileWiresWaveDrom = {
         foot: { tick: '- 0 3000 + ' }
     }
 }
-
 const OR_wires: SimuFileWiresWaveDrom = {
     simu_filename: OR_gate.simulation_filename,
     selected_wires: [],
@@ -197,7 +187,6 @@ const OR_wires: SimuFileWiresWaveDrom = {
         foot: { tick: '- 0 50 650 1000 2000 + ' }
     }
 }
-
 const triSeq_wires: SimuFileWiresWaveDrom = {
     simu_filename: triSeq.simulation_filename,
     selected_wires: ["ss", "tri1En", "e0"],
@@ -230,7 +219,6 @@ export interface SimuRsltFileWaveDrom {
     simu_file_wavedrom: SimuFileWaveDrom,
     expected_combined_wavedrom: WaveDromBase
 }
-
 const adder_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: adder.circuit_filename,
     simu_file_wavedrom: adder_wavedrom,
@@ -270,8 +258,7 @@ const adder_rslt: SimuRsltFileWaveDrom = {
         ],
         foot: { tick: '- 0 100 200 300 400 500 600 700 3000 + ' }
     }
-};
-
+}
 export const Or_gate_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: OR_gate.circuit_filename,
     simu_file_wavedrom: OR_gate_wavedrom,
@@ -287,7 +274,6 @@ export const Or_gate_rslt: SimuRsltFileWaveDrom = {
         foot: { tick: '- 0 50 100 150 650 1000 1100 2000 + ' }
     }
 }
-
 const triSeq_rslt: SimuRsltFileWaveDrom = {
     circuit_filename: triSeq.circuit_filename,
     simu_file_wavedrom: triSeq_wavedrom,
@@ -350,25 +336,57 @@ export const OR_signals_names: SimuFileSignalsNamesGroup = {
     }
 }
 
-interface SimuRsltFileSignalsNamesGroup {
+interface SimuRsltFileSignalsNamesGroups {
     simu_filename: string,
     circ_filename: string,
     signals_names_groups: SignalNamesGroup[]
 }
-export const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroup = {
+export const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
     simu_filename: OR_gate.simulation_filename,
     circ_filename: OR_gate.circuit_filename,
     signals_names_groups: [
         {
             group_name: "input",
             signals_names: ["a1", "a2"]
-        }, 
+        },
         {
             group_name: "output",
             signals_names: ["s1"]
         }
     ]
 }
+
+interface SearchSimuFileSignalsNamesGroup {
+    simu_signals_names: SimuFileSignalsNamesGroup,
+    search_expression: string,
+    expected_search_rslt: SignalNamesGroup
+}
+export const OR_search_signals: SearchSimuFileSignalsNamesGroup = {
+    simu_signals_names: OR_signals_names,
+    search_expression: "1",
+    expected_search_rslt: { group_name: "input", signals_names: ["a1"] }
+}
+
+interface SearchSimuRsltFileSignalsNamesGroups {
+    simu_rslt_signals_names: SimuRsltFileSignalsNamesGroups,
+    search_expression: string,
+    expected_search_rslt: SignalNamesGroup[]
+}
+export const OR_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
+    simu_rslt_signals_names: OR_rslt_signals_names,
+    search_expression: "1",
+    expected_search_rslt: [
+        {
+            group_name: "input",
+            signals_names: ["a1"]
+        },
+        {
+            group_name: "output",
+            signals_names: ["s1"]
+        }
+    ]
+}
+
 
 export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
 export const circuit_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename);

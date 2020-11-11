@@ -12,7 +12,9 @@ import {
     getFirstFile,
     simu_filenames,
     OR_signals_names,
-    OR_rslt_signals_names
+    OR_rslt_signals_names,
+    OR_search_signals,
+    OR_rslt_search_signals
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -271,7 +273,7 @@ describe('Simulator end-to-end tests', () => {
 
         it("should return nothing when no previously sent WaveDrom", async () => {
             // Given a fresh app
-            // When getting sent signals
+            // When getting sent signals names
             const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
 
             // Then response should be ok and contain nothing
@@ -279,14 +281,14 @@ describe('Simulator end-to-end tests', () => {
             expect(response.body).toEqual({});
         });
 
-        it("should return input group signals of previously sent WaveDrom", async () => {
+        it("should return input signals names of previously sent WaveDrom", async () => {
             // Given a simulation file uploaded and a request to get its parsed variable
             await uploadFileTo(app, OR_signals_names.simu_filename, "simulation");
             const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
             simulatorDTO.uuid_simu = simu_entity.uuid;
             await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-            // When getting sent signals
+            // When getting sent signals names
             const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
 
             // Then response should be ok and contain input signals names
@@ -294,7 +296,7 @@ describe('Simulator end-to-end tests', () => {
             expect(response.body).toEqual([OR_signals_names.signals_names_group]);
         });
 
-        it("should return input group signals of previously sent result WaveDrom", async () => {
+        it("should return input and output signals names of previously sent result WaveDrom", async () => {
             // Given uploaded simulation and circuit files
             // and a request sent to get simulation result variable
             await uploadFileTo(app, OR_rslt_signals_names.simu_filename, "simulation");
@@ -306,7 +308,7 @@ describe('Simulator end-to-end tests', () => {
             simulatorDTO.result = true;
             await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-            // When getting sent signals
+            // When getting sent signals names
             const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
 
             // Then response should be ok and contain input and output signals names
@@ -315,4 +317,63 @@ describe('Simulator end-to-end tests', () => {
         });
 
     });
+
+    describe("GET /simulator/sentsignals/:search_expression", () => {
+
+        // Restarts a clean app before each test.
+        beforeEach(startApp);
+        afterEach(clearAndStopApp);
+
+        it("should return nothing when no previously sent WaveDrom", async () => {
+            // Given a fresh app
+            // When getting sent signals names containing an expression
+            const response = await request(app.getHttpServer()).get(`/simulator/sentsignals/test`);
+
+            // Then response should be ok and contain nothing
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual({});
+        });
+
+        it("should return input signals names of previously sent WaveDrom which name contains the expression",
+            async () => {
+                // Given a simulation file uploaded and a request to get its parsed variable
+                await uploadFileTo(app, OR_search_signals.simu_signals_names.simu_filename, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // When getting sent signals names containing an expression
+                const response = await request(app.getHttpServer())
+                    .get(`/simulator/sentsignals/${OR_search_signals.search_expression}`);
+
+                // Then response should be ok and contain input signals names
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual([OR_search_signals.expected_search_rslt]);
+            });
+
+        it("should return input and output signals names of previously sent result WaveDrom " +
+            "which name contains the expression",
+            async () => {
+                // Given uploaded simulation and circuit files
+                // and a request sent to get simulation result variable
+                await uploadFileTo(app, OR_rslt_search_signals.simu_rslt_signals_names.simu_filename, "simulation");
+                await uploadFileTo(app, OR_rslt_search_signals.simu_rslt_signals_names.circ_filename, "circuit");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                const circ_entity: CircuitFile = await getFirstFile(app, "circuit");
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                simulatorDTO.uuid_circuit = circ_entity.uuid;
+                simulatorDTO.result = true;
+                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // When getting sent signals names containing an expression
+                const response = await request(app.getHttpServer())
+                    .get(`/simulator/sentsignals/${OR_rslt_search_signals.search_expression}`);
+
+                // Then response should be ok and contain input and output signals names
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(OR_rslt_search_signals.expected_search_rslt);
+            });
+
+    });
+
 });
