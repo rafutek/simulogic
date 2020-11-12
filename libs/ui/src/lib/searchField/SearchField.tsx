@@ -48,9 +48,9 @@ export const SearchField = (props: SearchFieldProps) => {
         } else {
             setSearchResult = props.setSearchWiresResult;
             if (search_exp?.length > 0) {
-                search_address = `/simulator/sentsignals/${search_exp}`;
+                search_address = `/simulator/sentsignalsnames/${search_exp}`;
             } else {
-                search_address = `/simulator/sentsignals`;
+                search_address = `/simulator/sentsignalsnames`;
             }
         }
         if (search_address) {

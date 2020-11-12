@@ -18,7 +18,7 @@ export const TabMenuAndWorkbench = () => {
     }
 
     const getAndSetSignalGroups = () => {
-        axios.get('/simulator/sentsignals')
+        axios.get('/simulator/sentsignalsnames')
             .then(response => setSignalGroups(response.data))
             .catch(error => console.error(error))
     }

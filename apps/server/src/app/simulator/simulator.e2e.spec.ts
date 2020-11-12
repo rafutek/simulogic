@@ -265,7 +265,7 @@ describe('Simulator end-to-end tests', () => {
         });
     });
 
-    describe("GET /simulator/sentsignals", () => {
+    describe("GET /simulator/sentsignalsnames", () => {
 
         // Restarts a clean app before each test.
         beforeEach(startApp);
@@ -274,7 +274,7 @@ describe('Simulator end-to-end tests', () => {
         it("should return nothing when no previously sent WaveDrom", async () => {
             // Given a fresh app
             // When getting sent signals names
-            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignalsnames");
 
             // Then response should be ok and contain nothing
             expect(response.ok).toBeTruthy();
@@ -289,7 +289,7 @@ describe('Simulator end-to-end tests', () => {
             await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
             // When getting sent signals names
-            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignalsnames");
 
             // Then response should be ok and contain input signals names
             expect(response.ok).toBeTruthy();
@@ -309,7 +309,7 @@ describe('Simulator end-to-end tests', () => {
             await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
             // When getting sent signals names
-            const response = await request(app.getHttpServer()).get("/simulator/sentsignals");
+            const response = await request(app.getHttpServer()).get("/simulator/sentsignalsnames");
 
             // Then response should be ok and contain input and output signals names
             expect(response.ok).toBeTruthy();
@@ -318,7 +318,7 @@ describe('Simulator end-to-end tests', () => {
 
     });
 
-    describe("GET /simulator/sentsignals/:search_expression", () => {
+    describe("GET /simulator/sentsignalsnames/:search_expression", () => {
 
         // Restarts a clean app before each test.
         beforeEach(startApp);
@@ -327,7 +327,7 @@ describe('Simulator end-to-end tests', () => {
         it("should return nothing when no previously sent WaveDrom", async () => {
             // Given a fresh app
             // When getting sent signals names containing an expression
-            const response = await request(app.getHttpServer()).get(`/simulator/sentsignals/test`);
+            const response = await request(app.getHttpServer()).get(`/simulator/sentsignalsnames/test`);
 
             // Then response should be ok and contain nothing
             expect(response.ok).toBeTruthy();
@@ -344,7 +344,7 @@ describe('Simulator end-to-end tests', () => {
 
                 // When getting sent signals names containing an expression
                 const response = await request(app.getHttpServer())
-                    .get(`/simulator/sentsignals/${OR_search_signals.search_expression}`);
+                    .get(`/simulator/sentsignalsnames/${OR_search_signals.search_expression}`);
 
                 // Then response should be ok and contain input signals names
                 expect(response.ok).toBeTruthy();
@@ -367,7 +367,7 @@ describe('Simulator end-to-end tests', () => {
 
                 // When getting sent signals names containing an expression
                 const response = await request(app.getHttpServer())
-                    .get(`/simulator/sentsignals/${OR_rslt_search_signals.search_expression}`);
+                    .get(`/simulator/sentsignalsnames/${OR_rslt_search_signals.search_expression}`);
 
                 // Then response should be ok and contain input and output signals names
                 expect(response.ok).toBeTruthy();

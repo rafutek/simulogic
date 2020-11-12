@@ -35,7 +35,7 @@ export class SimulatorController {
      * This could be done by the interface when receiving simulation_sent, 
      * but we want to limit client processing so it is done by the server.
      */
-    @Get("sentsignals")
+    @Get("sentsignalsnames")
     getSentWaveDromSignalsNames(): SignalNamesGroup[] {
         return this.simulator_service.getSentWaveDromSignalsNames();
     }
@@ -48,7 +48,7 @@ export class SimulatorController {
      * Expression "in" will return one group of signals names: input group containing "in_1" and "in_2" signals names.
      * @param search_expression string used for the search
      */
-    @Get('sentsignals/:search_expression')
+    @Get('sentsignalsnames/:search_expression')
     searchSentWaveDromSignals(@Param("search_expression") search_expression: string): SignalNamesGroup[] {
         return this.simulator_service.searchSentWaveDromSignals(search_expression);
     }

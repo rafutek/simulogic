@@ -288,17 +288,22 @@ export class SimulatorService {
 
 
     /**
-    * Returns an array containing the signal names of the last sent WaveDrom, grouped by name.
-    * Returns null if last sent WaveDrom is empty.
+    * Returns an array containing the signals names of the last sent WaveDrom, grouped by name.
+    * Returns undefined if last sent WaveDrom is empty.
     */
-    getSentWaveDromSignalsNames() {
+    getSentWaveDromSignalsNames(): SignalNamesGroup[] {
         if (this.saver_service.simulation_sent?.signal?.length > 0) {
             return this.manipulator_service.getWaveDromSignalsNames(this.saver_service.simulation_sent);
         }
         return undefined;
     }
 
-    searchSentWaveDromSignals(search_expression: string) {
+    /**
+     * Returns an array containing the signals names of the last sent WaveDrom, grouped by name,
+     * which contain search expression.
+     * @param search_expression string to search in signals names
+     */
+    searchSentWaveDromSignals(search_expression: string): SignalNamesGroup[] {
         const signal_groups = this.getSentWaveDromSignalsNames();
         return this.manipulator_service.searchSignals(signal_groups, search_expression);
     }
