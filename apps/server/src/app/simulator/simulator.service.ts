@@ -45,23 +45,25 @@ export class SimulatorService {
      */
     async process(simulatorDTO: SimulatorDTO): Promise<WaveDrom> {
         let wavedrom: WaveDrom;
-        let file_wavedrom: WaveDrom;
+        let simu_file_wavedrom: WaveDrom;
         let rslt_file_wavedrom: WaveDrom;
+        console.log(simulatorDTO)
 
         if (isEmpty(simulatorDTO)) {
             throw new Error(`SimulatorDTO '${simulatorDTO}' cannot be empty`);
         }
         const simulation = await this.getSimulation(simulatorDTO.uuid_simu);
         this.saver_service.simulation = await this.parseIfNotSaved(simulation, this.saver_service.simulation);
-        file_wavedrom = this.saver_service.simulation.wavedrom;
-        wavedrom = file_wavedrom;
+        wavedrom = simu_file_wavedrom = this.saver_service.simulation.wavedrom;
 
         if (simulatorDTO.result) {
             const circuit = await this.getCircuit(simulatorDTO.uuid_circuit);
             const result = await this.simulate(circuit, simulation);
             this.saver_service.result = await this.parseIfNotSaved(result, this.saver_service.result);
             rslt_file_wavedrom = this.saver_service.result.wavedrom;
-            wavedrom = this.manipulator_service.combineWaveDroms(file_wavedrom, rslt_file_wavedrom);
+            // Combine simulation input and output and save it
+            wavedrom = this.manipulator_service.combineWaveDroms(simu_file_wavedrom, rslt_file_wavedrom);
+            this.saver_service.full_simulation = { uuid: result.uuid, wavedrom: wavedrom };
         }
 
         if (simulatorDTO.wires?.length > 0) {
@@ -71,7 +73,7 @@ export class SimulatorService {
             wavedrom = this.manipulator_service.cutWaveDrom(wavedrom, simulatorDTO.interval);
         }
         if (simulatorDTO.result) {
-            wavedrom = this.manipulator_service.groupInputOutput(wavedrom, file_wavedrom, rslt_file_wavedrom);
+            wavedrom = this.manipulator_service.groupInputOutput(wavedrom, simu_file_wavedrom, rslt_file_wavedrom);
         }
 
         this.saver_service.simulation_sent = wavedrom;
@@ -306,5 +308,13 @@ export class SimulatorService {
     searchSentWaveDromSignals(search_expression: string): SignalNamesGroup[] {
         const signal_groups = this.getSentWaveDromSignalsNames();
         return this.manipulator_service.searchSignals(signal_groups, search_expression);
+    }
+
+    /**
+     * Returns the interval of the actual simulation,
+     * so its beginning and end time.
+     */
+    getSimulationLimits() {
+        return this.manipulator_service.getLastSimulationLimits();
     }
 }

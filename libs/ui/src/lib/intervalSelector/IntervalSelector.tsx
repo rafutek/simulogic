@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, makeStyles, Theme, createStyles, Grid } from '@material-ui/core';
+import { TextField, Grid } from '@material-ui/core';
 
 export interface IntervalSelectorProps {
     start: number,

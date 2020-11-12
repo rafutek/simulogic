@@ -73,11 +73,7 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
     }
 
     const handleUndo = () => {
-        const config: Configuration = {
-            interval: { start: null, end: null },
-            time_shift: null
-        };
-        props.setConfiguration(config);
+        props.setConfiguration({});
     }
 
     return (

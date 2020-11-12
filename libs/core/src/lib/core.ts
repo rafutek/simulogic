@@ -119,6 +119,6 @@ export interface SignalNamesGroup {
  * Configuration panel settings.
  */
 export interface Configuration {
-    interval: Interval,
-    time_shift: number
+    interval?: Interval,
+    time_shift?: number
 }

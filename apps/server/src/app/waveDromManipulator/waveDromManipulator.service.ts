@@ -4,6 +4,7 @@ import {
 import { isEmpty, isNotEmpty } from 'class-validator';
 import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { Injectable } from '@nestjs/common';
+import { IntervalChecker, validateInterval } from '../validation-decorators/IntervalChecker';
 
 @Injectable()
 export class WaveDromManipulatorService {
@@ -149,6 +150,10 @@ export class WaveDromManipulatorService {
      * @param interval time interval to get
      */
     cutWaveDrom(wavedrom: WaveDrom, interval: Interval) {
+        if(!validateInterval(interval)){
+            throw new Error(`Interval '${interval}' is invalid`);
+        }
+
         const interval_wavedrom = this.initAndFillIntervalWaveDrom(wavedrom, interval);
         if (isNotEmpty(interval.start)) {
             this.prependStartTime(interval_wavedrom, interval.start);
@@ -158,6 +163,7 @@ export class WaveDromManipulatorService {
             this.appendEndTime(interval_wavedrom, interval.end);
         }
         this.manageIntervalLimits(interval_wavedrom);
+
         return interval_wavedrom;
     }
 

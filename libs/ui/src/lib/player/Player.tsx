@@ -70,7 +70,7 @@ export const Player = (props: PlayerProps) => {
 
     const getFullInterval = async () => {
         let full_interval: Interval;
-        await axios.get(`/simulations/extract/interval`)
+        await axios.get(`/simulator/simulimits`)
             .then(response => {
                 full_interval = response.data;
             }).catch(err => console.error(err));

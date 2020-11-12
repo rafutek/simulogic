@@ -52,4 +52,9 @@ export class SimulatorController {
     searchSentWaveDromSignals(@Param("search_expression") search_expression: string): SignalNamesGroup[] {
         return this.simulator_service.searchSentWaveDromSignals(search_expression);
     }
+
+    @Get('simulimits')
+    getSimulationLimits(){
+        return this.simulator_service.getSimulationLimits();
+    }
 }

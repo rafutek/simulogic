@@ -111,13 +111,5 @@ export class SimulationFilesController {
       throw new BadRequestException(`Could not rename simulation of id '${id}' with new name '${new_name}'`);
     }
   }
-
-  /**
-* Returns the interval of the actual simulation,
-* so its beginning and end time.
-*/
-  @Get('extract/interval')
-  getSimulationLimits() {
-    return this.manipulator_service.getLastSimulationLimits();
-  }
+  
 }
