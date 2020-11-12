@@ -13,9 +13,9 @@ export const IntervalChecker = (validationOptions?: ValidationOptions) => {
             target: object.constructor,
             propertyName: propertyName,
             options: validationOptions,
-            validator: validateInterval
-        });
-    };
+            validator: { validate: validateInterval }
+        })
+    }
 }
 
 /**
@@ -23,7 +23,6 @@ export const IntervalChecker = (validationOptions?: ValidationOptions) => {
  * @param value valid or invalid interval variable
  */
 export const validateInterval = (value: any): boolean => {
-    console.log("test")
     const interval = value as Interval;
     if (isEmpty(interval?.start) && isEmpty(interval?.end)) {
         return false;

@@ -47,7 +47,6 @@ export class SimulatorService {
         let wavedrom: WaveDrom;
         let simu_file_wavedrom: WaveDrom;
         let rslt_file_wavedrom: WaveDrom;
-        console.log(simulatorDTO)
 
         if (isEmpty(simulatorDTO)) {
             throw new Error(`SimulatorDTO '${simulatorDTO}' cannot be empty`);

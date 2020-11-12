@@ -151,7 +151,7 @@ export class WaveDromManipulatorService {
      */
     cutWaveDrom(wavedrom: WaveDrom, interval: Interval) {
         if(!validateInterval(interval)){
-            throw new Error(`Interval '${interval}' is invalid`);
+            throw new Error(`Interval '${JSON.stringify(interval)}' is invalid`);
         }
 
         const interval_wavedrom = this.initAndFillIntervalWaveDrom(wavedrom, interval);

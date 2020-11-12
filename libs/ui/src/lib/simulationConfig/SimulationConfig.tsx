@@ -56,10 +56,9 @@ export const SimulationConfig = (props: SimulationConfigProps) => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const config: Configuration = {
-            interval: { start: start, end: end },
-            time_shift: time_shift
-        };
+        const config: Configuration = {};
+        if (isIntervalOK(start, end)) config.interval = { start, end };
+        if (isNotEmpty(time_shift)) config.time_shift = time_shift;
         props.setConfiguration(config);
     }
 
