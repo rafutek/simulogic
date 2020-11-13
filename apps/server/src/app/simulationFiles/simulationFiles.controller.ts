@@ -6,18 +6,16 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { SimulationFilesService } from './simulationFiles.service';
 import { SimulationFileDTO } from './simulationFile.dto';
 import { SimulationFile } from './simulationFile.entity';
-import * as fs from 'fs';
 import { validate } from 'class-validator';
-import "multer";
-import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
+import * as fs from 'fs';
+import "multer";
 
 @Controller('simulations')
 export class SimulationFilesController {
   constructor(
     private readonly simulations_service: SimulationFilesService,
-    private readonly results_service: ResultFilesService,
-    private readonly manipulator_service: WaveDromManipulatorService,
+    private readonly results_service: ResultFilesService
   ) { }
 
   /**

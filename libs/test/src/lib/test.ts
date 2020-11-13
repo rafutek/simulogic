@@ -387,6 +387,26 @@ export const OR_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
     ]
 }
 
+interface SimuLimits {
+    simu_filename: string,
+    expected_limits: Interval
+}
+export const OR_limits: SimuLimits = {
+    simu_filename: OR_gate.simulation_filename,
+    expected_limits: { start: 0, end: 2000 }
+}
+
+interface SimuRsltLimits {
+    simu_filename: string,
+    circ_filename: string,
+    expected_limits: Interval
+}
+export const OR_rslt_limits: SimuRsltLimits = {
+    simu_filename: OR_gate.simulation_filename,
+    circ_filename: OR_gate.circuit_filename,
+    expected_limits: { start: 0, end: 2000 }
+}
+
 
 export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
 export const circuit_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename);

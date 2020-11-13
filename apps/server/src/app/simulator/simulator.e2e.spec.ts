@@ -14,7 +14,9 @@ import {
     OR_signals_names,
     OR_rslt_signals_names,
     OR_search_signals,
-    OR_rslt_search_signals
+    OR_rslt_search_signals,
+    OR_limits,
+    OR_rslt_limits
 } from '@simulogic/test';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulationFile } from '../simulationFiles/simulationFile.entity';
@@ -36,7 +38,6 @@ describe('Simulator end-to-end tests', () => {
         app.useGlobalPipes(new ValidationPipe()); // for DTO validations
         await app.init();
     }
-
     const stopApp = async () => {
         await app.close();
     }
@@ -48,6 +49,7 @@ describe('Simulator end-to-end tests', () => {
         await clearApp();
         await stopApp();
     }
+
     // Sets an empty simulatorDTO variable before each test.
     beforeEach(() => {
         simulatorDTO = { uuid_simu: "" };
@@ -376,4 +378,58 @@ describe('Simulator end-to-end tests', () => {
 
     });
 
+    describe("GET /simulator/simulimits", () => {
+        // Restarts a clean app before each test.
+        beforeEach(startApp);
+        afterEach(clearAndStopApp);
+
+        it("should return nothing when no previously sent WaveDrom", async () => {
+            // Given a fresh app
+            // When getting sent signals names containing an expression
+            const response = await request(app.getHttpServer()).get(`/simulator/simulimits`);
+
+            // Then response should be ok and contain nothing
+            expect(response.ok).toBeTruthy();
+            expect(response.body).toEqual({});
+        });
+
+        it("should return input signals names of previously sent WaveDrom which name contains the expression",
+            async () => {
+                // Given a simulation file uploaded and a request to get its parsed variable
+                await uploadFileTo(app, OR_limits.simu_filename, "simulation");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // When getting sent signals names containing an expression
+                const response = await request(app.getHttpServer()).get(`/simulator/simulimits`);
+
+                // Then response should be ok and contain input signals names
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(OR_limits.expected_limits);
+            });
+
+        it("should return input and output signals names of previously sent result WaveDrom " +
+            "which name contains the expression",
+            async () => {
+                // Given uploaded simulation and circuit files
+                // and a request sent to get simulation result variable
+                await uploadFileTo(app, OR_rslt_limits.simu_filename, "simulation");
+                await uploadFileTo(app, OR_rslt_limits.circ_filename, "circuit");
+                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                const circ_entity: CircuitFile = await getFirstFile(app, "circuit");
+                simulatorDTO.uuid_simu = simu_entity.uuid;
+                simulatorDTO.uuid_circuit = circ_entity.uuid;
+                simulatorDTO.result = true;
+                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+
+                // When getting sent signals names containing an expression
+                const response = await request(app.getHttpServer()).get(`/simulator/simulimits`);
+
+                // Then response should be ok and contain input and output signals names
+                expect(response.ok).toBeTruthy();
+                expect(response.body).toEqual(OR_rslt_limits.expected_limits);
+            });
+
+    })
 });

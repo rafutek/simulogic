@@ -5,8 +5,6 @@ import { SimulationFilesController } from './simulationFiles.controller';
 import { SimulationFilesService } from './simulationFiles.service';
 import { ResultFile } from '../resultFiles/resultFile.entity';
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
-import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
-import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 
 @Module({
   imports: [
@@ -15,9 +13,7 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
   ],
   providers: [
     SimulationFilesService,
-    ResultFilesService,
-    WaveDromManipulatorService,
-    WaveDromSaverService
+    ResultFilesService
   ],
   controllers: [SimulationFilesController]
 })

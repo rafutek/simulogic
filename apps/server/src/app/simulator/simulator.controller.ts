@@ -53,6 +53,11 @@ export class SimulatorController {
         return this.simulator_service.searchSentWaveDromSignals(search_expression);
     }
 
+    /**
+     * Returns the limits (start and end time) of the last saved simulation variable.
+     * This simulation variable is saved during process function call, so if process function
+     * has not been called, this function will return nothing.
+     */
     @Get('simulimits')
     getSimulationLimits(){
         return this.simulator_service.getSimulationLimits();
