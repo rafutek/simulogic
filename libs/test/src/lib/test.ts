@@ -210,7 +210,6 @@ const triSeq_wires: SimuFileWiresWaveDrom = {
         }
     }
 }
-
 export const simu_files_wires = [adder_wires, OR_wires, triSeq_wires];
 
 
@@ -323,25 +322,61 @@ const triSeq_rslt: SimuRsltFileWaveDrom = {
         }
     }
 }
+export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
+export const circuit_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename);
+export const simulator_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename.replace("logic", "exe"));
+export const simu_filenames = simu_rslt_files_wavedrom.map(el => el.simu_file_wavedrom.filename);
+
 
 interface SimuFileSignalsNamesGroup {
     simu_filename: string,
     signals_names_group: SignalNamesGroup
 }
-export const OR_signals_names: SimuFileSignalsNamesGroup = {
+const adder_signals_names: SimuFileSignalsNamesGroup = {
+    simu_filename: adder.simulation_filename,
+    signals_names_group: {
+        group_name: "input",
+        signals_names: ["x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",
+            "y0", "y1", "y2", "y3", "y4", "y5", "y6", "y7"]
+    }
+}
+const OR_signals_names: SimuFileSignalsNamesGroup = {
     simu_filename: OR_gate.simulation_filename,
     signals_names_group: {
         group_name: "input",
         signals_names: ["a1", "a2"]
     }
 }
+const triSeq_signals_names: SimuFileSignalsNamesGroup = {
+    simu_filename: triSeq.simulation_filename,
+    signals_names_group: {
+        group_name: "input",
+        signals_names: ["ss", "sr", "tri1En", "tri2En", "e0", "e1", "clk"]
+    }
+}
+export const simu_files_signals_names = [adder_signals_names, OR_signals_names, triSeq_signals_names];
 
 interface SimuRsltFileSignalsNamesGroups {
     simu_filename: string,
     circ_filename: string,
     signals_names_groups: SignalNamesGroup[]
 }
-export const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
+const adder_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
+    simu_filename: adder.simulation_filename,
+    circ_filename: adder.circuit_filename,
+    signals_names_groups: [
+        {
+            group_name: "input",
+            signals_names: ["x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",
+                "y0", "y1", "y2", "y3", "y4", "y5", "y6", "y7"]
+        },
+        {
+            group_name: "output",
+            signals_names: ["s0", "s1", "s8", "s4", "s5", "s2", "s6", "s3", "s7"]
+        }
+    ]
+}
+const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
     simu_filename: OR_gate.simulation_filename,
     circ_filename: OR_gate.circuit_filename,
     signals_names_groups: [
@@ -355,6 +390,22 @@ export const OR_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
         }
     ]
 }
+const triSeq_rslt_signals_names: SimuRsltFileSignalsNamesGroups = {
+    simu_filename: triSeq.simulation_filename,
+    circ_filename: triSeq.circuit_filename,
+    signals_names_groups: [
+        {
+            group_name: "input",
+            signals_names: ["ss", "sr", "tri1En", "tri2En"]
+        },
+        {
+            group_name: "output",
+            signals_names: ["e0", "e1", "clk", "out"]
+        }
+    ]
+}
+export const simu_rslt_files_signals_names = [adder_rslt_signals_names, OR_rslt_signals_names,
+    triSeq_rslt_signals_names];
 
 interface SearchSimuFileSignalsNamesGroup {
     simu_signals_names: SimuFileSignalsNamesGroup,
@@ -407,11 +458,6 @@ export const OR_rslt_limits: SimuRsltLimits = {
     expected_limits: { start: 0, end: 2000 }
 }
 
-
-export const simu_rslt_files_wavedrom = [adder_rslt, Or_gate_rslt, triSeq_rslt];
-export const circuit_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename);
-export const simulator_filenames = simu_rslt_files_wavedrom.map(el => el.circuit_filename.replace("logic", "exe"));
-export const simu_filenames = simu_rslt_files_wavedrom.map(el => el.simu_file_wavedrom.filename);
 
 /**
  * Converts a filename to a filepath.
