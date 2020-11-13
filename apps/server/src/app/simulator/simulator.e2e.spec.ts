@@ -13,8 +13,8 @@ import {
     simu_filenames,
     simu_files_signals_names,
     simu_rslt_files_signals_names,
-    OR_search_signals,
-    OR_rslt_search_signals,
+    simu_files_search_signals,
+    simu_rslt_files_search_signals,
     OR_limits,
     OR_rslt_limits
 } from '@simulogic/test';
@@ -339,45 +339,48 @@ describe('Simulator end-to-end tests', () => {
             expect(response.body).toEqual({});
         });
 
-        it("should return input signals names of previously sent WaveDrom which name contains the expression",
-            async () => {
-                // Given a simulation file uploaded and a request to get its parsed variable
-                await uploadFileTo(app, OR_search_signals.simu_signals_names.simu_filename, "simulation");
-                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
-                simulatorDTO.uuid_simu = simu_entity.uuid;
-                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
+        test.each(simu_files_search_signals)
+            ("should return input signals names of previously sent WaveDrom which name contains the expression (%#)",
+                async (simu_file_search_signals) => {
+                    // Given a simulation file uploaded and a request to get its parsed variable
+                    await uploadFileTo(app, simu_file_search_signals.simu_signals_names.simu_filename, "simulation");
+                    const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                    simulatorDTO.uuid_simu = simu_entity.uuid;
+                    await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-                // When getting sent signals names containing an expression
-                const response = await request(app.getHttpServer())
-                    .get(`/simulator/sentsignalsnames/${OR_search_signals.search_expression}`);
+                    // When getting sent signals names containing an expression
+                    const response = await request(app.getHttpServer())
+                        .get(`/simulator/sentsignalsnames/${simu_file_search_signals.search_expression}`);
 
-                // Then response should be ok and contain input signals names
-                expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual([OR_search_signals.expected_search_rslt]);
-            });
+                    // Then response should be ok and contain input signals names
+                    expect(response.ok).toBeTruthy();
+                    expect(response.body).toEqual([simu_file_search_signals.expected_search_rslt]);
+                });
 
-        it("should return input and output signals names of previously sent result WaveDrom " +
-            "which name contains the expression",
-            async () => {
-                // Given uploaded simulation and circuit files
-                // and a request sent to get simulation result variable
-                await uploadFileTo(app, OR_rslt_search_signals.simu_rslt_signals_names.simu_filename, "simulation");
-                await uploadFileTo(app, OR_rslt_search_signals.simu_rslt_signals_names.circ_filename, "circuit");
-                const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
-                const circ_entity: CircuitFile = await getFirstFile(app, "circuit");
-                simulatorDTO.uuid_simu = simu_entity.uuid;
-                simulatorDTO.uuid_circuit = circ_entity.uuid;
-                simulatorDTO.result = true;
-                await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-                // When getting sent signals names containing an expression
-                const response = await request(app.getHttpServer())
-                    .get(`/simulator/sentsignalsnames/${OR_rslt_search_signals.search_expression}`);
+        test.each(simu_rslt_files_search_signals)
+            ("should return input and output signals names of previously sent result WaveDrom " +
+                "which name contains the expression (%#)",
+                async (simu_rslt_file_search_signals) => {
+                    // Given uploaded simulation and circuit files
+                    // and a request sent to get simulation result variable
+                    await uploadFileTo(app, simu_rslt_file_search_signals.simu_rslt_signals_names.simu_filename, "simulation");
+                    await uploadFileTo(app, simu_rslt_file_search_signals.simu_rslt_signals_names.circ_filename, "circuit");
+                    const simu_entity: SimulationFile = await getFirstFile(app, "simulation");
+                    const circ_entity: CircuitFile = await getFirstFile(app, "circuit");
+                    simulatorDTO.uuid_simu = simu_entity.uuid;
+                    simulatorDTO.uuid_circuit = circ_entity.uuid;
+                    simulatorDTO.result = true;
+                    await request(app.getHttpServer()).post('/simulator').send(simulatorDTO);
 
-                // Then response should be ok and contain input and output signals names
-                expect(response.ok).toBeTruthy();
-                expect(response.body).toEqual(OR_rslt_search_signals.expected_search_rslt);
-            });
+                    // When getting sent signals names containing an expression
+                    const response = await request(app.getHttpServer())
+                        .get(`/simulator/sentsignalsnames/${simu_rslt_file_search_signals.search_expression}`);
+
+                    // Then response should be ok and contain input and output signals names
+                    expect(response.ok).toBeTruthy();
+                    expect(response.body).toEqual(simu_rslt_file_search_signals.expected_search_rslt);
+                });
 
     });
 

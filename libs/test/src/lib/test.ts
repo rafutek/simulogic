@@ -412,18 +412,43 @@ interface SearchSimuFileSignalsNamesGroup {
     search_expression: string,
     expected_search_rslt: SignalNamesGroup
 }
-export const OR_search_signals: SearchSimuFileSignalsNamesGroup = {
+const adder_search_signals: SearchSimuFileSignalsNamesGroup = {
+    simu_signals_names: adder_signals_names,
+    search_expression: "x",
+    expected_search_rslt: { group_name: "input", signals_names: ["x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7"] }
+}
+const OR_search_signals: SearchSimuFileSignalsNamesGroup = {
     simu_signals_names: OR_signals_names,
     search_expression: "1",
     expected_search_rslt: { group_name: "input", signals_names: ["a1"] }
 }
+const triSeq_search_signals: SearchSimuFileSignalsNamesGroup = {
+    simu_signals_names: triSeq_signals_names,
+    search_expression: "tri",
+    expected_search_rslt: { group_name: "input", signals_names: ["tri1En", "tri2En"] }
+}
+export const simu_files_search_signals = [adder_search_signals, OR_search_signals, triSeq_search_signals];
 
 interface SearchSimuRsltFileSignalsNamesGroups {
     simu_rslt_signals_names: SimuRsltFileSignalsNamesGroups,
     search_expression: string,
     expected_search_rslt: SignalNamesGroup[]
 }
-export const OR_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
+const adder_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
+    simu_rslt_signals_names: adder_rslt_signals_names,
+    search_expression: "0",
+    expected_search_rslt: [
+        {
+            group_name: "input",
+            signals_names: ["x0", "y0"]
+        },
+        {
+            group_name: "output",
+            signals_names: ["s0"]
+        }
+    ]
+}
+const OR_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
     simu_rslt_signals_names: OR_rslt_signals_names,
     search_expression: "1",
     expected_search_rslt: [
@@ -437,6 +462,22 @@ export const OR_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
         }
     ]
 }
+const triSeq_rslt_search_signals: SearchSimuRsltFileSignalsNamesGroups = {
+    simu_rslt_signals_names: triSeq_rslt_signals_names,
+    search_expression: "1",
+    expected_search_rslt: [
+        {
+            group_name: "input",
+            signals_names: ["tri1En"]
+        },
+        {
+            group_name: "output",
+            signals_names: ["e1"]
+        }
+    ]
+}
+export const simu_rslt_files_search_signals = [adder_rslt_search_signals, OR_rslt_search_signals,
+    triSeq_rslt_search_signals];
 
 interface SimuLimits {
     simu_filename: string,
