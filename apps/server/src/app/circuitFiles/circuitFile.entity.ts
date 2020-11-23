@@ -34,7 +34,7 @@ export class CircuitFile {
    * Creates a CircuitFile object.
    * @param name optional name of circuit file
    * @param path optional path of circuit file
-   * @param simulator_path optional = path of circuit file simulator
+   * @param simulator_path optional path of circuit file simulator
    */
   constructor(name?: string, path?: string, simulator_path?: string) {
     this.name = name || '';
