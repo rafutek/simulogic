@@ -209,9 +209,8 @@ export class SimulatorService {
         this.createSimulatorSrcFiles(circuit);
         const full_path = simulator_bin_folder + executable_name;
         const relative_path = `../bin/${executable_name}`;
-        let output: string;
         try {
-            output = execSync(`
+            execSync(`
                 make -f "${makefile_path}/Makefile" \
                 LIB="${lib}" HEADERS_PATH="${headers_path}" PROGRAM="${relative_path}"
                 `, {

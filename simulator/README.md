@@ -1,23 +1,22 @@
 ## Simulator
 
 This logic circuit simulator has a Java part used to generate circuit C++ code from a descriptor file (.logic).
-And a second part, used to generate the circuit simulator from C++ code. This executable will take a simulation file (.simu) as parameter.
+And a second part, used to generate the circuit simulator from C++ code. This executable will take a simulation input file (.simu) as parameter.
 
-So first you must compile the java code:
-- go to *./common/circuitCreator/src*
+So first you must compile the Java code:
+- go to **./common/circuitCreator/**
 - run `javac src/*.java -d bin`
 
 Then you can generate the user's circuit's C++ code:
-- go to `bin` where all the .class have been created
-- run `java LogicToCpp username circuit-filename.logic` where circuit file is in *./home/username/circuitCreator/data/*.
+- go to **bin/** where all the *.class* have been created
+- run `java LogicToCpp headers_path output_path circuit_filepath` where circuit_filepath is the path to the circuit (.logic) to generate a simulator from, output_path is the path to the directory where circuit C++ files will be created, and headers_path is the path (from that output_path) to the C++ source headers.
 
-Now *./home/username/simulator/src/* must contain the new circuit C++ files.
-The circuit simulator can be compiled with `make PROGRAM=executable-name`.
-To do a simulation:
-- go to *./home/username/simulator/bin/* where the executable is stored
-- run `./executable-name simulation-filename.simu` where simulation file is in *./home/username/simulator/data/*.
+Now, output_path should contain the new circuit C++ files.
+The circuit simulator can be compiled with `make LIB="lib_filepath" HEADERS_PATH="headers_path" PROGRAM="simulator_filepath"`, where simulator_filepath is the path to the executable to create, headers_path is the path to the C++ headers directory, and lib_filepath is the path to the C++ simulator library.
 
-**All the steps above are managed by create_simulator.sh and simulate_save.sh that you can find in *./common/scripts***
+Finally, to execute and save simulation, run `./simulator_filepath input_filepath > output_filepath` where input_filepath is the path to the simulation input file (.simu) and output_filepath is the path to the simulation output file to create.
+
+**All the steps are managed by server app simulator service (simulator.service.ts)**
 
 ### Dependencies
 - Library [ANTLR4](https://www.antlr.org/)
