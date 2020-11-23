@@ -16,7 +16,7 @@ The circuit simulator can be compiled with `make LIB="lib_filepath" HEADERS_PATH
 
 Finally, to execute and save simulation, run `./simulator_filepath input_filepath > output_filepath` where input_filepath is the path to the simulation input file (.simu) and output_filepath is the path to the simulation output file to create.
 
-**All the steps are managed by server app simulator service (simulator.service.ts)**
+**All these steps are managed by server app simulator service (simulator.service.ts).**
 
 ### Dependencies
 - Library [ANTLR4](https://www.antlr.org/)
