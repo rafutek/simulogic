@@ -4,10 +4,18 @@ import {
 import { isEmpty, isNotEmpty } from 'class-validator';
 import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { Injectable } from '@nestjs/common';
-import { IntervalChecker, validateInterval } from '../validation-decorators/IntervalChecker';
+import { validateInterval } from '../validation-decorators/IntervalChecker';
 
+/**
+ * Service to manipulate saved or not WaveDrom variables.
+ */
 @Injectable()
 export class WaveDromManipulatorService {
+
+    /**
+     * Injects SaverService dependency.
+     * @param saver_service service used to save WaveDrom variables
+     */
     constructor(
         private saver_service: WaveDromSaverService
     ) { }

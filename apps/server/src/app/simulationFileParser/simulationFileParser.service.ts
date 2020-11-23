@@ -8,8 +8,17 @@ import { WaveDromSaverService } from '../waveDromSaver/waveDromSaver.service';
 import { Injectable } from '@nestjs/common';
 import { WaveDromManipulatorService } from '../waveDromManipulator/waveDromManipulator.service';
 
+/**
+ * Service to parse simulation and result files into WaveDrom variables.
+ */
 @Injectable()
 export class SimulationFileParserService {
+
+    /**
+     * Injects WaveDromSaverService and WaveDromManipulatorService dependencies.
+     * @param saver_service service used to save WaveDrom variables
+     * @param manipulator_service service used to manipulate WaveDrom variables
+     */
     constructor(
         private saver_service: WaveDromSaverService,
         private manipulator_service: WaveDromManipulatorService,
@@ -397,15 +406,5 @@ export class SimulationFileParserService {
             default:
                 return 'x';
         }
-    }
-
-    async getCombinedWaveDrom(uuid: string, simu_file_path: string, result_file_path: string) {
-        if (isEmpty(this.saver_service.full_simulation) || this.saver_service.full_simulation.uuid != uuid) {
-            const wavedrom = await this.getWaveDrom(uuid, simu_file_path);
-            const wavedrom_result = await this.getWaveDromResult(uuid, result_file_path);
-            const combined_wavedrom = this.manipulator_service.combineWaveDroms(wavedrom, wavedrom_result);
-            this.saver_service.full_simulation = { uuid: uuid, wavedrom: combined_wavedrom };
-        }
-        return this.saver_service.full_simulation.wavedrom;
     }
 }

@@ -2,11 +2,14 @@ import { UUIDWaveDrom, WaveDromBase } from '@simulogic/core';
 import { Injectable } from '@nestjs/common';
 import { isEmpty, isUUID } from 'class-validator';
 
+/**
+ * Service to save WaveDrom variables identified by their UUID.
+ */
 @Injectable()
 export class WaveDromSaverService {
 
     /**
-     * Contains the WaveDrom parsed from a simulation file and the file id.
+     * Contains the WaveDrom parsed from a simulation file and its UUID.
      */
     private _simulation: UUIDWaveDrom;
 
@@ -20,7 +23,7 @@ export class WaveDromSaverService {
     }
 
     /**
-     * Contains the WaveDrom parsed from a result file and the result file id.
+     * Contains the WaveDrom parsed from a result file and its UUID.
      */
     private _result: UUIDWaveDrom;
 

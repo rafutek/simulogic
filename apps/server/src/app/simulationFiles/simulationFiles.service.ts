@@ -4,8 +4,16 @@ import { Repository, Like } from 'typeorm';
 import { SimulationFileDTO } from './simulationFile.dto';
 import { SimulationFile } from './simulationFile.entity';
 
+/**
+ * Service to manage simulation files.
+ */
 @Injectable()
 export class SimulationFilesService {
+
+  /**
+   * Injects SimulationFiles Repository dependency.
+   * @param simulations_repository database table of SimulationFiles
+   */
   constructor(
     @InjectRepository(SimulationFile)
     private readonly simulations_repository: Repository<SimulationFile>,

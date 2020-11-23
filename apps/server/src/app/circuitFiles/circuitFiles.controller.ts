@@ -12,8 +12,17 @@ import "multer";
 import { validate } from 'class-validator';
 import { ResultFilesService } from '../resultFiles/resultFiles.service';
 
+/**
+ * Controller for circuit files.
+ */
 @Controller('circuits')
 export class CircuitFilesController {
+
+  /**
+   * Injects CircuitFilesService and ResultFilesService dependencies.
+   * @param circuits_service service used to manage circuit files
+   * @param results_service service used to manage result files
+   */
   constructor(
     private readonly circuits_service: CircuitFilesService,
     private readonly results_service: ResultFilesService

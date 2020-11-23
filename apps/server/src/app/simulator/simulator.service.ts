@@ -16,17 +16,63 @@ import { ResultFileDTO } from '../resultFiles/resultFile.dto';
 import { ResultFile } from '../resultFiles/resultFile.entity';
 import * as path from 'path';
 
+/**
+ * Path to the Java program used to convert circuit file (.logic) to simulator C++ files.
+ */
 const parser_bin_path = "simulator/common/circuitCreator/bin/";
-const lib = "../../../../common/simulator/lib/simulib.a";
-const headers_path = "../../../../common/simulator/src/";
-const makefile_path = headers_path;
+
+/**
+ * Path to the actual user simulator directory.
+ * Note: At this moment, actual user is a fake one.
+ */
 const user_simulator_folder = "simulator/home/user1/simulator/";
+
+/**
+ * Path to user simulator C++ files directory.
+ */
 const simulator_src_folder = user_simulator_folder + "src/";
+
+/**
+ * Path to user simulators binaries directory.
+ */
 export const simulator_bin_folder = user_simulator_folder + "bin/";
+
+/**
+ * Path to user simulator result files directory.
+ */
 const simulator_out_folder = user_simulator_folder + "out/";
 
+/**
+ * Path (from user simulator folder) to C++ simulator library.
+ */
+const lib = "../../../../common/simulator/lib/simulib.a";
+
+/**
+ * Path (from user simulator folder) to simulator C++ files.
+ */
+const headers_path = "../../../../common/simulator/src/";
+
+/**
+ * Path to the Makefile directory, Makefile used to compile simulator C++ files
+ * into a simulator binary.
+ */
+const makefile_path = headers_path;
+
+/**
+ * Service to execute simulations.
+ */
 @Injectable()
 export class SimulatorService {
+
+    /**
+     * Injects all the necessary services.
+     * @param simulations_service service used to manage simulation files
+     * @param circuits_service service used to manage circuit files
+     * @param results_service service used to manage result files
+     * @param parser_service service used to parse simulation and result files into WaveDrom variables
+     * @param manipulator_service service used to manipulate WaveDrom variables
+     * @param saver_service servie used to save WaveDrom variables
+     */
     constructor(
         private readonly simulations_service: SimulationFilesService,
         private readonly circuits_service: CircuitFilesService,
@@ -286,7 +332,6 @@ export class SimulatorService {
         }
         return saved_result;
     }
-
 
     /**
     * Returns an array containing the signals names of the last sent WaveDrom, grouped by name.

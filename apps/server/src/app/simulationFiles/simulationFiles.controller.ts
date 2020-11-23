@@ -11,8 +11,17 @@ import { ResultFilesService } from '../resultFiles/resultFiles.service';
 import * as fs from 'fs';
 import "multer";
 
+/**
+ * Controller for simulation files.
+ */
 @Controller('simulations')
 export class SimulationFilesController {
+
+  /**
+   * Injects SimulationFilesService and ResultFilesService dependencies.
+   * @param simulations_service service used to manage simulation files
+   * @param results_service service used to manage result files
+   */
   constructor(
     private readonly simulations_service: SimulationFilesService,
     private readonly results_service: ResultFilesService

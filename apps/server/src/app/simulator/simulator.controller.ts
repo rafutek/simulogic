@@ -3,8 +3,16 @@ import { SignalNamesGroup, WaveDrom } from '@simulogic/core';
 import { SimulatorDTO } from './simulator.dto';
 import { SimulatorService } from './simulator.service';
 
+/**
+ * Controller for simulation executions.
+ */
 @Controller("simulator")
 export class SimulatorController {
+
+    /**
+     * Injects SimulatorService dependency.
+     * @param simulator_service service used to execute simulations
+     */
     constructor(
         private readonly simulator_service: SimulatorService
     ) { }

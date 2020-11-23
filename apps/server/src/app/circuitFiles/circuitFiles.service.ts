@@ -4,8 +4,16 @@ import { Repository, Like } from 'typeorm';
 import { CircuitFileDTO } from './circuitFile.dto';
 import { CircuitFile } from './circuitFile.entity';
 
+/**
+ * Service to manage circuit files.
+ */
 @Injectable()
 export class CircuitFilesService {
+
+  /**
+   * Injects CircuitFile Repository dependency.
+   * @param circuits_repository database table of CircuitFiles
+   */
   constructor(
     @InjectRepository(CircuitFile)
     private readonly circuits_repository: Repository<CircuitFile>,

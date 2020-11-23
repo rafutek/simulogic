@@ -7,8 +7,16 @@ import { ResultFileDTO } from './resultFile.dto';
 import { ResultFile } from './resultFile.entity';
 import * as fs from 'fs';
 
+/**
+ * Service to manage result files.
+ */
 @Injectable()
 export class ResultFilesService {
+
+    /**
+     * Injects ResultFile Repository dependency.
+     * @param results_repository database table of ResultFiles
+     */
     constructor(
         @InjectRepository(ResultFile)
         private readonly results_repository: Repository<ResultFile>
