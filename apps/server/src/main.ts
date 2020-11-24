@@ -9,9 +9,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // allow cross origin requests
   app.useGlobalPipes(new ValidationPipe()); // ensure protection of all endpoints
-  const port = process.env.PORT;
-  await app.listen(port, () => {
-    Logger.log('Listening at http://localhost:' + port);
-  });
+  await app.listen(process.env.PORT);
+  Logger.log(`Listening at ${await app.getUrl()}`);
+  Logger.log(`Server in ${process.env.NODE_ENV} mode`);
 }
 bootstrap();
