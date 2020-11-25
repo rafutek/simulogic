@@ -5,20 +5,7 @@ import { SimulationFilesModule } from './simulationFiles/simulationFiles.module'
 import { CircuitFilesModule } from './circuitFiles/circuitFiles.module';
 import { SimulatorModule } from './simulator/simulator.module';
 import { ConfigModule } from '@nestjs/config';
-import { validationSchema } from '../config/validation';
-
-/**
- * Path to the environment config file.
- * Environment variable NODE_ENV (used to set this filepath)
- * should be defined automatically before by your command as you can see below.
- * 
- * 'yarn start' -> NODE_ENV=development
- * 
- * 'yarn test' -> NODE_ENV=test
- * 
- * 'yarn build --prod' -> NODE_ENV=production
- */
-const env_filepath = `${__dirname}/assets/.env.${process.env.NODE_ENV}`;
+import { env_filepath, validationSchema } from '../config/config';
 
 /**
  * Main application module.
