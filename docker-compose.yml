@@ -1,15 +1,21 @@
 # A .env file must be passed with --env-file option
 # to docker-compose in order to fill variables.
-# Ex: docker-compose --env-file ./config/.env.dev up
+# Ex: docker-compose --env-file ./config/.env.development up
 
 version: "3"
 services:
   db:
-    container_name: "db_${DB_NAME}"
+    container_name: "container_${DB_NAME}"
     image: mysql:5
     restart: always
     environment:
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}:3306"
+    volumes:
+      - db:/var/lib/mysql
+volumes:
+  db:
+    external:
+      name: volume_${DB_NAME}

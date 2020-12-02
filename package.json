@@ -41,6 +41,7 @@
         "mysql": "^2.18.1",
         "react": "16.13.1",
         "react-dom": "16.13.1",
+        "react-scripts": "^4.0.1",
         "reflect-metadata": "^0.1.13",
         "typeorm": "^0.2.25"
     },
@@ -73,7 +74,6 @@
         "@types/supertest": "^2.0.10",
         "@typescript-eslint/eslint-plugin": "2.19.2",
         "@typescript-eslint/parser": "2.19.2",
-        "babel-jest": "25.1.0",
         "babel-loader": "8.1.0",
         "dotenv": "6.2.0",
         "eslint": "6.8.0",

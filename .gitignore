@@ -41,5 +41,3 @@ Thumbs.db
 # LibreOffice
 *lock.*.odt*
 
-# Env variables
-**/*.env.*
